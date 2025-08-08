@@ -5,9 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node ensure-files.js",
-    "build": "npm run prebuild && next build",
-    "vercel-build": "npm run build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
