@@ -1,8 +1,4 @@
 {
-  "framework": "nextjs",
-  "installCommand": "npm install --force",
-  "buildCommand": "npm run build",
-  "env": {
-    "SKIP_ENV_VALIDATION": "true"
-  }
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": ".next"
 }
