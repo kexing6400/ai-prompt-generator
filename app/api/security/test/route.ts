@@ -4,7 +4,7 @@
  * 仅在开发环境下可用
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { getSecurityHeaders, generateNonce, validateNonce } from '@/lib/security/csp';
+import { getSecurityHeaders, generateNonce, validateNonce } from '../../../../lib/security/csp';
 
 /**
  * 测试安全头部配置

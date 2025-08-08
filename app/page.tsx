@@ -13,9 +13,9 @@ import {
   Zap
 } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { IndustryType } from "@/types"
+import { Button } from "../components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
+import { IndustryType } from "../types"
 
 // SEO优化的metadata
 export const metadata: Metadata = {
