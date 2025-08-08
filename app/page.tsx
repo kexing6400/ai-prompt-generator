@@ -15,6 +15,7 @@ import {
 
 import { Button } from "../components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
+import { LanguageSwitcher } from "../components/ui/language-switcher"
 import { IndustryType } from "../types"
 
 // SEO优化的metadata

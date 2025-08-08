@@ -50,17 +50,29 @@ export function usePromptGenerator(defaultIndustry: string): UsePromptGeneratorR
     setError('')
     
     try {
-      const response = await fetch('/api/generate-prompt', {
+      // 使用新的 v2 API，参数格式调整
+      const response = await fetch('/api/generate-prompt-v2', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          industry: formData.industry,
+          scenario: formData.scenario,
+          goal: formData.prompt,  // prompt 映射到 goal
+          requirements: formData.context || '',  // context 映射到 requirements
+          locale: localStorage.getItem('locale') || 'zh'  // 添加语言参数
+        })
       })
       
       const data = await response.json()
       if (data.success) {
-        setResult(data.enhancedPrompt)
+        // v2 API 返回的是 prompt 字段
+        setResult(data.prompt)
         // 自动保存成功的结果
-        localStorage.setItem(`prompt-result-${formData.industry}`, data.enhancedPrompt)
+        localStorage.setItem(`prompt-result-${formData.industry}`, data.prompt)
+        // 可选：显示质量分数
+        if (data.qualityScore) {
+          console.log(`生成质量分数: ${data.qualityScore}/100`)
+        }
       } else {
         setError(data.error || '生成失败，请稍后重试')
       }

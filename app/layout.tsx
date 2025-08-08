@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { OrganizationJsonLd, WebApplicationJsonLd, FAQJsonLd } from '../components/seo/JsonLd'
+import { LanguageSwitcher } from '../components/ui/language-switcher'
+import Link from 'next/link'
 
 // 使用最新的Next.js 15字体优化
 const inter = Inter({ 
@@ -130,6 +132,22 @@ export default function RootLayout({
       </head>
       
       <body className={`${inter.className} min-h-screen bg-background antialiased selection:bg-primary/10`}>
+        {/* 全局Header导航栏 - 所有页面共享 */}
+        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="container mx-auto flex h-14 items-center px-4 sm:px-6 lg:px-8">
+            <div className="mr-4 flex flex-1">
+              <Link href="/" className="mr-6 flex items-center space-x-2">
+                <span className="font-bold text-lg bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  AI Prompt Pro
+                </span>
+              </Link>
+            </div>
+            <div className="flex items-center space-x-4">
+              <LanguageSwitcher />
+            </div>
+          </div>
+        </header>
+        
         {/* 页面加载进度条 - 可以后续添加 */}
         <div id="progress-bar"></div>
         
