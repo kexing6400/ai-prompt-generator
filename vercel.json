@@ -1,0 +1,7 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "node ensure-files.js && next build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "devCommand": "npm run dev"
+}
