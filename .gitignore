@@ -40,3 +40,23 @@ next-env.d.ts
 
 # logs
 dev.log
+
+# 测试和备份
+.backup-security/
+test-results/
+performance-report-*.json
+build.log
+
+# Playwright
+/playwright-report/
+/playwright/.cache/
+# 安全敏感文件
+!.env.example
+!.env.local.example
+config.json
+secrets.json
+*.key
+*.crt
+.security-*
+SECURITY_AUDIT_REPORT.md
+SECURITY_CHECKLIST_REPORT.md

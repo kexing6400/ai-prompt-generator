@@ -1,0 +1,139 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # 每天凌晨2点运行完整测试套件
+    - cron: '0 2 * * *'
+
+jobs:
+  e2e-tests:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        # 测试不同浏览器
+        browser: [chromium, firefox, webkit]
+        # 测试不同Node版本
+        node-version: [18, 20]
+        
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 设置Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: 安装依赖
+      run: npm ci
+
+    - name: 安装Playwright浏览器
+      run: npx playwright install --with-deps ${{ matrix.browser }}
+
+    - name: 构建应用
+      run: npm run build
+
+    - name: 运行E2E测试
+      run: npx playwright test --project=${{ matrix.browser }}
+      env:
+        # 测试环境变量
+        BASE_URL: http://localhost:3000
+        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY_TEST }}
+        NEXT_PUBLIC_APP_URL: http://localhost:3000
+
+    - name: 上传测试报告
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report-${{ matrix.browser }}-node${{ matrix.node-version }}
+        path: |
+          playwright-report/
+          test-results/
+        retention-days: 30
+
+    - name: 上传测试结果到测试报告
+      if: always()
+      run: |
+        echo "## E2E测试结果 (${{ matrix.browser }} - Node ${{ matrix.node-version }})" >> $GITHUB_STEP_SUMMARY
+        if [ -f test-results/results.json ]; then
+          echo "测试结果文件已生成" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          cat test-results/results.json | head -20 >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+        fi
+
+  # 性能回归测试
+  performance-tests:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    needs: [e2e-tests]
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 设置Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: 安装依赖
+      run: npm ci
+
+    - name: 安装Playwright
+      run: npx playwright install --with-deps chromium
+
+    - name: 构建应用
+      run: npm run build
+
+    - name: 运行性能测试
+      run: npx playwright test tests/e2e/performance.spec.ts --project=chromium
+      env:
+        BASE_URL: http://localhost:3000
+
+    - name: 分析性能报告
+      if: always()
+      run: |
+        echo "## 性能测试结果" >> $GITHUB_STEP_SUMMARY
+        if [ -f test-results/performance-report.json ]; then
+          echo "性能测试完成" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "性能测试数据文件未找到" >> $GITHUB_STEP_SUMMARY
+        fi
+
+  # 部署到测试环境
+  deploy-test:
+    runs-on: ubuntu-latest
+    needs: [e2e-tests]
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+    - name: 部署到测试环境
+      run: |
+        echo "部署到测试环境..."
+        # 这里添加实际的部署脚本
+
+  # 通知测试结果
+  notify:
+    runs-on: ubuntu-latest
+    needs: [e2e-tests, performance-tests]
+    if: always()
+    
+    steps:
+    - name: 通知测试结果
+      run: |
+        if [ "${{ needs.e2e-tests.result }}" == "success" ] && [ "${{ needs.performance-tests.result }}" == "success" ]; then
+          echo "✅ 所有测试通过"
+        else
+          echo "❌ 部分测试失败"
+          exit 1
+        fi
