@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // 实验性配置 - 修复Next.js 15部署问题
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+  
   // ESLint设置 - 构建时忽略警告
   eslint: {
     ignoreDuringBuilds: true,

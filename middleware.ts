@@ -26,16 +26,14 @@ export function middleware(request: NextRequest) {
   
   // 只对HTML页面应用CSP，不对API路由
   if (!pathname.startsWith('/api/') && !pathname.startsWith('/_next/')) {
-    const isDev = process.env.NODE_ENV === 'development'
-    
-    // 生产级CSP策略
+    // 生产级CSP策略（移除了对process.env的依赖）
     const cspDirectives = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' https://vercel.live",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com data:",
-      `img-src 'self' data: blob: https: ${isDev ? 'http:' : ''}`,
-      `connect-src 'self' https://openrouter.ai https://api.openrouter.ai ${isDev ? 'ws://localhost:* http://localhost:*' : ''} https://vitals.vercel-insights.com`,
+      "img-src 'self' data: blob: https: http:",
+      "connect-src 'self' https://openrouter.ai https://api.openrouter.ai ws://localhost:* http://localhost:* https://vitals.vercel-insights.com",
       "media-src 'self' data: blob:",
       "object-src 'none'",
       "frame-src 'self'",
