@@ -1,18 +1,24 @@
-// 国际化配置
-export const locales = ['zh', 'en'] as const;
+// 国际化配置 - 使用cn/en作为URL路径
+export const locales = ['cn', 'en'] as const;
 export type Locale = typeof locales[number];
 
-export const defaultLocale: Locale = 'zh';
+export const defaultLocale: Locale = 'cn';
+
+// 语言代码到文件名的映射
+export const localeToFileMap: Record<Locale, string> = {
+  'cn': 'zh', // URL用cn，但文件名仍是zh.json
+  'en': 'en'
+};
 
 // 语言名称映射
 export const localeNames: Record<Locale, string> = {
-  zh: '中文',
+  cn: '中文',
   en: 'English'
 };
 
 // 语言标志 emoji
 export const localeFlags: Record<Locale, string> = {
-  zh: '🇨🇳',
+  cn: '🇨🇳',
   en: '🇺🇸'
 };
 
@@ -108,14 +114,28 @@ export interface Dictionary {
   };
 }
 
-// 获取字典
+// 获取字典 - 支持URL路径到文件名的映射
 export async function getDictionary(locale: Locale): Promise<Dictionary> {
   try {
-    const dict = await import(`../locales/${locale}.json`);
+    const fileName = localeToFileMap[locale];
+    const dict = await import(`../locales/${fileName}.json`);
     return dict.default;
   } catch (error) {
     // 如果找不到对应语言，返回默认语言
-    const dict = await import(`../locales/${defaultLocale}.json`);
+    const defaultFileName = localeToFileMap[defaultLocale];
+    const dict = await import(`../locales/${defaultFileName}.json`);
     return dict.default;
   }
+}
+
+// 验证locale是否有效
+export function isValidLocale(locale: string): locale is Locale {
+  return locales.includes(locale as Locale);
+}
+
+// 从URL路径获取locale
+export function getLocaleFromPathname(pathname: string): Locale | null {
+  const segments = pathname.split('/');
+  const potentialLocale = segments[1];
+  return isValidLocale(potentialLocale) ? potentialLocale : null;
 }

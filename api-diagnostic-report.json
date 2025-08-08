@@ -1,0 +1,42 @@
+{
+  "timestamp": "2025-08-08T18:47:35.460Z",
+  "environment": {
+    "envFile": true,
+    "apiKey": true,
+    "baseUrl": true,
+    "nextjsRunning": false
+  },
+  "directApiConnection": true,
+  "localApiWorking": false,
+  "endToEndResults": [
+    {
+      "industry": "lawyer",
+      "success": false,
+      "error": "Unexpected token 'I', \"Internal S\"... is not valid JSON"
+    },
+    {
+      "industry": "teacher",
+      "success": false,
+      "error": "Unexpected token 'I', \"Internal S\"... is not valid JSON"
+    },
+    {
+      "industry": "realtor",
+      "success": false,
+      "error": "Unexpected token 'I', \"Internal S\"... is not valid JSON"
+    },
+    {
+      "industry": "accountant",
+      "success": false,
+      "error": "Unexpected token 'I', \"Internal S\"... is not valid JSON"
+    },
+    {
+      "industry": "insurance",
+      "success": false,
+      "error": "Unexpected token 'I', \"Internal S\"... is not valid JSON"
+    }
+  ],
+  "overallHealth": "degraded",
+  "recommendations": [
+    "检查Next.js应用配置和环境变量加载"
+  ]
+}

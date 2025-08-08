@@ -1,36 +1,10 @@
 import { NextResponse } from 'next/server';
 
-// 🔧 AI提示词生成器 - 修复版
-// 版本: v2.1 - 简化但稳定的错误处理
-
+// 环境变量
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_BASE_URL = process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
 
-// 详细的错误日志函数
-function logDetailedError(step: string, error: any, context?: any) {
-  const timestamp = new Date().toISOString();
-  const errorInfo = {
-    timestamp,
-    step,
-    error: error instanceof Error ? {
-      message: error.message,
-      name: error.name,
-      stack: error.stack?.substring(0, 500)
-    } : error,
-    context,
-    environment: {
-      hasApiKey: !!OPENROUTER_API_KEY,
-      apiKeyLength: OPENROUTER_API_KEY?.length || 0,
-      baseUrl: OPENROUTER_BASE_URL,
-      nodeEnv: process.env.NODE_ENV
-    }
-  };
-  
-  console.error('🚨 详细错误信息:', JSON.stringify(errorInfo, null, 2));
-  return errorInfo;
-}
-
-// 专业的行业知识库 - 包含真实的行业洞察
+// 行业知识库
 const industryKnowledge = {
   lawyer: {
     name: '法律专业',
@@ -106,6 +80,20 @@ const industryKnowledge = {
   }
 };
 
+// 详细错误日志
+function logDetailedError(error: any, context: string) {
+  console.error(`[${new Date().toISOString()}] API错误 - ${context}:`, {
+    message: error.message || '未知错误',
+    stack: error.stack,
+    context,
+    env: {
+      hasApiKey: !!OPENROUTER_API_KEY,
+      apiKeyPrefix: OPENROUTER_API_KEY?.substring(0, 10) + '...',
+      baseUrl: OPENROUTER_BASE_URL
+    }
+  });
+}
+
 // 生成智能提示词
 async function generateIntelligentPrompt(
   industry: string,
@@ -114,15 +102,12 @@ async function generateIntelligentPrompt(
   requirements: string,
   context?: string
 ) {
-  console.log('🚀 开始生成AI提示词:', { industry, scenario, goal: goal.substring(0, 50) });
-  
   const knowledge = industryKnowledge[industry as keyof typeof industryKnowledge];
   
   if (!knowledge) {
-    throw new Error('不支持的行业类型');
+    throw new Error(`不支持的行业类型: ${industry}`);
   }
 
-  // 构建超级详细的系统提示词
   const systemPrompt = `你是世界顶级的${knowledge.name}领域提示词工程专家，拥有20年以上的行业经验。
 
 你的任务是基于用户的需求，生成一个极其专业、详细、可立即使用的AI提示词。
@@ -143,7 +128,6 @@ ${JSON.stringify(knowledge.expertise, null, 2)}
 
 记住：生成的提示词质量必须让用户感到"这是我自己绝对想不到的专业水准"！`;
 
-  // 构建用户消息
   const userMessage = `请为以下需求生成专业的AI提示词：
 
 【行业】${knowledge.name}
@@ -160,18 +144,22 @@ ${context ? `【补充信息】${context}` : ''}
 5. 语言要专业但不晦涩，让AI能准确理解并执行`;
 
   try {
-    console.log('📡 发送请求到OpenRouter API...');
+    console.log('[API] 开始调用OpenRouter API...');
     
+    // 添加超时控制
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
     const response = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'https://www.aiprompts.ink',
-        'X-Title': 'AI Prompt Builder Pro V2'
+        'X-Title': 'AI Prompt Builder Pro V3'
       },
       body: JSON.stringify({
-        model: 'anthropic/claude-3.5-sonnet', // 使用更强大的模型
+        model: 'anthropic/claude-3.5-sonnet',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage }
@@ -180,42 +168,55 @@ ${context ? `【补充信息】${context}` : ''}
         max_tokens: 2000,
         top_p: 0.9
       }),
-      signal: AbortSignal.timeout(30000) // 30秒超时
-    });
-
-    console.log('📥 API响应状态:', response.status, response.statusText);
+      signal: controller.signal
+    }).finally(() => clearTimeout(timeoutId));
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ API请求失败:', response.status, errorText);
-      throw new Error(`API请求失败: ${response.status} - ${errorText}`);
+      console.error('[API] OpenRouter响应错误:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      });
+      
+      if (response.status === 401) {
+        throw new Error('API密钥无效或过期');
+      } else if (response.status === 429) {
+        throw new Error('API请求频率限制');
+      } else if (response.status === 500) {
+        throw new Error('OpenRouter服务器错误');
+      } else {
+        throw new Error(`API请求失败: ${response.status} - ${errorText}`);
+      }
     }
 
     const data = await response.json();
-    console.log('✅ API响应成功');
-
-    const generatedPrompt = data.choices?.[0]?.message?.content;
-    if (!generatedPrompt) {
-      throw new Error('API返回了空的提示词内容');
+    console.log('[API] OpenRouter响应成功');
+    return data.choices[0]?.message?.content;
+    
+  } catch (error: any) {
+    logDetailedError(error, 'generateIntelligentPrompt');
+    
+    if (error.name === 'AbortError') {
+      throw new Error('请求超时，请稍后重试');
+    } else if (error.message?.includes('密钥')) {
+      throw new Error('API密钥配置错误');
+    } else if (error.message?.includes('network')) {
+      throw new Error('网络连接失败');
+    } else {
+      throw error;
     }
-
-    return generatedPrompt;
-
-  } catch (error) {
-    console.error('💥 生成提示词异常:', error);
-    throw error;
   }
 }
 
 // 提示词质量评分
 async function evaluatePromptQuality(prompt: string): Promise<number> {
-  // 评分标准
   const criteria = {
-    length: prompt.length > 500 ? 20 : prompt.length / 25, // 长度分
-    structure: prompt.includes('步骤') || prompt.includes('Step') ? 20 : 0, // 结构分
-    specificity: (prompt.match(/\d+/g) || []).length * 2, // 具体数字
-    professional: (prompt.match(/专业|标准|规范|准则/g) || []).length * 3, // 专业度
-    actionable: prompt.includes('输出') || prompt.includes('格式') ? 20 : 0 // 可执行性
+    length: prompt.length > 500 ? 20 : prompt.length / 25,
+    structure: prompt.includes('步骤') || prompt.includes('Step') ? 20 : 0,
+    specificity: (prompt.match(/\d+/g) || []).length * 2,
+    professional: (prompt.match(/专业|标准|规范|准则/g) || []).length * 3,
+    actionable: prompt.includes('输出') || prompt.includes('格式') ? 20 : 0
   };
 
   const score = Object.values(criteria).reduce((a, b) => a + b, 0);
@@ -224,54 +225,46 @@ async function evaluatePromptQuality(prompt: string): Promise<number> {
 
 export async function POST(request: Request) {
   const startTime = Date.now();
-  console.log('🚀 处理提示词生成请求...');
-
+  
   try {
     const body = await request.json();
     const { industry, scenario, goal, requirements, context, locale = 'zh' } = body;
 
-    console.log('📝 请求参数:', {
-      industry: !!industry,
-      scenario: !!scenario,
-      goal: !!goal,
-      hasRequirements: !!requirements,
-      locale
+    console.log(`[API] 收到请求:`, { 
+      industry, 
+      scenario, 
+      locale, 
+      timestamp: new Date().toISOString(),
+      hasApiKey: !!OPENROUTER_API_KEY,
+      apiKeyPrefix: OPENROUTER_API_KEY?.substring(0, 15)
     });
 
     // 验证必填字段
     if (!industry || !scenario || !goal) {
-      logDetailedError('input_validation', {
-        missingFields: { industry: !industry, scenario: !scenario, goal: !goal }
-      }, body);
-      
+      console.warn('[API] 缺少必填字段');
       return NextResponse.json({
         success: false,
-        error: locale === 'zh' ? '请填写完整信息：行业、场景和目标都是必需的' : 'Please fill in all required fields',
-        errorType: 'INVALID_INPUT'
+        error: locale === 'zh' ? '请填写完整信息' : 'Please fill in all required fields',
+        details: { industry, scenario, goal }
       }, { status: 400 });
     }
 
     // 检查API密钥
     if (!OPENROUTER_API_KEY) {
-      logDetailedError('api_key_missing', {
-        message: 'OPENROUTER_API_KEY environment variable is not set',
-        suggestion: '请确保 .env.local 文件存在且包含正确的 OPENROUTER_API_KEY'
-      });
-      
+      console.error('[API] OPENROUTER_API_KEY未配置');
       return NextResponse.json({
         success: false,
-        error: locale === 'zh' ? 'API密钥未配置。请检查环境变量 OPENROUTER_API_KEY 是否正确设置。' : 'API key not configured',
-        errorType: 'MISSING_API_KEY',
-        debugInfo: {
-          suggestion: '请确保 .env.local 文件存在且包含正确的 OPENROUTER_API_KEY',
-          hasApiKey: !!OPENROUTER_API_KEY,
-          baseUrl: OPENROUTER_BASE_URL
-        }
+        error: locale === 'zh' ? 
+          'API密钥未配置。请在Vercel控制台设置OPENROUTER_API_KEY环境变量' : 
+          'API key not configured. Please set OPENROUTER_API_KEY in Vercel dashboard',
+        errorCode: 'MISSING_API_KEY',
+        suggestion: '访问 Vercel Dashboard > Settings > Environment Variables'
       }, { status: 500 });
     }
 
+    console.log('[API] 环境变量检查通过，准备生成提示词');
+
     // 生成智能提示词
-    console.log('🤖 开始AI生成...');
     const intelligentPrompt = await generateIntelligentPrompt(
       industry,
       scenario,
@@ -282,112 +275,85 @@ export async function POST(request: Request) {
 
     // 评估质量
     const qualityScore = await evaluatePromptQuality(intelligentPrompt);
-    console.log(`📊 提示词质量评分: ${qualityScore}/100`);
+    console.log(`[API] 提示词质量分数: ${qualityScore}/100`);
 
     // 如果质量太低，重新生成
     if (qualityScore < 60) {
-      console.log('⚠️ 提示词质量不足，重新生成...');
-      try {
-        const improvedPrompt = await generateIntelligentPrompt(
-          industry,
-          scenario,
-          goal,
-          requirements + ' [要求：更详细、更专业、更具体]',
-          context
-        );
-        
-        const improvedQuality = await evaluatePromptQuality(improvedPrompt);
-        console.log(`✨ 改进后质量评分: ${improvedQuality}/100`);
-        
-        const responseTime = Date.now() - startTime;
-        return NextResponse.json({
-          success: true,
-          prompt: improvedPrompt,
-          qualityScore: improvedQuality,
-          method: 'ai-enhanced-v2-improved',
-          model: 'claude-3.5-sonnet',
-          industry: industryKnowledge[industry as keyof typeof industryKnowledge]?.name,
-          responseTime,
-          improved: true
-        });
-      } catch (retryError) {
-        logDetailedError('retry_generation_failed', retryError, { originalQuality: qualityScore });
-        // 如果重试失败，返回原始结果
-      }
+      console.log('[API] 质量分数不足，重新生成...');
+      const improvedPrompt = await generateIntelligentPrompt(
+        industry,
+        scenario,
+        goal,
+        requirements + ' [要求：更详细、更专业、更具体]',
+        context
+      );
+      
+      const responseTime = Date.now() - startTime;
+      return NextResponse.json({
+        success: true,
+        prompt: improvedPrompt,
+        qualityScore: await evaluatePromptQuality(improvedPrompt),
+        method: 'ai-enhanced-v3',
+        model: 'claude-3.5-sonnet',
+        industry: industryKnowledge[industry as keyof typeof industryKnowledge]?.name,
+        responseTime: `${responseTime}ms`
+      });
     }
 
     const responseTime = Date.now() - startTime;
-    console.log(`🎉 请求完成, 用时: ${responseTime}ms`);
-
     return NextResponse.json({
       success: true,
       prompt: intelligentPrompt,
       qualityScore,
-      method: 'ai-enhanced-v2',
+      method: 'ai-enhanced-v3',
       model: 'claude-3.5-sonnet',
       industry: industryKnowledge[industry as keyof typeof industryKnowledge]?.name,
-      responseTime
+      responseTime: `${responseTime}ms`
     });
 
-  } catch (error) {
+  } catch (error: any) {
     const responseTime = Date.now() - startTime;
-    const errorInfo = logDetailedError('request_processing_failed', error, { responseTime });
+    logDetailedError(error, 'POST handler');
     
-    console.error(`❌ 请求失败, 用时: ${responseTime}ms`);
-    
-    // 根据错误类型返回不同的错误信息
-    let userErrorMessage = '生成失败，请稍后重试';
-    let errorType = 'UNKNOWN';
-    
-    if (error instanceof Error) {
-      if (error.message.includes('API请求失败')) {
-        userErrorMessage = 'OpenRouter API调用失败，请稍后重试';
-        errorType = 'API_ERROR';
-      } else if (error.message.includes('fetch')) {
-        userErrorMessage = '网络连接失败，请检查网络后重试';
-        errorType = 'NETWORK_ERROR';
-      } else if (error.name === 'AbortError') {
-        userErrorMessage = '请求超时，请稍后重试';
-        errorType = 'TIMEOUT';
-      }
-    }
-    
-    return NextResponse.json({
+    // 返回详细的错误信息
+    const errorResponse = {
       success: false,
-      error: userErrorMessage,
-      errorType,
-      errorId: errorInfo.timestamp,
-      debugInfo: {
-        originalError: error instanceof Error ? error.message : String(error),
-        responseTime
+      error: error.message || '生成失败，请稍后重试',
+      errorCode: error.name || 'UNKNOWN_ERROR',
+      details: {
+        message: error.message,
+        timestamp: new Date().toISOString(),
+        responseTime: `${responseTime}ms`,
+        suggestion: '请检查网络连接和API密钥配置',
+        debugInfo: {
+          hasApiKey: !!OPENROUTER_API_KEY,
+          apiKeyLength: OPENROUTER_API_KEY?.length,
+          baseUrl: OPENROUTER_BASE_URL
+        }
       }
-    }, { status: 500 });
+    };
+    
+    // 根据错误类型返回不同状态码
+    const statusCode = error.message?.includes('密钥') ? 401 : 
+                      error.message?.includes('超时') ? 504 :
+                      error.message?.includes('网络') ? 503 : 500;
+    
+    return NextResponse.json(errorResponse, { status: statusCode });
   }
 }
 
-// 获取行业列表（支持国际化）
+// 调试端点
 export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const locale = searchParams.get('locale') || 'zh';
-    
-    return NextResponse.json({
-      industries: Object.entries(industryKnowledge).map(([key, value]) => ({
-        id: key,
-        name: value.name,
-        expertise: value.expertise
-      })),
-      locale,
-      status: 'healthy',
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    logDetailedError('get_industries_failed', error);
-    
-    return NextResponse.json({
-      success: false,
-      error: '获取行业列表失败',
-      details: error instanceof Error ? error.message : '未知错误'
-    }, { status: 500 });
-  }
+  return NextResponse.json({
+    status: 'API v3 运行中',
+    timestamp: new Date().toISOString(),
+    environment: {
+      hasApiKey: !!OPENROUTER_API_KEY,
+      apiKeyPrefix: OPENROUTER_API_KEY ? OPENROUTER_API_KEY.substring(0, 15) + '...' : 'NOT_SET',
+      baseUrl: OPENROUTER_BASE_URL,
+      nodeVersion: process.version
+    },
+    industries: Object.keys(industryKnowledge),
+    message: '使用POST请求生成提示词'
+  });
 }
