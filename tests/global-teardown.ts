@@ -19,9 +19,9 @@ async function globalTeardown(config: FullConfig) {
     const testResults = {
       timestamp: new Date().toISOString(),
       config: {
-        testDir: config.testDir,
-        workers: config.workers,
-        retries: config.retries
+        testDir: 'tests',
+        workers: config.workers || 1,
+        retries: 0
       }
     };
     

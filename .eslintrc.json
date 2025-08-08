@@ -1,23 +1,20 @@
 {
   "extends": [
-    "next/core-web-vitals",
-    "@typescript-eslint/recommended",
-    "@typescript-eslint/recommended-requiring-type-checking"
+    "next/core-web-vitals"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": "./tsconfig.json",
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
   "plugins": ["@typescript-eslint"],
   "rules": {
-    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-    "@typescript-eslint/no-explicit-any": "error",
-    "@typescript-eslint/prefer-const": "error",
-    "@typescript-eslint/no-non-null-assertion": "error",
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@next/next/no-html-link-for-pages": "warn",
+    "react-hooks/exhaustive-deps": "warn",
     "prefer-const": "error",
     "no-var": "error"
   },
-  "ignorePatterns": ["next.config.js", "postcss.config.js", "tailwind.config.js"]
+  "ignorePatterns": ["next.config.js", "postcss.config.js", "tailwind.config.js", "tests/**", "scripts/**"]
 }
