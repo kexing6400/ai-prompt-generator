@@ -1,0 +1,65 @@
+{
+  "manifest_version": 3,
+  "name": "AskSmarter - AI Prompt Enhancer",
+  "version": "1.0.0",
+  "description": "智能优化AI对话prompt，提升问答质量。支持ChatGPT、Claude、Gemini等主流AI平台。",
+  "author": "Your Company",
+  
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  
+  "host_permissions": [
+    "https://chat.openai.com/*",
+    "https://claude.ai/*",
+    "https://gemini.google.com/*",
+    "https://www.perplexity.ai/*",
+    "https://bard.google.com/*"
+  ],
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chat.openai.com/*",
+        "https://claude.ai/*", 
+        "https://gemini.google.com/*",
+        "https://www.perplexity.ai/*",
+        "https://bard.google.com/*"
+      ],
+      "js": ["content/content.js"],
+      "css": ["assets/styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+  
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "AskSmarter设置",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "32": "assets/icons/icon32.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    }
+  },
+  
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "32": "assets/icons/icon32.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*", "templates/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

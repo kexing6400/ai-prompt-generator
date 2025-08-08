@@ -1,0 +1,252 @@
+/**
+ * AskSmarter 全局样式
+ * 悬浮按钮和提示框的样式定义
+ */
+
+/* 悬浮按钮样式 */
+#asksmarter-floating-btn {
+  position: fixed;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+  z-index: 10000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  transform: translateY(-50%) scale(0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  border: none;
+  outline: none;
+}
+
+#asksmarter-floating-btn.asksmarter-show {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+#asksmarter-floating-btn:hover {
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+#asksmarter-floating-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* 按钮内容 */
+.asksmarter-btn-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.asksmarter-icon {
+  font-size: 18px;
+  margin-bottom: 2px;
+  animation: sparkle 2s infinite ease-in-out;
+}
+
+.asksmarter-text {
+  font-size: 10px;
+  opacity: 0.9;
+  line-height: 1;
+}
+
+/* 闪烁动画 */
+@keyframes sparkle {
+  0%, 100% { 
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+/* 加载状态 */
+.asksmarter-loading {
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.asksmarter-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#asksmarter-floating-btn.asksmarter-loading-state {
+  cursor: not-allowed;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+/* 点击动画效果 */
+#asksmarter-floating-btn.asksmarter-click-animation {
+  animation: successPulse 0.6s ease-in-out;
+}
+
+@keyframes successPulse {
+  0% { transform: translateY(-50%) scale(1); }
+  50% { transform: translateY(-50%) scale(1.2); }
+  100% { transform: translateY(-50%) scale(1); }
+}
+
+/* 涟漪效果 */
+#asksmarter-floating-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.3s ease-out;
+}
+
+#asksmarter-floating-btn:active::before {
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+/* Toast 提示样式 */
+#asksmarter-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 10001;
+  min-width: 200px;
+  text-align: center;
+  transform: translateX(100px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#asksmarter-toast.asksmarter-toast-show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* Toast 不同类型的颜色 */
+#asksmarter-toast.asksmarter-toast-success {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+}
+
+#asksmarter-toast.asksmarter-toast-error {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+}
+
+#asksmarter-toast.asksmarter-toast-warning {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+}
+
+#asksmarter-toast.asksmarter-toast-info {
+  background: linear-gradient(135deg, #2196F3, #1976D2);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  #asksmarter-floating-btn {
+    right: 15px;
+    width: 50px;
+    height: 50px;
+  }
+  
+  .asksmarter-icon {
+    font-size: 16px;
+  }
+  
+  .asksmarter-text {
+    font-size: 9px;
+  }
+  
+  #asksmarter-toast {
+    right: 15px;
+    left: 15px;
+    min-width: auto;
+  }
+}
+
+/* 确保按钮不被其他元素遮挡 */
+#asksmarter-floating-btn {
+  z-index: 2147483647 !important;
+}
+
+#asksmarter-toast {
+  z-index: 2147483647 !important;
+}
+
+/* 针对特定平台的样式调整 */
+[data-platform="chatgpt"] #asksmarter-floating-btn {
+  right: 25px;
+}
+
+[data-platform="claude"] #asksmarter-floating-btn {
+  right: 25px;
+}
+
+[data-platform="gemini"] #asksmarter-floating-btn {
+  right: 25px;
+}
+
+/* 暗色主题适配 */
+@media (prefers-color-scheme: dark) {
+  #asksmarter-floating-btn {
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
+  }
+  
+  #asksmarter-floating-btn:hover {
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6);
+  }
+}
+
+/* 防止与页面元素冲突 */
+#asksmarter-floating-btn,
+#asksmarter-toast {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+  box-sizing: border-box !important;
+  line-height: normal !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  text-shadow: none !important;
+  border: none !important;
+  margin: 0 !important;
+  background-clip: padding-box !important;
+}

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AskSmarter 设置</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <div class="logo">
+                <span class="icon">✨</span>
+                <h1>AskSmarter</h1>
+            </div>
+            <div class="version">v1.0.0</div>
+        </div>
+
+        <!-- 主要设置区域 -->
+        <div class="content">
+            <!-- 行业选择 -->
+            <div class="setting-group">
+                <label class="setting-label">选择您的行业</label>
+                <div class="industry-grid">
+                    <div class="industry-card" data-industry="general">
+                        <div class="industry-icon">🎯</div>
+                        <div class="industry-name">通用</div>
+                    </div>
+                    <div class="industry-card" data-industry="lawyer">
+                        <div class="industry-icon">⚖️</div>
+                        <div class="industry-name">律师</div>
+                    </div>
+                    <div class="industry-card" data-industry="pm">
+                        <div class="industry-icon">📊</div>
+                        <div class="industry-name">产品经理</div>
+                    </div>
+                    <div class="industry-card" data-industry="doctor">
+                        <div class="industry-icon">🏥</div>
+                        <div class="industry-name">医生</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能开关 -->
+            <div class="setting-group">
+                <label class="setting-label">功能设置</label>
+                <div class="toggle-group">
+                    <div class="toggle-item">
+                        <span class="toggle-text">显示悬浮按钮</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="showButton" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-item">
+                        <span class="toggle-text">自动优化模式</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoOptimize">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 使用统计 -->
+            <div class="setting-group">
+                <label class="setting-label">使用统计</label>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalUsage">0</div>
+                        <div class="stat-label">总优化次数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="todayUsage">0</div>
+                        <div class="stat-label">今日使用</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 支持的平台 -->
+            <div class="setting-group">
+                <label class="setting-label">支持的AI平台</label>
+                <div class="platform-list">
+                    <div class="platform-item">
+                        <span class="platform-name">ChatGPT</span>
+                        <span class="platform-status active">✓</span>
+                    </div>
+                    <div class="platform-item">
+                        <span class="platform-name">Claude</span>
+                        <span class="platform-status active">✓</span>
+                    </div>
+                    <div class="platform-item">
+                        <span class="platform-name">Gemini</span>
+                        <span class="platform-status active">✓</span>
+                    </div>
+                    <div class="platform-item">
+                        <span class="platform-name">Perplexity</span>
+                        <span class="platform-status active">✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部按钮 -->
+        <div class="footer">
+            <button class="btn btn-secondary" id="resetBtn">重置设置</button>
+            <button class="btn btn-primary" id="saveBtn">保存设置</button>
+        </div>
+
+        <!-- 消息提示 -->
+        <div class="message" id="message"></div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

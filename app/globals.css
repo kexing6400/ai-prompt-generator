@@ -1,0 +1,173 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* 自定义CSS类 */
+@layer components {
+  /* 行业主题渐变背景 */
+  .gradient-lawyer {
+    @apply bg-gradient-to-br from-lawyer to-lawyer-dark;
+  }
+  
+  .gradient-realtor {
+    @apply bg-gradient-to-br from-realtor to-realtor-dark;
+  }
+  
+  .gradient-insurance {
+    @apply bg-gradient-to-br from-insurance to-insurance-dark;
+  }
+  
+  .gradient-teacher {
+    @apply bg-gradient-to-br from-teacher to-teacher-dark;
+  }
+  
+  .gradient-accountant {
+    @apply bg-gradient-to-br from-accountant to-accountant-dark;
+  }
+
+  /* 专业文本样式 */
+  .text-professional {
+    @apply text-gray-700 dark:text-gray-300 leading-relaxed;
+  }
+
+  /* 悬停动画效果 */
+  .hover-lift {
+    @apply transition-transform duration-200 hover:scale-105 hover:shadow-lg;
+  }
+
+  /* 专业卡片样式 */
+  .industry-card {
+    @apply rounded-xl border-2 border-gray-200 dark:border-gray-700 
+           bg-white dark:bg-gray-800 p-6 shadow-sm 
+           transition-all duration-200 hover:shadow-lg hover:border-gray-300;
+  }
+
+  /* 输入框聚焦效果 */
+  .input-focus {
+    @apply transition-all duration-200 focus:ring-2 focus:ring-offset-2;
+  }
+
+  /* 按钮按压效果 */
+  .btn-press {
+    @apply active:scale-95 transition-transform duration-100;
+  }
+
+  /* 文本渐入动画 */
+  .fade-in-up {
+    @apply animate-fade-in;
+  }
+
+  /* 专业标题样式 */
+  .section-title {
+    @apply text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100;
+  }
+
+  /* 副标题样式 */
+  .section-subtitle {
+    @apply text-lg text-gray-600 dark:text-gray-400 leading-relaxed;
+  }
+}
+
+/* 滚动条样式优化 */
+@layer utilities {
+  .scrollbar-hide {
+    /* IE and Edge */
+    -ms-overflow-style: none;
+    /* Firefox */
+    scrollbar-width: none;
+    /* Safari and Chrome */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(156 163 175) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgb(156 163 175);
+    border-radius: 3px;
+  }
+}
+
+/* 响应式字体大小 */
+@layer utilities {
+  .text-responsive-xl {
+    @apply text-2xl sm:text-3xl lg:text-4xl xl:text-5xl;
+  }
+  
+  .text-responsive-lg {
+    @apply text-xl sm:text-2xl lg:text-3xl;
+  }
+  
+  .text-responsive-md {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+}
