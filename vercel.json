@@ -1,20 +1,5 @@
 {
-  "buildCommand": "npm install && npm run build",
-  "installCommand": "npm install",
   "framework": "nextjs",
-  "outputDirectory": ".next",
-  "env": {
-    "OPENROUTER_API_KEY": "@openrouter-api-key"
-  },
-  "build": {
-    "env": {
-      "NODE_VERSION": "18.x",
-      "OPENROUTER_API_KEY": "@openrouter-api-key"
-    }
-  },
-  "functions": {
-    "app/api/generate-prompt-v2/route.ts": {
-      "maxDuration": 30
-    }
-  }
+  "installCommand": "npm install",
+  "buildCommand": "npm run build"
 }
