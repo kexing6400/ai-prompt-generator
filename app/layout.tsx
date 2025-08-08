@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 
@@ -9,7 +9,19 @@ const inter = Inter({
   variable: '--font-inter',
 })
 
+// Next.js 15: viewport和themeColor需要单独export
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+  ],
+}
+
 export const metadata: Metadata = {
+  metadataBase: new URL('https://aiprompts.ink'),
   title: {
     template: '%s | AI Prompt Builder Pro',
     default: 'AI Prompt Builder Pro - Professional AI Templates for Every Industry'
@@ -49,19 +61,6 @@ export const metadata: Metadata = {
     description: 'Save 70% time with expert-crafted AI prompts for professionals. Trusted by 2,500+ users worldwide.',
     images: ['/twitter-image.jpg'],
   },
-  
-  // 移动端优化
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
-  
-  // 主题色配置
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
-  ],
   
   // 图标配置
   icons: {

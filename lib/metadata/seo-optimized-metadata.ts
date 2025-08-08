@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 
 // SEO优化的行业页面metadata配置 - 针对英文搜索意图
+// 注意：metadataBase在根layout.tsx中设置，这里使用相对路径
 export const seoOptimizedMetadata = {
   'ai-prompts-for-lawyers': {
     title: 'Best AI Prompts for Lawyers | ChatGPT Legal Templates',
@@ -13,7 +14,7 @@ export const seoOptimizedMetadata = {
     openGraph: {
       title: 'Best AI Prompts for Lawyers | Save 4 Hours Weekly',
       description: 'Professional AI prompts for contract review, legal research, and document drafting. Trusted by 2,300+ attorneys worldwide.',
-      url: 'https://aiprompts.ink/ai-prompts-for-lawyers',
+      url: '/ai-prompts-for-lawyers', // 相对路径，会自动结合metadataBase
       images: ['/og-lawyers.jpg'],
       type: 'website',
       locale: 'en_US',
@@ -23,6 +24,9 @@ export const seoOptimizedMetadata = {
       title: 'AI Prompts for Lawyers: Save 70% Time with Legal Templates',
       description: 'Professional ChatGPT & Claude prompts for contract review, legal research, document drafting. Used by 2,300+ attorneys.',
       images: ['/twitter-lawyers.jpg'],
+    },
+    alternates: {
+      canonical: '/ai-prompts-for-lawyers',
     },
   } as Metadata,
 
@@ -37,7 +41,7 @@ export const seoOptimizedMetadata = {
     openGraph: {
       title: 'AI Prompts for Teachers | Educational Templates & Guide',
       description: 'Professional AI prompts for lesson planning, assessments, and curriculum design. Transform your teaching efficiency.',
-      url: 'https://aiprompts.ink/ai-prompts-for-teachers',
+      url: '/ai-prompts-for-teachers',
       images: ['/og-teachers.jpg'],
       type: 'website',
       locale: 'en_US',
@@ -47,6 +51,9 @@ export const seoOptimizedMetadata = {
       title: 'AI Prompts for Teachers: Educational ChatGPT Templates',
       description: 'Transform teaching with AI prompts for lesson planning, assessments, and curriculum design. Save 4+ hours weekly.',
       images: ['/twitter-teachers.jpg'],
+    },
+    alternates: {
+      canonical: '/ai-prompts-for-teachers',
     },
   } as Metadata,
 
@@ -61,7 +68,7 @@ export const seoOptimizedMetadata = {
     openGraph: {
       title: 'AI Prompts for Accountants | Professional Finance Templates',
       description: 'Expert AI prompts for financial analysis, tax planning, and audit support. Trusted by CPAs and finance professionals.',
-      url: 'https://aiprompts.ink/ai-prompts-for-accountants',
+      url: '/ai-prompts-for-accountants',
       images: ['/og-accountants.jpg'],
       type: 'website',
       locale: 'en_US',
@@ -71,6 +78,9 @@ export const seoOptimizedMetadata = {
       title: 'AI Prompts for Accountants: Finance & Tax Templates',
       description: 'Professional ChatGPT prompts for financial analysis, tax planning, and audit support. Save 5+ hours weekly.',
       images: ['/twitter-accountants.jpg'],
+    },
+    alternates: {
+      canonical: '/ai-prompts-for-accountants',
     },
   } as Metadata,
 
@@ -85,7 +95,7 @@ export const seoOptimizedMetadata = {
     openGraph: {
       title: 'Real Estate AI Prompts | ChatGPT Templates for Realtors',
       description: 'Professional AI prompts for market analysis, property descriptions, and client communication. Boost your real estate success.',
-      url: 'https://aiprompts.ink/ai-prompts-for-realtors',
+      url: '/ai-prompts-for-realtors',
       images: ['/og-realtors.jpg'],
       type: 'website',
       locale: 'en_US',
@@ -95,6 +105,9 @@ export const seoOptimizedMetadata = {
       title: 'Real Estate AI Prompts: ChatGPT Templates for Realtors',
       description: 'Professional prompts for market analysis, property descriptions, client communication. Save 6+ hours weekly.',
       images: ['/twitter-realtors.jpg'],
+    },
+    alternates: {
+      canonical: '/ai-prompts-for-realtors',
     },
   } as Metadata,
 
@@ -109,7 +122,7 @@ export const seoOptimizedMetadata = {
     openGraph: {
       title: 'Insurance AI Prompts | Professional Templates for Advisors',
       description: 'Expert AI prompts for risk assessment, policy recommendations, and client education. Transform your insurance practice.',
-      url: 'https://aiprompts.ink/ai-prompts-for-insurance-advisors',
+      url: '/ai-prompts-for-insurance-advisors',
       images: ['/og-insurance.jpg'],
       type: 'website',
       locale: 'en_US',
@@ -119,6 +132,9 @@ export const seoOptimizedMetadata = {
       title: 'Insurance AI Prompts: ChatGPT Templates for Advisors',
       description: 'Professional prompts for risk assessment, policy recommendations, client education. Save 4+ hours weekly.',
       images: ['/twitter-insurance.jpg'],
+    },
+    alternates: {
+      canonical: '/ai-prompts-for-insurance-advisors',
     },
   } as Metadata
 }
