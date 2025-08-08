@@ -1,9 +1,16 @@
 {
-  "buildCommand": "npm run vercel-build",
   "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "installCommand": "npm ci",
   "build": {
     "env": {
-      "CI": ""
+      "VERCEL": "1",
+      "NODE_ENV": "production"
+    }
+  },
+  "functions": {
+    "app/api/*/route.ts": {
+      "maxDuration": 10
     }
   }
 }

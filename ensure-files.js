@@ -3,7 +3,13 @@
 const fs = require('fs');
 const path = require('path');
 
-console.log('确保所有必要文件存在...');
+console.log('🔧 确保所有必要文件存在...');
+
+// 设置错误处理
+process.on('uncaughtException', (error) => {
+  console.error('❌ 文件准备过程中发生错误:', error.message);
+  process.exit(1);
+});
 
 // 创建目录的辅助函数
 function ensureDir(dirPath) {
@@ -247,4 +253,15 @@ export function cn(...inputs: ClassValue[]) {
   console.log(`✓ 文件已存在: ${utilsPath}`);
 }
 
-console.log('\n所有文件检查完成！');
+console.log('\n✅ 所有必要文件已准备完成！');
+console.log('📦 准备开始Next.js构建...');
+
+// 验证关键依赖
+const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+const requiredDeps = ['next', 'react', 'react-dom', 'tailwindcss'];
+const missingDeps = requiredDeps.filter(dep => !packageJson.dependencies[dep]);
+
+if (missingDeps.length > 0) {
+  console.error('❌ 缺少关键依赖:', missingDeps.join(', '));
+  process.exit(1);
+}
