@@ -126,9 +126,9 @@ export default function HomePage() {
     <div className="flex min-h-screen flex-col">
       {/* Hero Section - 英雄区域 */}
       <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20">
-        {/* 背景装饰 */}
-        <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25" />
-        <div className="absolute left-1/2 top-0 -z-10 -translate-x-1/2 blur-3xl xl:-top-6" aria-hidden="true">
+        {/* 背景装饰 - 确保不遮挡交互元素 */}
+        <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25 pointer-events-none" />
+        <div className="absolute left-1/2 top-0 -z-10 -translate-x-1/2 blur-3xl xl:-top-6 pointer-events-none" aria-hidden="true">
           <div className="aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-20" />
         </div>
 
@@ -148,15 +148,28 @@ export default function HomePage() {
               让AI助手更懂你的行业，释放专业工作的无限潜能
             </p>
             
-            {/* CTA按钮组 */}
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Button size="xl" className="w-full sm:w-auto">
-                立即开始使用
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button variant="outline" size="xl" className="w-full sm:w-auto">
-                查看演示视频
-              </Button>
+            {/* CTA按钮组 - 世界级交互体验 */}
+            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center relative z-10">
+              <Link href="#industry-selection" className="w-full sm:w-auto">
+                <Button 
+                  size="xl" 
+                  className="w-full sm:w-auto hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl bg-gradient-to-r from-blue-600 to-purple-600 border-0"
+                >
+                  <Sparkles className="mr-2 h-5 w-5 animate-pulse" />
+                  立即开始使用
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              <Link href="#platform-features" className="w-full sm:w-auto">
+                <Button 
+                  variant="outline" 
+                  size="xl" 
+                  className="w-full sm:w-auto hover:scale-105 transition-all duration-300 border-2 hover:border-primary"
+                >
+                  <Award className="mr-2 h-5 w-5" />
+                  了解平台特色
+                </Button>
+              </Link>
             </div>
             
             {/* 社会证明 */}
@@ -187,7 +200,7 @@ export default function HomePage() {
       </section>
 
       {/* Industry Selection - 行业选择区域 */}
-      <section className="py-16 sm:py-24">
+      <section id="industry-selection" className="py-16 sm:py-24 scroll-mt-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="section-title">选择您的专业领域</h2>
@@ -260,7 +273,7 @@ export default function HomePage() {
       </section>
 
       {/* Platform Features - 平台特色 */}
-      <section className="bg-gray-50 dark:bg-gray-900/50 py-16 sm:py-24">
+      <section id="platform-features" className="bg-gray-50 dark:bg-gray-900/50 py-16 sm:py-24 scroll-mt-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="section-title">为什么选择我们</h2>
@@ -301,13 +314,27 @@ export default function HomePage() {
               加入数万名专业人士，让AI成为您工作中的得力助手
             </p>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Button size="xl" variant="secondary" className="w-full sm:w-auto">
-                立即免费开始
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button size="xl" variant="outline" className="w-full sm:w-auto text-white border-white hover:bg-white hover:text-blue-600">
-                联系专业顾问
-              </Button>
+              <Link href="#industry-selection" className="w-full sm:w-auto">
+                <Button 
+                  size="xl" 
+                  variant="secondary" 
+                  className="w-full sm:w-auto hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                >
+                  <Zap className="mr-2 h-5 w-5 animate-pulse" />
+                  立即免费开始
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Link href="mailto:contact@aiprompts.ink" className="w-full sm:w-auto">
+                <Button 
+                  size="xl" 
+                  variant="outline" 
+                  className="w-full sm:w-auto bg-white/10 backdrop-blur-sm text-white border-2 border-white/50 hover:bg-white hover:text-blue-600 transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                >
+                  <Users className="mr-2 h-5 w-5" />
+                  联系专业顾问
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { OrganizationJsonLd, WebApplicationJsonLd, FAQJsonLd } from '../components/seo/JsonLd'
 
 // 使用最新的Next.js 15字体优化
 const inter = Inter({ 
@@ -21,7 +22,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://aiprompts.ink'),
+  metadataBase: new URL('https://www.aiprompts.ink'),
   title: {
     template: '%s | AI Prompt Builder Pro',
     default: 'AI Prompt Builder Pro - Professional AI Templates for Every Industry'
@@ -114,6 +115,16 @@ export default function RootLayout({
         
         {/* DNS预解析 */}
         <link rel="dns-prefetch" href="//vercel.com" />
+        <link rel="dns-prefetch" href="//openrouter.ai" />
+        
+        {/* 预加载关键路径 */}
+        <link rel="prefetch" href="/ai-prompts-for-lawyers" />
+        <link rel="prefetch" href="/ai-prompts-for-teachers" />
+        
+        {/* 结构化数据 - 世界级SEO */}
+        <OrganizationJsonLd />
+        <WebApplicationJsonLd />
+        <FAQJsonLd />
         
         {/* 安全策略现在通过middleware统一管理 */}
       </head>
