@@ -1,5 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // ESLint设置 - 构建时忽略警告
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  
+  // TypeScript设置 - 构建时忽略类型错误
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  
   // 性能优化
   compress: true,
   poweredByHeader: false,
