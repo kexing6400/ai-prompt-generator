@@ -1,0 +1,32 @@
+# 欢迎所有搜索引擎爬虫
+User-agent: *
+Allow: /
+
+# 优先爬取重要页面
+Allow: /ai-prompts-for-lawyers
+Allow: /ai-prompts-for-teachers
+Allow: /ai-prompts-for-accountants
+Allow: /ai-prompts-for-realtors
+Allow: /ai-prompts-for-insurance-advisors
+
+# 禁止爬取API路由和私有目录
+Disallow: /api/
+Disallow: /_next/
+Disallow: /dashboard/
+Disallow: /.well-known/
+
+# Sitemap位置
+Sitemap: https://aiprompts.ink/sitemap.xml
+
+# 针对主要搜索引擎的特殊配置
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 2

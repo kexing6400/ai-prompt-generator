@@ -1,0 +1,54 @@
+{
+  "name": "AI智能提示词生成器",
+  "short_name": "AskSmarter", 
+  "description": "专业的AI提示词生成工具，提升AI对话质量",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#8B5CF6",
+  "theme_color": "#3B82F6", 
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-16.svg",
+      "sizes": "16x16",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icons/icon-48.svg", 
+      "sizes": "48x48",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icons/icon-base.svg",
+      "sizes": "128x128", 
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icons/icon16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon48.png",
+      "sizes": "48x48", 
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon128.png",
+      "sizes": "128x128",
+      "type": "image/png" 
+    },
+    {
+      "src": "/icons/icon-base.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-base.svg", 
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

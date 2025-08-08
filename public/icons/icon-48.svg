@@ -1,0 +1,33 @@
+<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad48" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+    </linearGradient>
+    
+    <radialGradient id="glow48" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+  
+  <!-- 主圆形背景 -->
+  <circle cx="24" cy="24" r="22" fill="url(#grad48)"/>
+  <circle cx="24" cy="24" r="22" fill="url(#glow48)"/>
+  
+  <!-- AI符号组合 -->
+  <g transform="translate(24,24)">
+    <!-- 提示符号 ">" -->
+    <path d="M -10 -6 L -3 0 L -10 6 Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="1"/>
+    
+    <!-- AI文字 -->
+    <text x="2" y="3" font-family="Arial" font-size="10" font-weight="bold" fill="#FFFFFF" text-anchor="start">AI</text>
+    
+    <!-- 智能火花 -->
+    <g opacity="0.9">
+      <path d="M 12 -3 L 13 -1 L 15 -1 L 13.5 0 L 14 2 L 12 1 L 10 2 L 10.5 0 L 9 -1 L 11 -1 Z" fill="#FFFFFF"/>
+      <circle cx="8" cy="3" r="0.8" fill="#FFFFFF"/>
+      <circle cx="15" cy="2" r="0.5" fill="#FFFFFF"/>
+    </g>
+  </g>
+</svg>

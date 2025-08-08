@@ -13,7 +13,7 @@ export const seoOptimizedMetadata = {
     openGraph: {
       title: 'Best AI Prompts for Lawyers | Save 4 Hours Weekly',
       description: 'Professional AI prompts for contract review, legal research, and document drafting. Trusted by 2,300+ attorneys worldwide.',
-      url: 'https://ai-prompt-builder-pro.vercel.app/ai-prompts-for-lawyers',
+      url: 'https://aiprompts.ink/ai-prompts-for-lawyers',
       images: ['/og-lawyers.jpg'],
       type: 'website',
       locale: 'en_US',
@@ -37,7 +37,7 @@ export const seoOptimizedMetadata = {
     openGraph: {
       title: 'AI Prompts for Teachers | Educational Templates & Guide',
       description: 'Professional AI prompts for lesson planning, assessments, and curriculum design. Transform your teaching efficiency.',
-      url: 'https://ai-prompt-builder-pro.vercel.app/ai-prompts-for-teachers',
+      url: 'https://aiprompts.ink/ai-prompts-for-teachers',
       images: ['/og-teachers.jpg'],
       type: 'website',
       locale: 'en_US',
@@ -61,7 +61,7 @@ export const seoOptimizedMetadata = {
     openGraph: {
       title: 'AI Prompts for Accountants | Professional Finance Templates',
       description: 'Expert AI prompts for financial analysis, tax planning, and audit support. Trusted by CPAs and finance professionals.',
-      url: 'https://ai-prompt-builder-pro.vercel.app/ai-prompts-for-accountants',
+      url: 'https://aiprompts.ink/ai-prompts-for-accountants',
       images: ['/og-accountants.jpg'],
       type: 'website',
       locale: 'en_US',
@@ -85,7 +85,7 @@ export const seoOptimizedMetadata = {
     openGraph: {
       title: 'Real Estate AI Prompts | ChatGPT Templates for Realtors',
       description: 'Professional AI prompts for market analysis, property descriptions, and client communication. Boost your real estate success.',
-      url: 'https://ai-prompt-builder-pro.vercel.app/ai-prompts-for-realtors',
+      url: 'https://aiprompts.ink/ai-prompts-for-realtors',
       images: ['/og-realtors.jpg'],
       type: 'website',
       locale: 'en_US',
@@ -109,7 +109,7 @@ export const seoOptimizedMetadata = {
     openGraph: {
       title: 'Insurance AI Prompts | Professional Templates for Advisors',
       description: 'Expert AI prompts for risk assessment, policy recommendations, and client education. Transform your insurance practice.',
-      url: 'https://ai-prompt-builder-pro.vercel.app/ai-prompts-for-insurance-advisors',
+      url: 'https://aiprompts.ink/ai-prompts-for-insurance-advisors',
       images: ['/og-insurance.jpg'],
       type: 'website',
       locale: 'en_US',
