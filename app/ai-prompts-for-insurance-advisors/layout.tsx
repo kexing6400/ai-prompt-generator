@@ -1,4 +1,4 @@
-import { getSeoOptimizedMetadata } from '@/lib/metadata/seo-optimized-metadata'
+import { getSeoOptimizedMetadata } from "@/lib/metadata/seo-optimized-metadata"
 
 export const metadata = getSeoOptimizedMetadata('ai-prompts-for-insurance-advisors')
 
