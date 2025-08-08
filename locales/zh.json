@@ -1,0 +1,90 @@
+{
+  "common": {
+    "title": "专业垂直行业 AI提示词生成器",
+    "subtitle": "为律师、房产经纪人、保险顾问、教师、会计师等专业人士量身打造",
+    "description": "让AI助手更懂你的行业，释放专业工作的无限潜能",
+    "getStarted": "立即开始使用",
+    "learnMore": "了解平台特色",
+    "contactAdvisor": "联系专业顾问",
+    "freeStart": "立即免费开始",
+    "users": "专业用户",
+    "templates": "专业模板",
+    "generated": "提示词生成",
+    "satisfaction": "满意度",
+    "industries": "垂直行业",
+    "selectIndustry": "选择您的专业领域",
+    "whyChooseUs": "为什么选择我们",
+    "features": {
+      "intelligent": "智能化生成",
+      "intelligentDesc": "基于行业专业知识的AI算法，生成精准、专业的提示词模板",
+      "customized": "专业定制",
+      "customizedDesc": "针对5大垂直行业深度定制，理解每个行业的独特需求",
+      "continuous": "持续优化",
+      "continuousDesc": "基于用户反馈持续优化模板质量，确保最佳使用体验",
+      "instant": "即用即得",
+      "instantDesc": "简单填写表单，一键生成专业提示词，复制即用，高效便捷"
+    },
+    "cta": {
+      "title": "准备好释放AI的专业潜能了吗？",
+      "subtitle": "加入数万名专业人士，让AI成为您工作中的得力助手"
+    },
+    "footer": {
+      "tagline": "让专业工作更智能，让AI助手更懂你",
+      "copyright": "© 2024 AI Prompt Builder Pro. 版权所有。"
+    }
+  },
+  "industries": {
+    "lawyer": {
+      "name": "律师",
+      "displayName": "法律专业",
+      "description": "专为法律从业者设计的AI助手，涵盖合同审查、案例分析、法律研究等专业场景",
+      "features": ["合同审查", "案例分析", "法律研究", "文书起草"],
+      "enter": "进入律师工作台"
+    },
+    "realtor": {
+      "name": "房产经纪人",
+      "displayName": "房地产行业",
+      "description": "房地产专业人士的智能伙伴，提供市场分析、客户沟通、投资建议等专业支持",
+      "features": ["市场分析", "客户咨询", "投资建议", "房源描述"],
+      "enter": "进入房产经纪工作台"
+    },
+    "insurance": {
+      "name": "保险顾问",
+      "displayName": "保险行业",
+      "description": "保险行业专家的专业工具，协助风险评估、产品推荐、理赔处理等核心业务",
+      "features": ["风险评估", "产品推荐", "理赔指导", "客户教育"],
+      "enter": "进入保险顾问工作台"
+    },
+    "teacher": {
+      "name": "教师",
+      "displayName": "教育行业",
+      "description": "教育工作者的智能助手，涵盖教学设计、学生评估、课程规划等教育场景",
+      "features": ["教学设计", "学生评估", "课程规划", "作业设计"],
+      "enter": "进入教师工作台"
+    },
+    "accountant": {
+      "name": "会计师",
+      "displayName": "财务会计",
+      "description": "财务专业人士的得力助手，支持财务分析、税务规划、审计工作等专业领域",
+      "features": ["财务分析", "税务规划", "审计支持", "报表解读"],
+      "enter": "进入会计师工作台"
+    }
+  },
+  "forms": {
+    "scenarioType": "场景类型",
+    "taskGoal": "任务目标",
+    "specificRequirements": "具体要求",
+    "additionalContext": "补充信息",
+    "generatePrompt": "生成专业提示词",
+    "generating": "正在生成...",
+    "copyToClipboard": "复制到剪贴板",
+    "copied": "已复制！",
+    "regenerate": "重新生成",
+    "placeholder": {
+      "scenario": "请选择或描述您的使用场景",
+      "goal": "请描述您想要实现的目标",
+      "requirements": "请说明具体要求和限制条件",
+      "context": "可选：提供更多背景信息"
+    }
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "common": {
+    "title": "Professional AI Prompt Generator",
+    "subtitle": "Tailored for Lawyers, Realtors, Insurance Advisors, Teachers, and Accountants",
+    "description": "Empower your AI assistant to understand your industry and unleash your professional potential",
+    "getStarted": "Get Started Now",
+    "learnMore": "Explore Features",
+    "contactAdvisor": "Contact Expert",
+    "freeStart": "Start Free Now",
+    "users": "Professional Users",
+    "templates": "Pro Templates",
+    "generated": "Prompts Generated",
+    "satisfaction": "Satisfaction",
+    "industries": "Industries",
+    "selectIndustry": "Select Your Professional Field",
+    "whyChooseUs": "Why Choose Us",
+    "features": {
+      "intelligent": "Intelligent Generation",
+      "intelligentDesc": "AI algorithms based on industry expertise generate precise, professional prompt templates",
+      "customized": "Industry-Specific",
+      "customizedDesc": "Deep customization for 5 vertical industries, understanding unique needs of each field",
+      "continuous": "Continuous Improvement",
+      "continuousDesc": "Template quality continuously optimized based on user feedback for best experience",
+      "instant": "Instant Results",
+      "instantDesc": "Simple form, one-click generation, copy and use immediately - efficient and convenient"
+    },
+    "cta": {
+      "title": "Ready to Unleash AI's Professional Potential?",
+      "subtitle": "Join thousands of professionals making AI their powerful work assistant"
+    },
+    "footer": {
+      "tagline": "Making professional work smarter, making AI understand you better",
+      "copyright": "© 2024 AI Prompt Builder Pro. All rights reserved."
+    }
+  },
+  "industries": {
+    "lawyer": {
+      "name": "Lawyers",
+      "displayName": "Legal Professional",
+      "description": "AI assistant designed for legal practitioners, covering contract review, case analysis, legal research, and more",
+      "features": ["Contract Review", "Case Analysis", "Legal Research", "Document Drafting"],
+      "enter": "Enter Legal Workspace"
+    },
+    "realtor": {
+      "name": "Realtors",
+      "displayName": "Real Estate",
+      "description": "Smart partner for real estate professionals, providing market analysis, client communication, investment advice, and more",
+      "features": ["Market Analysis", "Client Consultation", "Investment Advice", "Property Descriptions"],
+      "enter": "Enter Realtor Workspace"
+    },
+    "insurance": {
+      "name": "Insurance Advisors",
+      "displayName": "Insurance Industry",
+      "description": "Professional tool for insurance experts, assisting with risk assessment, product recommendations, claims processing, and more",
+      "features": ["Risk Assessment", "Product Recommendations", "Claims Guidance", "Client Education"],
+      "enter": "Enter Insurance Workspace"
+    },
+    "teacher": {
+      "name": "Teachers",
+      "displayName": "Education",
+      "description": "Smart assistant for educators, covering lesson design, student assessment, curriculum planning, and more",
+      "features": ["Lesson Design", "Student Assessment", "Curriculum Planning", "Assignment Creation"],
+      "enter": "Enter Teacher Workspace"
+    },
+    "accountant": {
+      "name": "Accountants",
+      "displayName": "Finance & Accounting",
+      "description": "Powerful assistant for finance professionals, supporting financial analysis, tax planning, audit work, and more",
+      "features": ["Financial Analysis", "Tax Planning", "Audit Support", "Report Interpretation"],
+      "enter": "Enter Accountant Workspace"
+    }
+  },
+  "forms": {
+    "scenarioType": "Scenario Type",
+    "taskGoal": "Task Goal",
+    "specificRequirements": "Specific Requirements",
+    "additionalContext": "Additional Context",
+    "generatePrompt": "Generate Professional Prompt",
+    "generating": "Generating...",
+    "copyToClipboard": "Copy to Clipboard",
+    "copied": "Copied!",
+    "regenerate": "Regenerate",
+    "placeholder": {
+      "scenario": "Select or describe your use case",
+      "goal": "Describe what you want to achieve",
+      "requirements": "Specify requirements and constraints",
+      "context": "Optional: Provide additional background"
+    }
+  }
+}
