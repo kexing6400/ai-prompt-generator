@@ -15,7 +15,7 @@ import { useRouter, usePathname } from 'next/navigation';
 export function LanguageSwitcher() {
   const router = useRouter();
   const pathname = usePathname();
-  const [currentLocale, setCurrentLocale] = useState<Locale>('zh');
+  const [currentLocale, setCurrentLocale] = useState<Locale>('cn');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export function LanguageSwitcher() {
       // 检测浏览器语言
       const browserLang = navigator.language.toLowerCase();
       if (browserLang.startsWith('zh')) {
-        setCurrentLocale('zh');
+        setCurrentLocale('cn');
       } else {
         setCurrentLocale('en');
       }
@@ -38,15 +38,13 @@ export function LanguageSwitcher() {
   const switchLanguage = (locale: Locale) => {
     if (locale === currentLocale) return;
     
-    // 保存到 localStorage
+    // 保存到 localStorage 和 cookie
     localStorage.setItem('locale', locale);
+    document.cookie = `locale=${locale};path=/;max-age=${365 * 24 * 60 * 60}`;
     setCurrentLocale(locale);
     
-    // 更新 URL（如果使用路径前缀）
-    // const newPathname = pathname.replace(/^\/[a-z]{2}/, `/${locale}`);
-    // router.push(newPathname);
-    
-    // 暂时使用刷新页面的方式
+    // 刷新页面以应用新语言
+    // 未来实现[locale]路径后，这里会改为路由跳转
     window.location.reload();
   };
 

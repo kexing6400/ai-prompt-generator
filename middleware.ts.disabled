@@ -99,8 +99,8 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-matcher: [
-// 匹配所有路径，排除API、静态资源、图标等
-'/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|icons/|apple-touch-icon.png|android-chrome-.*\.png).*)',
-]
+  matcher: [
+    // 简化的匹配器，排除API和静态资源
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ]
 }
