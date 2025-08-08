@@ -10,9 +10,6 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   
-  // 输出配置
-  output: 'standalone',
-  
   // 性能优化
   compress: true,
   poweredByHeader: false,
