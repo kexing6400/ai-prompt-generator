@@ -5,10 +5,13 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   
-  // TypeScript设置 - 构建时忽略类型错误
+  // TypeScript设置 - 构建时忽略类型错误  
   typescript: {
     ignoreBuildErrors: true,
   },
+  
+  // 输出配置
+  output: 'standalone',
   
   // 性能优化
   compress: true,
