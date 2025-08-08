@@ -111,11 +111,11 @@ export interface Dictionary {
 // 获取字典
 export async function getDictionary(locale: Locale): Promise<Dictionary> {
   try {
-    const dict = await import(`@/locales/${locale}.json`);
+    const dict = await import(`../locales/${locale}.json`);
     return dict.default;
   } catch (error) {
     // 如果找不到对应语言，返回默认语言
-    const dict = await import(`@/locales/${defaultLocale}.json`);
+    const dict = await import(`../locales/${defaultLocale}.json`);
     return dict.default;
   }
 }
