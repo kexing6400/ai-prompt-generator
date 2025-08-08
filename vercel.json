@@ -1,8 +1,11 @@
 {
+  "name": "ai-prompt-generator",
+  "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
+  "installCommand": "npm install",
   "framework": "nextjs",
-  "regions": ["hkg1", "sin1"],
+  "regions": ["sfo1"],
   "functions": {
     "app/api/**/*.js": {
       "maxDuration": 10
