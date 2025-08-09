@@ -35,6 +35,15 @@ export const metadata: Metadata = {
   },
 }
 
+// 路径映射
+const industryPaths: Record<string, string> = {
+  lawyer: 'ai-prompts-for-lawyers',
+  realtor: 'ai-prompts-for-realtors',
+  insurance: 'ai-prompts-for-insurance-advisors',
+  teacher: 'ai-prompts-for-teachers',
+  accountant: 'ai-prompts-for-accountants'
+}
+
 // 行业配置数据
 const industries: Array<{
   id: IndustryType
@@ -216,7 +225,7 @@ export default function HomePage() {
               return (
                 <Link 
                   key={industry.id} 
-                  href={`/${industry.id}`}
+                  href={`/${industryPaths[industry.id]}`}
                   className="group block"
                 >
                   <Card className="industry-card hover-lift group-hover:border-2 group-hover:border-current transition-all duration-300">

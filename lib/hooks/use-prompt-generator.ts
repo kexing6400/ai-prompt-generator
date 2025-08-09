@@ -50,8 +50,8 @@ export function usePromptGenerator(defaultIndustry: string): UsePromptGeneratorR
     setError('')
     
     try {
-      // 使用新的 v3 API，增强错误处理
-      const response = await fetch('/api/generate-prompt-v3', {
+      // 使用优化后的主API端点
+      const response = await fetch('/api/generate-prompt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
