@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import { 
   Home, 
   TrendingUp, 
@@ -85,6 +86,9 @@ const successMetrics = [
 ]
 
 export default function RealtorAIPrompts() {
+  const params = useParams()
+  const locale = params.locale || 'en'
+  
   const {
     loading,
     result,
@@ -149,6 +153,17 @@ export default function RealtorAIPrompts() {
                 <span>/</span>
                 <span className="text-green-600">AI Prompts for Realtors</span>
               </nav>
+              
+              {/* 模板库链接 */}
+              <div className="mt-4">
+                <a 
+                  href={`/${locale}/ai-prompts-for-realtors/templates`}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  查看专业模板库 (10个模板)
+                </a>
+              </div>
             </div>
           </div>
         </div>

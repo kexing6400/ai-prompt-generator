@@ -156,6 +156,17 @@ export default function LawyerAIPrompts() {
                 <span>/</span>
                 <span className="text-lawyer">{t('pages.lawyer.breadcrumb')}</span>
               </nav>
+              
+              {/* 模板库链接 */}
+              <div className="mt-4">
+                <a 
+                  href={`/${locale}/ai-prompts-for-lawyers/templates`}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-lawyer text-white rounded-lg hover:bg-lawyer-dark transition-colors"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  查看专业模板库 (10个模板)
+                </a>
+              </div>
             </div>
           </div>
         </div>

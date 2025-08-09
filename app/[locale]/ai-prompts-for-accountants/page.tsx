@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
+import Link from 'next/link'
 import { 
   Calculator, 
   FileText, 
@@ -85,6 +87,9 @@ const successMetrics = [
 ]
 
 export default function AccountantAIPrompts() {
+  const params = useParams()
+  const locale = params.locale as string
+  
   const {
     loading,
     result,
@@ -149,6 +154,16 @@ export default function AccountantAIPrompts() {
                 <span>/</span>
                 <span className="text-emerald-600">AI Prompts for Accountants</span>
               </nav>
+              
+              {/* 模板库链接 */}
+              <div className="mt-6">
+                <Link href={`/${locale}/ai-prompts-for-accountants/templates`}>
+                  <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                    <Calculator className="mr-2 h-4 w-4" />
+                    查看专业模板库 (10个模板)
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

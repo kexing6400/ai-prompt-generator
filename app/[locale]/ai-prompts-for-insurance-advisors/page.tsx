@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
+import Link from 'next/link'
 import { 
   Shield, 
   FileText, 
@@ -85,6 +87,9 @@ const successMetrics = [
 ]
 
 export default function InsuranceAdvisorAIPrompts() {
+  const params = useParams()
+  const locale = params.locale as string
+  
   const {
     loading,
     result,
@@ -149,6 +154,16 @@ export default function InsuranceAdvisorAIPrompts() {
                 <span>/</span>
                 <span className="text-purple-600">AI Prompts for Insurance Advisors</span>
               </nav>
+              
+              {/* 模板库链接 */}
+              <div className="mt-6">
+                <Link href={`/${locale}/ai-prompts-for-insurance-advisors/templates`}>
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                    <Shield className="mr-2 h-4 w-4" />
+                    查看专业模板库 (10个模板)
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
