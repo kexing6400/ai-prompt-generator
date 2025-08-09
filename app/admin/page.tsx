@@ -116,6 +116,7 @@ export default function AdminPage() {
   // 认证状态
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('');
   const [isInitialization, setIsInitialization] = useState(false);
   
@@ -150,7 +151,7 @@ export default function AdminPage() {
    */
   const checkAuthStatus = async () => {
     try {
-      const response = await fetch('/api/admin/auth');
+      const response = await fetch('/api/admin/auth/simple-verify');
       const data = await response.json();
       
       if (data.success && data.authenticated) {
@@ -179,12 +180,12 @@ export default function AdminPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/admin/auth', {
+      const response = await fetch('/api/admin/auth/simple-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();
@@ -218,7 +219,7 @@ export default function AdminPage() {
    */
   const handleLogout = async () => {
     try {
-      await fetch('/api/admin/auth', { method: 'DELETE' });
+      await fetch('/api/admin/auth/logout', { method: 'POST' });
       setIsAuthenticated(false);
       setMessage('已安全登出');
       setMessageType('info');
@@ -395,6 +396,22 @@ export default function AdminPage() {
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <Label htmlFor="username" className={state.isDarkMode ? 'text-gray-300' : ''}>
+                用户名
+              </Label>
+              <div className="mt-2">
+                <Input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="输入用户名 (默认: admin)"
+                  required
+                  className={state.isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}
+                />
+              </div>
+            </div>
             <div>
               <Label htmlFor="password" className={state.isDarkMode ? 'text-gray-300' : ''}>
                 {isInitialization ? '设置管理员密码' : '管理员密码'}
