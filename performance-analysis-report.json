@@ -1,0 +1,82 @@
+{
+  "timestamp": "2025-08-09T13:52:05.891Z",
+  "project": "AI Prompt Generator",
+  "analysis": {
+    "bundle": {
+      "totalDependencies": 29,
+      "totalDevDependencies": 13,
+      "heavyPackages": [
+        "@radix-ui",
+        "next",
+        "react",
+        "tailwindcss",
+        "@playwright/test",
+        "typescript"
+      ]
+    },
+    "code": {
+      "totalFiles": 42,
+      "totalLines": 6483,
+      "totalSize": 211923,
+      "avgComplexity": 14.214285714285714,
+      "complexFiles": [
+        {
+          "path": "app/api/generate-prompt-v3/route.ts",
+          "complexity": 53
+        },
+        {
+          "path": "app/api/generate-prompt-v2/route.ts",
+          "complexity": 45
+        },
+        {
+          "path": "app/api/security/csp-report/route.ts",
+          "complexity": 41
+        },
+        {
+          "path": "app/api/generate-prompt/route.secure.ts",
+          "complexity": 38
+        },
+        {
+          "path": "app/api/security/test/route.ts",
+          "complexity": 35
+        }
+      ]
+    },
+    "api": {
+      "totalAPIs": 7,
+      "externalAPIs": 4,
+      "cachedAPIs": 0,
+      "performanceIssues": 4
+    }
+  },
+  "recommendations": [
+    {
+      "priority": "HIGH",
+      "category": "Bundle Size",
+      "issue": "依赖包过多 (29 个)",
+      "solution": "使用webpack-bundle-analyzer分析，移除未使用的依赖，考虑轻量级替代方案",
+      "impact": "减少初始加载时间 30-50%"
+    },
+    {
+      "priority": "MEDIUM",
+      "category": "Code Complexity",
+      "issue": "平均代码复杂度过高 (14.21)",
+      "solution": "重构高复杂度函数，使用设计模式，增加单元测试",
+      "impact": "提升维护性和运行性能"
+    },
+    {
+      "priority": "CRITICAL",
+      "category": "API Performance",
+      "issue": "4 个API缺乏缓存机制",
+      "solution": "实施Redis缓存、实现回退策略、添加请求去重",
+      "impact": "减少API响应时间 80-90%"
+    }
+  ],
+  "summary": {
+    "bundleStatus": "NEEDS_OPTIMIZATION",
+    "codeQuality": "NEEDS_REFACTORING",
+    "apiPerformance": "NEEDS_CACHING",
+    "totalIssues": 3,
+    "criticalIssues": 1
+  }
+}

@@ -20,32 +20,53 @@ export function LanguageSwitcher() {
 
   useEffect(() => {
     setMounted(true);
-    // 从 localStorage 或 cookie 获取当前语言
-    const savedLocale = localStorage.getItem('locale') as Locale;
-    if (savedLocale && locales.includes(savedLocale)) {
-      setCurrentLocale(savedLocale);
+    // 从URL路径获取当前语言
+    const pathSegments = pathname.split('/');
+    const pathLocale = pathSegments[1] as Locale;
+    
+    if (locales.includes(pathLocale)) {
+      setCurrentLocale(pathLocale);
     } else {
-      // 检测浏览器语言
-      const browserLang = navigator.language.toLowerCase();
-      if (browserLang.startsWith('zh')) {
-        setCurrentLocale('cn');
+      // 从localStorage获取保存的语言偏好
+      const savedLocale = localStorage.getItem('locale') as Locale;
+      if (savedLocale && locales.includes(savedLocale)) {
+        setCurrentLocale(savedLocale);
       } else {
-        setCurrentLocale('en');
+        // 检测浏览器语言
+        const browserLang = navigator.language.toLowerCase();
+        if (browserLang.startsWith('zh')) {
+          setCurrentLocale('cn');
+        } else {
+          setCurrentLocale('en');
+        }
       }
     }
-  }, []);
+  }, [pathname]);
 
   const switchLanguage = (locale: Locale) => {
     if (locale === currentLocale) return;
     
     // 保存到 localStorage 和 cookie
     localStorage.setItem('locale', locale);
-    document.cookie = `locale=${locale};path=/;max-age=${365 * 24 * 60 * 60}`;
-    setCurrentLocale(locale);
+    document.cookie = `locale=${locale};path=/;max-age=${365 * 24 * 60 * 60};SameSite=Lax`;
     
-    // 刷新页面以应用新语言
-    // 未来实现[locale]路径后，这里会改为路由跳转
-    window.location.reload();
+    // 构建新的URL路径
+    const pathSegments = pathname.split('/');
+    
+    // 如果当前路径包含locale，替换它
+    if (locales.includes(pathSegments[1] as Locale)) {
+      pathSegments[1] = locale;
+    } else {
+      // 如果没有locale，添加它
+      pathSegments.splice(1, 0, locale);
+    }
+    
+    const newPath = pathSegments.join('/') || `/${locale}`;
+    
+    // 使用router进行客户端导航
+    router.push(newPath);
+    router.refresh();
+    setCurrentLocale(locale);
   };
 
   if (!mounted) {
