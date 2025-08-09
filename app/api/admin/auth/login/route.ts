@@ -25,13 +25,16 @@ const loginSchema = z.object({
   captcha: z.string().optional() // 验证码（可选）
 })
 
-// 🔐 默认管理员配置（生产环境应从数据库获取）
+// 🔐 企业级管理员账户配置
+// ⚠️ 安全说明：密码已使用bcrypt哈希加密（工作因子12），绝不存储明文密码
+// 🔒 生产环境建议：将用户配置迁移到加密数据库或环境变量中
 const ADMIN_USERS = {
-  'admin': {
-    userId: 'admin_001',
-    username: 'admin',
-    // 这是 "Admin123!@#" 的bcrypt哈希
-    passwordHash: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewgkBHqVe6V7oUH.',
+  'kexing': {
+    userId: 'admin_kexing_001',
+    username: 'kexing',
+    // 🔐 密码哈希值（使用bcrypt加密，工作因子12）
+    // 原始密码复杂度：8+字符，包含大小写字母、数字、特殊字符
+    passwordHash: '$2b$12$z8hxhr6KaIuXIZBSA.cTXupZ.RrM0xQm569uLRPxlQnMvCN0/7JNW',
     role: 'super_admin' as const,
     permissions: [
       'system:config:read',
@@ -44,7 +47,12 @@ const ADMIN_USERS = {
       'super:admin'
     ],
     isActive: true,
-    lastPasswordChange: new Date('2024-01-01')
+    lastPasswordChange: new Date('2024-12-10'),
+    // 🔐 安全设置
+    maxLoginAttempts: 5,
+    lockoutDuration: 15 * 60 * 1000, // 15分钟
+    passwordExpiryDays: 90,
+    requireMFA: false // 双因素认证（未来实现）
   }
 }
 

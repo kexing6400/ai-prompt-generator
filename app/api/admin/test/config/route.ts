@@ -145,7 +145,13 @@ async function testApiKey(timeout: number): Promise<TestResult> {
       };
     }
 
-    if (!apiConfig.openrouterApiKey.startsWith('sk-or-')) {
+    // 支持多种API密钥格式：OpenRouter (sk-or-) 和 Claude (sk-ant-)
+    const validKeyPrefixes = ['sk-or-', 'sk-ant-'];
+    const hasValidPrefix = validKeyPrefixes.some(prefix => 
+      apiConfig.openrouterApiKey.startsWith(prefix)
+    );
+    
+    if (!hasValidPrefix) {
       return {
         success: false,
         testType: 'api_key',
@@ -153,25 +159,52 @@ async function testApiKey(timeout: number): Promise<TestResult> {
         details: { 
           configured: true,
           format: 'invalid',
-          keyPrefix: apiConfig.openrouterApiKey.substring(0, 6)
+          keyPrefix: apiConfig.openrouterApiKey.substring(0, 6),
+          expectedFormats: validKeyPrefixes
         },
         responseTime: Date.now() - startTime,
-        error: 'API密钥格式不正确'
+        error: `API密钥格式不正确，期望格式: ${validKeyPrefixes.join(' 或 ')}`
       };
     }
 
-    // 测试API密钥
+    // 测试API密钥 - 根据密钥类型选择适当的端点
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-    const response = await fetch(`${apiConfig.openrouterBaseUrl}/models`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${apiConfig.openrouterApiKey}`,
-        'Content-Type': 'application/json'
-      },
-      signal: controller.signal
-    }).finally(() => clearTimeout(timeoutId));
+    
+    // 判断是Claude API还是OpenRouter API
+    const isClaudeApi = apiConfig.openrouterApiKey.startsWith('sk-ant-');
+    const testEndpoint = isClaudeApi ? '/messages' : '/models';
+    const testUrl = `${apiConfig.openrouterBaseUrl}${testEndpoint}`;
+    
+    let response: Response;
+    
+    if (isClaudeApi) {
+      // Claude API测试 - 发送一个简单的测试消息
+      response = await fetch(testUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiConfig.openrouterApiKey}`,
+          'Content-Type': 'application/json',
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-3-haiku-20240307',
+          max_tokens: 10,
+          messages: [{ role: 'user', content: '测试' }]
+        }),
+        signal: controller.signal
+      }).finally(() => clearTimeout(timeoutId));
+    } else {
+      // OpenRouter API测试 - 获取模型列表
+      response = await fetch(testUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${apiConfig.openrouterApiKey}`,
+          'Content-Type': 'application/json'
+        },
+        signal: controller.signal
+      }).finally(() => clearTimeout(timeoutId));
+    }
 
     if (!response.ok) {
       return {
@@ -190,18 +223,35 @@ async function testApiKey(timeout: number): Promise<TestResult> {
     }
 
     const data = await response.json();
-    const modelsCount = data.data?.length || 0;
+    
+    let responseDetails;
+    if (isClaudeApi) {
+      // Claude API响应处理
+      responseDetails = {
+        configured: true,
+        format: 'valid',
+        apiType: 'Claude API',
+        model: data.model || 'claude-3-haiku-20240307',
+        responsePreview: data.content?.[0]?.text || '测试成功',
+        baseUrl: apiConfig.openrouterBaseUrl
+      };
+    } else {
+      // OpenRouter API响应处理
+      const modelsCount = data.data?.length || 0;
+      responseDetails = {
+        configured: true,
+        format: 'valid',
+        apiType: 'OpenRouter API',
+        modelsAvailable: modelsCount,
+        baseUrl: apiConfig.openrouterBaseUrl
+      };
+    }
 
     return {
       success: true,
       testType: 'api_key',
       message: 'API密钥验证成功',
-      details: {
-        configured: true,
-        format: 'valid',
-        modelsAvailable: modelsCount,
-        baseUrl: apiConfig.openrouterBaseUrl
-      },
+      details: responseDetails,
       responseTime: Date.now() - startTime
     };
 

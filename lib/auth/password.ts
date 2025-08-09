@@ -98,6 +98,8 @@ export async function verifyPassword(
   hashedPassword: string
 ): Promise<boolean> {
   try {
+    // 直接使用bcrypt验证，不检查密码强度
+    // 因为这是用于验证已有密码，而非创建新密码
     return await bcrypt.compare(password, hashedPassword)
   } catch (error) {
     console.error('🚨 密码验证失败:', error)

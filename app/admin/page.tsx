@@ -247,6 +247,18 @@ export default function AdminPage() {
   };
 
   /**
+   * 获取CSRF token（如果存在）
+   */
+  const getCSRFToken = (): string => {
+    // 尝试从meta标签获取
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    if (metaTag) return metaTag.getAttribute('content') || '';
+    
+    // 尝试从响应头获取（需要在登录时保存）
+    return localStorage.getItem('admin-csrf-token') || '';
+  };
+
+  /**
    * 切换主题模式
    */
   const toggleDarkMode = () => {
@@ -1401,22 +1413,40 @@ export default function AdminPage() {
                         try {
                           const response = await fetch('/api/admin/test/config', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: { 
+                              'Content-Type': 'application/json',
+                              // 添加CSRF token如果需要
+                              ...(document.cookie.includes('admin-session') ? {
+                                'x-admin-csrf-token': getCSRFToken()
+                              } : {})
+                            },
                             body: JSON.stringify({ testType: 'api_key' })
                           });
+                          
+                          if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                          }
+                          
                           const result = await response.json();
                           setTestingState(prev => ({ 
                             ...prev, 
                             configTesting: false,
                             testResults: { apiKey: result }
                           }));
+                          
                           showMessage(
-                            result.success ? 'API密钥验证通过' : result.error,
+                            result.success 
+                              ? `API密钥验证通过 (${result.details?.apiType || 'Unknown API'})` 
+                              : result.error || '验证失败',
                             result.success ? 'success' : 'error'
                           );
-                        } catch (error) {
+                        } catch (error: any) {
+                          console.error('API密钥测试失败:', error);
                           setTestingState(prev => ({ ...prev, configTesting: false }));
-                          showMessage('API密钥测试失败', 'error');
+                          showMessage(
+                            `API密钥测试失败: ${error.message || '网络错误'}`, 
+                            'error'
+                          );
                         }
                       }}
                       disabled={testingState.configTesting}
@@ -1436,15 +1466,30 @@ export default function AdminPage() {
                     验证OpenRouter API密钥的有效性
                   </p>
                   {testingState.testResults?.apiKey && (
-                    <div className={`mt-3 p-2 rounded text-xs ${
+                    <div className={`mt-3 p-3 rounded-lg text-sm ${
                       testingState.testResults.apiKey.success 
                         ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                         : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
                     }`}>
-                      {testingState.testResults.apiKey.success 
-                        ? `✓ ${testingState.testResults.apiKey.results?.[0]?.message}`
-                        : `✗ ${testingState.testResults.apiKey.error}`
-                      }
+                      <div className="flex items-center space-x-2 mb-2">
+                        {testingState.testResults.apiKey.success ? (
+                          <CheckCircle className="h-4 w-4" />
+                        ) : (
+                          <AlertCircle className="h-4 w-4" />
+                        )}
+                        <span className="font-medium">
+                          {testingState.testResults.apiKey.message}
+                        </span>
+                      </div>
+                      {testingState.testResults.apiKey.details && (
+                        <div className="text-xs space-y-1">
+                          <div>API类型: {testingState.testResults.apiKey.details.apiType || '未知'}</div>
+                          <div>响应时间: {testingState.testResults.apiKey.responseTime}ms</div>
+                          {testingState.testResults.apiKey.details.modelsAvailable && (
+                            <div>可用模型: {testingState.testResults.apiKey.details.modelsAvailable}</div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </Card>
@@ -1469,22 +1514,39 @@ export default function AdminPage() {
                         try {
                           const response = await fetch('/api/admin/test/config', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: { 
+                              'Content-Type': 'application/json',
+                              ...(document.cookie.includes('admin-session') ? {
+                                'x-admin-csrf-token': getCSRFToken()
+                              } : {})
+                            },
                             body: JSON.stringify({ testType: 'model_connection' })
                           });
+                          
+                          if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                          }
+                          
                           const result = await response.json();
                           setTestingState(prev => ({ 
                             ...prev, 
                             generateTesting: false,
                             testResults: { ...prev.testResults, modelConnection: result }
                           }));
+                          
                           showMessage(
-                            result.success ? '模型连接正常' : result.error,
+                            result.success 
+                              ? `模型连接正常 (${result.details?.modelName || '未知模型'})` 
+                              : result.error || '连接失败',
                             result.success ? 'success' : 'error'
                           );
-                        } catch (error) {
+                        } catch (error: any) {
+                          console.error('模型连接测试失败:', error);
                           setTestingState(prev => ({ ...prev, generateTesting: false }));
-                          showMessage('模型连接测试失败', 'error');
+                          showMessage(
+                            `模型连接测试失败: ${error.message || '网络错误'}`, 
+                            'error'
+                          );
                         }
                       }}
                       disabled={testingState.generateTesting}
@@ -1503,6 +1565,34 @@ export default function AdminPage() {
                   }`}>
                     测试AI模型的连接和响应
                   </p>
+                  {testingState.testResults?.modelConnection && (
+                    <div className={`mt-3 p-3 rounded-lg text-sm ${
+                      testingState.testResults.modelConnection.success 
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                    }`}>
+                      <div className="flex items-center space-x-2 mb-2">
+                        {testingState.testResults.modelConnection.success ? (
+                          <CheckCircle className="h-4 w-4" />
+                        ) : (
+                          <AlertCircle className="h-4 w-4" />
+                        )}
+                        <span className="font-medium">
+                          {testingState.testResults.modelConnection.message}
+                        </span>
+                      </div>
+                      {testingState.testResults.modelConnection.details && (
+                        <div className="text-xs space-y-1">
+                          <div>模型: {testingState.testResults.modelConnection.details.modelName || '未知'}</div>
+                          <div>提供商: {testingState.testResults.modelConnection.details.provider || '未知'}</div>
+                          <div>响应时间: {testingState.testResults.modelConnection.responseTime}ms</div>
+                          {testingState.testResults.modelConnection.details.responsePreview && (
+                            <div>响应预览: {testingState.testResults.modelConnection.details.responsePreview}</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </Card>
               </div>
 
@@ -1515,22 +1605,39 @@ export default function AdminPage() {
                     try {
                       const response = await fetch('/api/admin/test/config', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                          'Content-Type': 'application/json',
+                          ...(document.cookie.includes('admin-session') ? {
+                            'x-admin-csrf-token': '' // 这里需要实际的CSRF token
+                          } : {})
+                        },
                         body: JSON.stringify({ testType: 'all' })
                       });
+                      
+                      if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                      }
+                      
                       const result = await response.json();
                       setTestingState(prev => ({ 
                         ...prev, 
                         configTesting: false,
                         testResults: { comprehensive: result }
                       }));
-                      showMessage(
-                        `全面测试完成: 成功率${result.summary?.successRate || '0%'}`,
-                        result.success ? 'success' : 'error'
-                      );
-                    } catch (error) {
+                      
+                      const successRate = result.summary?.successRate || '0%';
+                      const message = result.success 
+                        ? `全面测试完成: 成功率 ${successRate}` 
+                        : `测试完成但有错误: 成功率 ${successRate}`;
+                      
+                      showMessage(message, result.success ? 'success' : 'error');
+                    } catch (error: any) {
+                      console.error('全面测试失败:', error);
                       setTestingState(prev => ({ ...prev, configTesting: false }));
-                      showMessage('全面测试失败', 'error');
+                      showMessage(
+                        `全面测试失败: ${error.message || '网络错误'}`, 
+                        'error'
+                      );
                     }
                   }}
                   disabled={testingState.configTesting}
