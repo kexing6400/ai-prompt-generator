@@ -27,7 +27,6 @@ import {
   ChevronRight,
   Hash
 } from 'lucide-react'
-import { toast } from 'sonner'
 
 interface TemplateCardProps {
   template: {
@@ -82,7 +81,7 @@ export default function TemplateCard({ template, industryName }: TemplateCardPro
 
     navigator.clipboard.writeText(fullPrompt)
     setCopied(true)
-    toast.success('提示词已复制到剪贴板')
+    // 2秒后重置状态
     setTimeout(() => setCopied(false), 2000)
   }
 
