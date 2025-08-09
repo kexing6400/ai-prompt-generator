@@ -13,7 +13,9 @@
     "satisfaction": "满意度",
     "industries": "垂直行业",
     "selectIndustry": "选择您的专业领域",
+    "selectIndustryDesc": "我们深度理解每个行业的专业需求，为您提供最贴合的AI提示词解决方案",
     "whyChooseUs": "为什么选择我们",
+    "whyChooseUsDesc": "专业、智能、高效的AI提示词生成平台，让每一个专业人士都能轻松驾驭AI助手",
     "features": {
       "intelligent": "智能化生成",
       "intelligentDesc": "基于行业专业知识的AI算法，生成精准、专业的提示词模板",
@@ -80,11 +82,93 @@
     "copyToClipboard": "复制到剪贴板",
     "copied": "已复制！",
     "regenerate": "重新生成",
+    "saveDraft": "保存草稿",
+    "loadDraft": "加载草稿",
+    "characters": "字符",
+    "optional": "可选",
+    "required": "必填",
+    "quickStart": "快速开始 - 选择示例场景",
+    "professionalTip": "专业提示",
+    "tipContent": "生成的提示词可直接用于ChatGPT、Claude等主流AI助手。建议根据具体情况微调后使用。",
     "placeholder": {
       "scenario": "请选择或描述您的使用场景",
       "goal": "请描述您想要实现的目标",
       "requirements": "请说明具体要求和限制条件",
       "context": "可选：提供更多背景信息"
     }
+  },
+  "pages": {
+    "lawyer": {
+      "title": "律师AI提示词：专业模板节省70%时间",
+      "subtitle": "专业法律AI助手，让法律服务更智能、更高效",
+      "breadcrumb": "律师AI提示词",
+      "categoriesTitle": "专业模板分类",
+      "generatorTitle": "律师AI提示词生成器",
+      "generatorSubtitle": "填写下方表单，生成专业法律AI提示词",
+      "scenarioLabel": "法律服务场景",
+      "scenarioPlaceholder": "选择您的法律服务场景",
+      "requirementsLabel": "具体需求",
+      "requirementsPlaceholder": "请详细描述您希望AI助手帮助您完成的工作，如：分析某份商业合同的主要风险点并提供相应的法律建议...",
+      "requirementsTip": "提示：请详细描述您的需求，包括文档类型、关注重点、预期输出格式等",
+      "contextLabel": "补充信息（可选）",
+      "contextPlaceholder": "提供更多背景信息，如：案件金额、执业领域、特殊要求等...",
+      "generateButton": "生成专业AI提示词",
+      "metrics": {
+        "served": "服务律师",
+        "generated": "提示词生成",
+        "timeSaved": "时间节省",
+        "accuracy": "准确率"
+      },
+      "categories": {
+        "contractReview": {
+          "name": "合同审查",
+          "description": "AI驱动的合同分析、风险识别、专业建议",
+          "templates": [
+            "商业合同风险分析",
+            "劳动合同审查",
+            "房地产合同评估",
+            "知识产权协议评估"
+          ]
+        },
+        "caseAnalysis": {
+          "name": "案例分析",
+          "description": "深度案例研究，提取关键法律见解，判例研究",
+          "templates": [
+            "判决书分析要点",
+            "类似案例比较",
+            "法律先例研究",
+            "案件争议焦点分析"
+          ]
+        },
+        "legalResearch": {
+          "name": "法律研究",
+          "description": "法规研究、法律分析、学术研究支持",
+          "templates": [
+            "法条适用性分析",
+            "法理依据整理",
+            "立法历史研究",
+            "司法解释梳理"
+          ]
+        },
+        "documentDrafting": {
+          "name": "文书起草",
+          "description": "专业法律文书模板和优化",
+          "templates": [
+            "起诉状起草",
+            "答辩书撰写",
+            "法律意见书",
+            "律师函制作"
+          ]
+        }
+      },
+      "selectCategory": "选择分类",
+      "popular": "热门"
+    }
+  },
+  "navigation": {
+    "home": "首页"
+  },
+  "ui": {
+    "coreFeatures": "核心功能"
   }
 }

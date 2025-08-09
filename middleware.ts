@@ -27,10 +27,11 @@ export function middleware(request: NextRequest) {
     (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
   )
 
-  // 跳过API路由、静态文件等
+  // 跳过API路由、静态文件、管理后台等
   if (
     pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
+    pathname.startsWith('/admin') ||
     pathname.includes('/favicon') ||
     pathname.includes('.') // 静态文件
   ) {

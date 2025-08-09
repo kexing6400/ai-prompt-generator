@@ -13,7 +13,9 @@
     "satisfaction": "Satisfaction",
     "industries": "Industries",
     "selectIndustry": "Select Your Professional Field",
+    "selectIndustryDesc": "We deeply understand the unique needs of each industry, providing the most tailored AI prompt solutions for you",
     "whyChooseUs": "Why Choose Us",
+    "whyChooseUsDesc": "Professional, intelligent, and efficient AI prompt generation platform that empowers every professional to master AI assistants effortlessly",
     "features": {
       "intelligent": "Intelligent Generation",
       "intelligentDesc": "AI algorithms based on industry expertise generate precise, professional prompt templates",
@@ -80,11 +82,93 @@
     "copyToClipboard": "Copy to Clipboard",
     "copied": "Copied!",
     "regenerate": "Regenerate",
+    "saveDraft": "Save Draft",
+    "loadDraft": "Load Draft",
+    "characters": "characters",
+    "optional": "optional",
+    "required": "required",
+    "quickStart": "Quick Start - Choose Example Scenario",
+    "professionalTip": "Professional Tip",
+    "tipContent": "Generated prompts work directly with ChatGPT, Claude, and other mainstream AI assistants. We recommend fine-tuning based on your specific situation before use.",
     "placeholder": {
       "scenario": "Select or describe your use case",
       "goal": "Describe what you want to achieve",
       "requirements": "Specify requirements and constraints",
       "context": "Optional: Provide additional background"
     }
+  },
+  "pages": {
+    "lawyer": {
+      "title": "AI Prompts for Lawyers: Save 70% Time with Professional Templates",
+      "subtitle": "Professional legal AI assistant. Make legal services smarter and more efficient",
+      "breadcrumb": "AI Prompts for Lawyers",
+      "categoriesTitle": "Professional Template Categories",
+      "generatorTitle": "AI Prompt Generator for Lawyers",
+      "generatorSubtitle": "Fill out the form below to generate professional legal AI prompts",
+      "scenarioLabel": "Legal Service Scenario",
+      "scenarioPlaceholder": "Choose your legal service scenario",
+      "requirementsLabel": "Specific Requirements",
+      "requirementsPlaceholder": "Please describe in detail what you want the AI assistant to help you with, such as: analyze the main risk points of a commercial contract and provide corresponding legal advice...",
+      "requirementsTip": "Tip: Describe your needs in detail, including document type, focus points, expected output format, etc.",
+      "contextLabel": "Additional Information (Optional)",
+      "contextPlaceholder": "Provide more background information, such as: case amount, practice area, special requirements, etc...",
+      "generateButton": "Generate Professional AI Prompt",
+      "metrics": {
+        "served": "Lawyers Served",
+        "generated": "Prompts Generated",
+        "timeSaved": "Time Saved",
+        "accuracy": "Accuracy Rate"
+      },
+      "categories": {
+        "contractReview": {
+          "name": "Contract Review",
+          "description": "AI-powered contract analysis, risk identification, professional recommendations",
+          "templates": [
+            "Commercial contract risk analysis",
+            "Employment agreement review", 
+            "Real estate contract assessment",
+            "IP agreement evaluation"
+          ]
+        },
+        "caseAnalysis": {
+          "name": "Case Analysis",
+          "description": "Deep case studies, extract key legal insights, precedent research",
+          "templates": [
+            "Judgment analysis & key points",
+            "Similar case comparison",
+            "Legal precedent research",
+            "Case dispute focus analysis"
+          ]
+        },
+        "legalResearch": {
+          "name": "Legal Research",
+          "description": "Statute research, legal analysis, academic research support",
+          "templates": [
+            "Statute applicability analysis",
+            "Legal reasoning documentation",
+            "Legislative history research",
+            "Judicial interpretation review"
+          ]
+        },
+        "documentDrafting": {
+          "name": "Document Drafting",
+          "description": "Professional legal document templates and optimization",
+          "templates": [
+            "Complaint drafting",
+            "Response brief writing",
+            "Legal opinion letters",
+            "Demand letter creation"
+          ]
+        }
+      },
+      "selectCategory": "Select Category",
+      "popular": "Popular"
+    }
+  },
+  "navigation": {
+    "home": "Home"
+  },
+  "ui": {
+    "coreFeatures": "Core Features"
   }
 }
