@@ -105,12 +105,74 @@ export interface Dictionary {
     copyToClipboard: string;
     copied: string;
     regenerate: string;
+    saveDraft: string;
+    loadDraft: string;
+    characters: string;
+    optional: string;
+    required: string;
+    quickStart: string;
+    professionalTip: string;
+    tipContent: string;
     placeholder: {
       scenario: string;
       goal: string;
       requirements: string;
       context: string;
     };
+  };
+  pages: {
+    lawyer: {
+      title: string;
+      subtitle: string;
+      breadcrumb: string;
+      categoriesTitle: string;
+      generatorTitle: string;
+      generatorSubtitle: string;
+      scenarioLabel: string;
+      scenarioPlaceholder: string;
+      requirementsLabel: string;
+      requirementsPlaceholder: string;
+      requirementsTip: string;
+      contextLabel: string;
+      contextPlaceholder: string;
+      generateButton: string;
+      metrics: {
+        served: string;
+        generated: string;
+        timeSaved: string;
+        accuracy: string;
+      };
+      categories: {
+        contractReview: {
+          name: string;
+          description: string;
+          templates: string[];
+        };
+        caseAnalysis: {
+          name: string;
+          description: string;
+          templates: string[];
+        };
+        legalResearch: {
+          name: string;
+          description: string;
+          templates: string[];
+        };
+        documentDrafting: {
+          name: string;
+          description: string;
+          templates: string[];
+        };
+      };
+      selectCategory: string;
+      popular: string;
+    };
+  };
+  navigation: {
+    home: string;
+  };
+  ui: {
+    coreFeatures: string;
   };
 }
 

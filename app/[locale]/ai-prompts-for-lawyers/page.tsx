@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import { 
   Scale, 
   FileText, 
@@ -22,69 +23,14 @@ import { Textarea } from "../../../components/ui/textarea"
 import { usePromptGenerator } from "../../../lib/hooks/use-prompt-generator"
 import { industryExamples } from "../../../lib/constants/industry-examples"
 import PromptResult from "../../../components/prompt-result"
-
-// Professional template categories for lawyers
-const templateCategories = [
-  {
-    id: 'contract-review',
-    name: 'Contract Review',
-    description: 'AI-powered contract analysis, risk identification, professional recommendations',
-    icon: FileText,
-    templates: [
-      'Commercial contract risk analysis',
-      'Employment agreement review', 
-      'Real estate contract assessment',
-      'IP agreement evaluation'
-    ],
-    popular: true
-  },
-  {
-    id: 'case-analysis',
-    name: 'Case Analysis',
-    description: 'Deep case studies, extract key legal insights, precedent research',
-    icon: Search,
-    templates: [
-      'Judgment analysis & key points',
-      'Similar case comparison',
-      'Legal precedent research',
-      'Case dispute focus analysis'
-    ]
-  },
-  {
-    id: 'legal-research',
-    name: 'Legal Research',
-    description: 'Statute research, legal analysis, academic research support',
-    icon: AlertCircle,
-    templates: [
-      'Statute applicability analysis',
-      'Legal reasoning documentation',
-      'Legislative history research',
-      'Judicial interpretation review'
-    ]
-  },
-  {
-    id: 'document-drafting',
-    name: 'Document Drafting',
-    description: 'Professional legal document templates and optimization',
-    icon: Users,
-    templates: [
-      'Complaint drafting',
-      'Response brief writing',
-      'Legal opinion letters',
-      'Demand letter creation'
-    ]
-  }
-]
-
-// Success metrics
-const successMetrics = [
-  { label: 'Lawyers Served', value: '2,300+', icon: Users },
-  { label: 'Prompts Generated', value: '150K+', icon: Sparkles },
-  { label: 'Time Saved', value: '70%', icon: CheckCircle },
-  { label: 'Accuracy Rate', value: '95%', icon: Scale },
-]
+import { useClientTranslations } from "../../../lib/hooks/use-client-translations"
+import { Locale } from "../../../lib/i18n"
 
 export default function LawyerAIPrompts() {
+  const params = useParams()
+  const locale = params.locale as Locale
+  const { t, dictionary, loading: translationsLoading } = useClientTranslations(locale)
+  
   const {
     loading,
     result,
@@ -124,6 +70,59 @@ export default function LawyerAIPrompts() {
     await handleSubmit()
   }
 
+  // 如果翻译还在加载中，显示加载状态
+  if (translationsLoading || !dictionary) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-lawyer/5 via-white to-lawyer/10 dark:from-gray-900 dark:via-lawyer/5 dark:to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <Sparkles className="h-8 w-8 text-lawyer animate-pulse mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-gray-300">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // 构建模板分类数据（使用翻译）
+  const templateCategories = [
+    {
+      id: 'contract-review',
+      name: t('pages.lawyer.categories.contractReview.name'),
+      description: t('pages.lawyer.categories.contractReview.description'),
+      icon: FileText,
+      templates: dictionary.pages.lawyer.categories.contractReview.templates,
+      popular: true
+    },
+    {
+      id: 'case-analysis',
+      name: t('pages.lawyer.categories.caseAnalysis.name'),
+      description: t('pages.lawyer.categories.caseAnalysis.description'),
+      icon: Search,
+      templates: dictionary.pages.lawyer.categories.caseAnalysis.templates
+    },
+    {
+      id: 'legal-research',
+      name: t('pages.lawyer.categories.legalResearch.name'),
+      description: t('pages.lawyer.categories.legalResearch.description'),
+      icon: AlertCircle,
+      templates: dictionary.pages.lawyer.categories.legalResearch.templates
+    },
+    {
+      id: 'document-drafting',
+      name: t('pages.lawyer.categories.documentDrafting.name'),
+      description: t('pages.lawyer.categories.documentDrafting.description'),
+      icon: Users,
+      templates: dictionary.pages.lawyer.categories.documentDrafting.templates
+    }
+  ]
+
+  // 成功指标数据（使用翻译）
+  const successMetrics = [
+    { label: t('pages.lawyer.metrics.served'), value: '2,300+', icon: Users },
+    { label: t('pages.lawyer.metrics.generated'), value: '150K+', icon: Sparkles },
+    { label: t('pages.lawyer.metrics.timeSaved'), value: '70%', icon: CheckCircle },
+    { label: t('pages.lawyer.metrics.accuracy'), value: '95%', icon: Scale },
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-lawyer/5 via-white to-lawyer/10 dark:from-gray-900 dark:via-lawyer/5 dark:to-gray-900">
       
@@ -145,17 +144,17 @@ export default function LawyerAIPrompts() {
             {/* Title information */}
             <div>
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
-                AI Prompts for Lawyers: Save 70% Time with Professional Templates
+                {t('pages.lawyer.title')}
               </h1>
               <p className="mt-2 text-xl text-gray-600 dark:text-gray-300">
-                Professional legal AI assistant. Make legal services smarter and more efficient
+                {t('pages.lawyer.subtitle')}
               </p>
               
               {/* Breadcrumb navigation */}
               <nav className="mt-4 flex items-center space-x-2 text-sm text-gray-500">
-                <a href="/" className="hover:text-lawyer">Home</a>
+                <a href={`/${locale}`} className="hover:text-lawyer">{t('navigation.home')}</a>
                 <span>/</span>
-                <span className="text-lawyer">AI Prompts for Lawyers</span>
+                <span className="text-lawyer">{t('pages.lawyer.breadcrumb')}</span>
               </nav>
             </div>
           </div>
@@ -169,7 +168,7 @@ export default function LawyerAIPrompts() {
           <div className="lg:col-span-1">
             <div className="sticky top-8">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                Professional Template Categories
+                {t('pages.lawyer.categoriesTitle')}
               </h2>
               
               <div className="space-y-4">
@@ -192,7 +191,7 @@ export default function LawyerAIPrompts() {
                               {category.name}
                               {category.popular && (
                                 <span className="text-xs bg-lawyer/10 text-lawyer px-2 py-1 rounded-full">
-                                  Popular
+                                  {t('pages.lawyer.popular')}
                                 </span>
                               )}
                             </CardTitle>
@@ -219,7 +218,7 @@ export default function LawyerAIPrompts() {
                           size="sm" 
                           className="w-full mt-4 hover:bg-lawyer hover:text-white"
                         >
-                          Select Category
+                          {t('pages.lawyer.selectCategory')}
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </CardContent>
@@ -236,10 +235,10 @@ export default function LawyerAIPrompts() {
               <CardHeader className="bg-gradient-to-r from-lawyer/10 to-lawyer-dark/10">
                 <CardTitle className="text-2xl flex items-center gap-3">
                   <Sparkles className="h-6 w-6 text-lawyer" />
-                  AI Prompt Generator for Lawyers
+                  {t('pages.lawyer.generatorTitle')}
                 </CardTitle>
                 <CardDescription className="text-base">
-                  Fill out the form below to generate professional legal AI prompts
+                  {t('pages.lawyer.generatorSubtitle')}
                 </CardDescription>
               </CardHeader>
 
@@ -248,7 +247,7 @@ export default function LawyerAIPrompts() {
                   {/* Scenario selection */}
                   <div className="space-y-2">
                     <Label htmlFor="scenario" className="text-base font-medium">
-                      Legal Service Scenario *
+                      {t('pages.lawyer.scenarioLabel')} *
                     </Label>
                     <select 
                       id="scenario"
@@ -257,7 +256,7 @@ export default function LawyerAIPrompts() {
                       className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lawyer/20 focus-visible:ring-offset-2"
                       required
                     >
-                      <option value="">Choose your legal service scenario</option>
+                      <option value="">{t('pages.lawyer.scenarioPlaceholder')}</option>
                       {examples.scenarios.map(scenario => (
                         <option key={scenario.value} value={scenario.value}>
                           {scenario.label}
@@ -270,33 +269,33 @@ export default function LawyerAIPrompts() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="requirements" className="text-base font-medium">
-                        Specific Requirements *
+                        {t('pages.lawyer.requirementsLabel')} *
                       </Label>
-                      <span className="text-sm text-gray-500">{wordCount} characters</span>
+                      <span className="text-sm text-gray-500">{wordCount} {t('forms.characters')}</span>
                     </div>
                     <Textarea
                       id="requirements"
                       value={formData.prompt}
                       onChange={(e) => updateFormData('prompt', e.target.value)}
-                      placeholder="Please describe in detail what you want the AI assistant to help you with, such as: analyze the main risk points of a commercial contract and provide corresponding legal advice..."
+                      placeholder={t('pages.lawyer.requirementsPlaceholder')}
                       className="min-h-[120px] resize-none"
                       required
                     />
                     <div className="text-sm text-gray-500">
-                      Tip: Describe your needs in detail, including document type, focus points, expected output format, etc.
+                      {t('pages.lawyer.requirementsTip')}
                     </div>
                   </div>
 
                   {/* Additional information */}
                   <div className="space-y-2">
                     <Label htmlFor="context" className="text-base font-medium">
-                      Additional Information (Optional)
+                      {t('pages.lawyer.contextLabel')}
                     </Label>
                     <Textarea
                       id="context"
                       value={formData.context}
                       onChange={(e) => updateFormData('context', e.target.value)}
-                      placeholder="Provide more background information, such as: case amount, practice area, special requirements, etc..."
+                      placeholder={t('pages.lawyer.contextPlaceholder')}
                       className="min-h-[80px] resize-none"
                     />
                   </div>
@@ -305,7 +304,7 @@ export default function LawyerAIPrompts() {
                   <div className="space-y-3">
                     <Label className="text-base font-medium flex items-center gap-2">
                       <Sparkles className="h-4 w-4 text-lawyer" />
-                      Quick Start - Choose Example Scenario
+                      {t('forms.quickStart')}
                     </Label>
                     <div className="grid gap-3">
                       {examples.examples.map((example, index) => (
@@ -335,7 +334,7 @@ export default function LawyerAIPrompts() {
                       className="flex-1 gradient-lawyer hover:opacity-90 btn-press disabled:opacity-50"
                     >
                       <Sparkles className="mr-2 h-5 w-5" />
-                      {loading ? 'Generating...' : 'Generate Professional AI Prompt'}
+                      {loading ? t('forms.generating') : t('pages.lawyer.generateButton')}
                     </Button>
                     <Button 
                       type="button"
@@ -344,7 +343,7 @@ export default function LawyerAIPrompts() {
                       onClick={saveDraft}
                     >
                       <BookmarkPlus className="mr-2 h-4 w-4" />
-                      Save Draft
+                      {t('forms.saveDraft')}
                     </Button>
                     <Button 
                       type="button"
@@ -353,7 +352,7 @@ export default function LawyerAIPrompts() {
                       onClick={loadDraft}
                     >
                       <History className="mr-2 h-4 w-4" />
-                      Load Draft
+                      {t('forms.loadDraft')}
                     </Button>
                   </div>
                 </form>
@@ -363,9 +362,9 @@ export default function LawyerAIPrompts() {
                   <div className="flex items-start gap-3">
                     <AlertCircle className="h-5 w-5 text-lawyer mt-0.5" />
                     <div className="text-sm">
-                      <div className="font-medium text-lawyer mb-1">Professional Tip</div>
+                      <div className="font-medium text-lawyer mb-1">{t('forms.professionalTip')}</div>
                       <div className="text-gray-600 dark:text-gray-400">
-                        Generated prompts work directly with ChatGPT, Claude, and other mainstream AI assistants. We recommend fine-tuning based on your specific situation before use.
+                        {t('forms.tipContent')}
                       </div>
                     </div>
                   </div>
