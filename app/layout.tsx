@@ -25,8 +25,8 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.aiprompts.ink'),
   title: {
-    template: '%s | AI Prompt Builder Pro',
-    default: 'AI Prompt Builder Pro - Professional AI Templates for Every Industry'
+    template: '%s | AI Prompt Generator',
+    default: 'AI Prompt Generator - Professional AI Templates for Every Industry'
   },
   description: 'Professional AI prompts and ChatGPT templates for lawyers, teachers, accountants, realtors, insurance advisors. Save 70% time with expert-crafted prompts.',
   keywords: [
@@ -34,16 +34,16 @@ export const metadata: Metadata = {
     'accountant ai', 'realtor ai', 'insurance ai', 'claude prompts', 'ai for professionals',
     'business ai templates', 'industry specific ai', 'ai productivity tools'
   ],
-  authors: [{ name: 'AI Prompt Builder Pro Team' }],
-  creator: 'AI Prompt Builder Pro',
-  publisher: 'AI Prompt Builder Pro',
+  authors: [{ name: 'AI Prompt Generator Team' }],
+  creator: 'AI Prompt Generator',
+  publisher: 'AI Prompt Generator',
   
   // Open Graph meta tags
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: 'https://aiprompts.ink',
-    siteName: 'AI Prompt Builder Pro',
+    siteName: 'AI Prompt Generator',
     title: 'Professional AI Prompts & ChatGPT Templates for Every Industry',
     description: 'Save 70% time with professional AI prompts for lawyers, teachers, accountants, realtors, insurance advisors. Expert-crafted templates for ChatGPT, Claude & more.',
     images: [
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'AI Prompt Builder Pro - Professional Templates',
+        alt: 'AI Prompt Generator - Professional Templates',
       },
     ],
   },

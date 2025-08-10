@@ -2,263 +2,126 @@
 
 import { useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
-import { 
-  Home, 
-  TrendingUp, 
-  MessageSquare, 
-  Users, 
-  CheckCircle,
-  ArrowRight,
-  Sparkles
-} from 'lucide-react'
+import { Home, Sparkles } from 'lucide-react'
 
-import { Button } from "../../../components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
-import PromptWizard from "../../../components/prompt-wizard/PromptWizard"
-import type { GeneratedPrompt } from "../../../components/prompt-wizard/types"
-
-// Professional template categories for realtors
-const templateCategories = [
-  {
-    id: 'property-marketing',
-    name: 'Property Marketing',
-    description: 'Compelling listings, virtual tours, social media content creation',
-    icon: Home,
-    templates: [
-      'Luxury property descriptions',
-      'Virtual staging narratives', 
-      'Social media campaigns',
-      'Open house promotions'
-    ],
-    popular: true
-  },
-  {
-    id: 'market-analysis',
-    name: 'Market Analysis',
-    description: 'Comparative analysis, pricing strategies, investment insights',
-    icon: TrendingUp,
-    templates: [
-      'Neighborhood analysis',
-      'Price trend reports',
-      'Investment valuations',
-      'Market forecast summaries'
-    ]
-  },
-  {
-    id: 'client-communication',
-    name: 'Client Communication',
-    description: 'Professional correspondence, negotiation scripts, follow-up templates',
-    icon: MessageSquare,
-    templates: [
-      'First-time buyer guidance',
-      'Negotiation strategies',
-      'Transaction updates',
-      'Market condition briefings'
-    ]
-  },
-  {
-    id: 'lead-generation',
-    name: 'Lead Generation',
-    description: 'Prospecting outreach, referral requests, networking content',
-    icon: Users,
-    templates: [
-      'Cold outreach scripts',
-      'Referral campaigns',
-      'Community engagement',
-      'Testimonial collection'
-    ]
-  }
-]
-
-// Success metrics
-const successMetrics = [
-  { label: 'Realtors Served', value: '950+', icon: Users },
-  { label: 'Listings Created', value: '28K+', icon: Home },
-  { label: 'Conversion Rate', value: '+35%', icon: TrendingUp },
-  { label: 'Time Saved', value: '60%', icon: CheckCircle },
-]
+import SimplePromptGenerator from "@/components/simple-prompt-generator"
+import { realtorTemplates } from "@/components/simple-prompt-generator/realtors-templates"
+import type { GeneratedResult } from "@/components/simple-prompt-generator"
 
 export default function RealtorAIPrompts() {
   const params = useParams()
   const locale = params.locale || 'en'
   
-  // 生成的提示词结果状态
-  const [generatedResults, setGeneratedResults] = useState<GeneratedPrompt[]>([])
+  // 生成结果处理
+  const [generatedResults, setGeneratedResults] = useState<GeneratedResult[]>([])
 
-  // 处理PromptWizard完成事件
-  const handlePromptComplete = useCallback((result: GeneratedPrompt) => {
+  const handleGenerate = useCallback((result: GeneratedResult) => {
     setGeneratedResults(prev => [result, ...prev])
-    console.log('Generated prompt:', result)
-  }, [])
-
-  // 处理重置事件
-  const handleReset = useCallback(() => {
-    console.log('Wizard reset')
+    console.log('Generated prompt for realtor:', result)
   }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-green-900/5 dark:to-gray-900">
       
-      {/* Header Section */}
-      <section className="relative overflow-hidden">
+      {/* 简化的头部区域 */}
+      <section className="relative overflow-hidden py-12">
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25" />
-        <div className="absolute right-0 top-0 -z-10 blur-3xl">
-          <div className="aspect-square w-96 bg-gradient-to-br from-green-400/20 to-emerald-600/20 opacity-60" />
-        </div>
-
-        <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-6">
-            <div className="h-20 w-20 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center">
-              <Home className="h-10 w-10 text-white" />
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-4">
+            {/* 图标和标题 */}
+            <div className="flex justify-center">
+              <div className="h-16 w-16 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center">
+                <Home className="h-8 w-8 text-white" />
+              </div>
             </div>
             
-            <div>
+            <div className="space-y-2">
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
-                AI Prompts for Realtors: Professional Real Estate Templates
+                房地产AI提示词生成器
               </h1>
-              <p className="mt-2 text-xl text-gray-600 dark:text-gray-300">
-                Boost property sales with AI-powered marketing, client communication, and market analysis
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                专为房地产专业人员设计的智能提示词工具，提升营销效果，优化客户沟通
               </p>
-              
-              <nav className="mt-4 flex items-center space-x-2 text-sm text-gray-500">
-                <a href="/" className="hover:text-green-600">Home</a>
-                <span>/</span>
-                <span className="text-green-600">AI Prompts for Realtors</span>
-              </nav>
-              
-
             </div>
+            
+            {/* 面包屑导航 */}
+            <nav className="flex items-center justify-center space-x-2 text-sm text-gray-500">
+              <a href="/" className="hover:text-green-600 transition-colors">首页</a>
+              <span>/</span>
+              <span className="text-green-600">房地产AI提示词</span>
+            </nav>
           </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 pb-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      {/* 主要内容区域 */}
+      <section className="pb-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Left Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                Real Estate Template Categories
-              </h2>
-              
-              <div className="space-y-4">
-                {templateCategories.map((category) => {
-                  const IconComponent = category.icon
-                  return (
-                    <Card 
-                      key={category.id} 
-                      className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:border-green-500/50 ${
-                        category.popular ? 'ring-2 ring-green-500/20 border-green-500/30' : ''
-                      }`}
-                    >
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center">
-                            <IconComponent className="h-5 w-5 text-white" />
-                          </div>
-                          <div>
-                            <CardTitle className="text-lg flex items-center gap-2">
-                              {category.name}
-                              {category.popular && (
-                                <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
-                                  Popular
-                                </span>
-                              )}
-                            </CardTitle>
-                          </div>
-                        </div>
-                        <CardDescription>{category.description}</CardDescription>
-                      </CardHeader>
-                      
-                      <CardContent>
-                        <div className="space-y-2">
-                          {category.templates.map((template, index) => (
-                            <div 
-                              key={index}
-                              className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-green-600 cursor-pointer transition-colors"
-                            >
-                              <div className="h-1.5 w-1.5 rounded-full bg-green-500/40" />
-                              {template}
-                            </div>
-                          ))}
-                        </div>
-                        
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full mt-4 hover:bg-green-600 hover:text-white"
-                        >
-                          Select Category
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  )
-                })}
+          {/* 核心功能：简化的提示词生成器 */}
+          <SimplePromptGenerator
+            industry="realtors"
+            templates={realtorTemplates}
+            onGenerate={handleGenerate}
+            className="mb-12"
+          />
+
+          {/* 功能特色说明 */}
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="text-center space-y-3">
+              <div className="h-12 w-12 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mx-auto">
+                <Sparkles className="h-6 w-6 text-white" />
               </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                专业模板
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 text-sm">
+                房产描述、客户跟进、市场分析等专业模板，覆盖房地产全业务场景
+              </p>
+            </div>
+            
+            <div className="text-center space-y-3">
+              <div className="h-12 w-12 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center mx-auto">
+                <span className="text-white font-bold text-lg">AI</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                智能生成
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 text-sm">
+                基于最新AI技术，根据您的具体需求生成个性化的专业提示词内容
+              </p>
+            </div>
+            
+            <div className="text-center space-y-3">
+              <div className="h-12 w-12 rounded-lg bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center mx-auto">
+                <span className="text-white text-2xl">⚡</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                即时可用
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 text-sm">
+                选择模板，填写信息，一键生成。简单三步，立即获得专业级提示词
+              </p>
             </div>
           </div>
 
-          {/* Main Content - AI Prompt Wizard */}
-          <div className="lg:col-span-2">
-            <div className="space-y-6">
-              {/* PromptWizard Integration */}
-              <PromptWizard
-                industry="realtors"
-                onComplete={handlePromptComplete}
-                onReset={handleReset}
-                className="realtor-theme"
-              />
-              
-              {/* Template Library Link */}
-              <Card className="text-center p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <div className="h-12 w-12 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center">
-                    <Home className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                      专业模板库
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      浏览我们为房地产专业人员精心设计的提示词模板
-                    </p>
-                  </div>
-                </div>
-                <a 
-                  href={`/${locale}/ai-prompts-for-realtors/templates`}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:opacity-90 transition-colors font-medium"
-                >
-                  <Sparkles className="h-5 w-5" />
-                  查看专业模板库 (10个模板)
-                  <ArrowRight className="h-4 w-4" />
-                </a>
-              </Card>
-
-              {/* Success metrics display */}
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                {successMetrics.map((metric) => {
-                  const IconComponent = metric.icon
-                  return (
-                    <Card key={metric.label} className="text-center p-4">
-                      <div className="h-10 w-10 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center mx-auto mb-3">
-                        <IconComponent className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {metric.value}
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {metric.label}
-                      </div>
-                    </Card>
-                  )
-                })}
-              </div>
+          {/* 使用提示 */}
+          <div className="mt-12 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6 max-w-4xl mx-auto">
+            <div className="text-center space-y-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center justify-center gap-2">
+                <span className="text-2xl">💡</span>
+                使用提示
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 text-sm">
+                所有模板都经过房地产行业专家优化，确保生成内容的专业性和实用性。
+                您可以直接使用生成的内容，也可以根据具体情况进行微调。
+              </p>
             </div>
           </div>
+
         </div>
-      </div>
+      </section>
     </div>
   )
 }

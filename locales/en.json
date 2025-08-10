@@ -1,38 +1,23 @@
 {
   "common": {
-    "title": "Professional AI Prompt Generator",
-    "subtitle": "Tailored for Lawyers, Realtors, Insurance Advisors, Teachers, and Accountants",
-    "description": "Empower your AI assistant to understand your industry and unleash your professional potential",
-    "getStarted": "Get Started Now",
-    "learnMore": "Explore Features",
-    "contactAdvisor": "Contact Expert",
-    "freeStart": "Start Free Now",
-    "users": "Professional Users",
-    "templates": "Pro Templates",
-    "generated": "Prompts Generated",
-    "satisfaction": "Satisfaction",
-    "industries": "Industries",
-    "selectIndustry": "Select Your Professional Field",
-    "selectIndustryDesc": "We deeply understand the unique needs of each industry, providing the most tailored AI prompt solutions for you",
-    "whyChooseUs": "Why Choose Us",
-    "whyChooseUsDesc": "Professional, intelligent, and efficient AI prompt generation platform that empowers every professional to master AI assistants effortlessly",
-    "features": {
-      "intelligent": "Intelligent Generation",
-      "intelligentDesc": "AI algorithms based on industry expertise generate precise, professional prompt templates",
-      "customized": "Industry-Specific",
-      "customizedDesc": "Deep customization for 5 vertical industries, understanding unique needs of each field",
-      "continuous": "Continuous Improvement",
-      "continuousDesc": "Template quality continuously optimized based on user feedback for best experience",
-      "instant": "Instant Results",
-      "instantDesc": "Simple form, one-click generation, copy and use immediately - efficient and convenient"
-    },
-    "cta": {
-      "title": "Ready to Unleash AI's Professional Potential?",
-      "subtitle": "Join thousands of professionals making AI their powerful work assistant"
-    },
+    "title": "AI Prompt Generator",
+    "subtitle": "Ready-to-use AI prompt templates for 5 professional industries",
+    "description": "Choose your industry, get professional prompts, copy and paste directly to ChatGPT or Claude",
+    "freeNotice": "100% Free - No Registration Required",
+    "selectIndustry": "Choose Your Industry to Get Started",
+    "users": "Users",
+    "templates": "Templates",
+    "industries": "Industries"
     "footer": {
-      "tagline": "Making professional work smarter, making AI understand you better",
-      "copyright": "© 2024 AI Prompt Builder Pro. All rights reserved."
+      "tagline": "Professional AI Prompt Generator for Industries",
+      "copyright": "© 2025 AI Prompt Generator. All rights reserved."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "step1": "Choose Your Industry",
+      "step2": "Fill Your Needs",
+      "step3": "Copy Generated Prompt",
+      "step4": "Paste to AI Assistant"
     }
   },
   "industries": {

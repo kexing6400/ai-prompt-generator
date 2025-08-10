@@ -1,5 +1,5 @@
 /**
- * AI Prompt Builder Pro - 核心类型定义
+ * AI Prompt Generator - 核心类型定义
  * 
  * 这个文件定义了整个应用的TypeScript类型，确保类型安全和开发效率
  */

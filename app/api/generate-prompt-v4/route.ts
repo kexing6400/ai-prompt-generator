@@ -150,7 +150,7 @@ async function callAIService(prompt: string, userPrompt: string): Promise<string
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'https://ai-prompt-generator.vercel.app',
-        'X-Title': 'AI Prompt Builder Pro'
+        'X-Title': 'AI Prompt Generator'
       },
       body: JSON.stringify({
         model,

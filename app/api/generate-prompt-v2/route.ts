@@ -168,7 +168,7 @@ ${context ? `【补充信息】${context}` : ''}
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'https://www.aiprompts.ink',
-        'X-Title': 'AI Prompt Builder Pro V2'
+        'X-Title': 'AI Prompt Generator V2'
       },
       body: JSON.stringify({
         model: 'anthropic/claude-3.5-sonnet', // 使用更强大的模型

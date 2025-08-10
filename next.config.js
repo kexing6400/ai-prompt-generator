@@ -53,7 +53,7 @@ const nextConfig = {
 
   // 环境变量
   env: {
-    SITE_NAME: 'AI Prompt Builder Pro',
+    SITE_NAME: 'AI Prompt Generator',
     SITE_DESCRIPTION: '专业的垂直行业AI Prompt生成器',
   },
 

@@ -181,7 +181,7 @@ export async function POST(request: Request) {
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-        'X-Title': 'AI Prompt Builder Pro'
+        'X-Title': 'AI Prompt Generator'
       },
       body: JSON.stringify({
         model: 'anthropic/claude-3-haiku',

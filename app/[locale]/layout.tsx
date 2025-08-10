@@ -26,8 +26,8 @@ export async function generateMetadata({
   
   return {
     title: isZh 
-      ? 'AI Prompt Builder Pro - 专业垂直行业AI提示词生成器' 
-      : 'AI Prompt Builder Pro - Professional AI Prompt Generator',
+      ? 'AI Prompt Generator - 专业垂直行业AI提示词生成器' 
+      : 'AI Prompt Generator - Professional AI Prompt Generator',
     description: isZh
       ? '为律师、房产经纪人、保险顾问、教师、会计师等专业人士量身打造的智能AI提示词生成工具'
       : 'Professional AI prompt generator tailored for lawyers, realtors, insurance advisors, teachers, and accountants',

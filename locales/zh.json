@@ -1,38 +1,23 @@
 {
   "common": {
-    "title": "专业垂直行业 AI提示词生成器",
-    "subtitle": "为律师、房产经纪人、保险顾问、教师、会计师等专业人士量身打造",
-    "description": "让AI助手更懂你的行业，释放专业工作的无限潜能",
-    "getStarted": "立即开始使用",
-    "learnMore": "了解平台特色",
-    "contactAdvisor": "联系专业顾问",
-    "freeStart": "立即免费开始",
-    "users": "专业用户",
-    "templates": "专业模板",
-    "generated": "提示词生成",
-    "satisfaction": "满意度",
-    "industries": "垂直行业",
-    "selectIndustry": "选择您的专业领域",
-    "selectIndustryDesc": "我们深度理解每个行业的专业需求，为您提供最贴合的AI提示词解决方案",
-    "whyChooseUs": "为什么选择我们",
-    "whyChooseUsDesc": "专业、智能、高效的AI提示词生成平台，让每一个专业人士都能轻松驾驭AI助手",
-    "features": {
-      "intelligent": "智能化生成",
-      "intelligentDesc": "基于行业专业知识的AI算法，生成精准、专业的提示词模板",
-      "customized": "专业定制",
-      "customizedDesc": "针对5大垂直行业深度定制，理解每个行业的独特需求",
-      "continuous": "持续优化",
-      "continuousDesc": "基于用户反馈持续优化模板质量，确保最佳使用体验",
-      "instant": "即用即得",
-      "instantDesc": "简单填写表单，一键生成专业提示词，复制即用，高效便捷"
-    },
-    "cta": {
-      "title": "准备好释放AI的专业潜能了吗？",
-      "subtitle": "加入数万名专业人士，让AI成为您工作中的得力助手"
-    },
+    "title": "AI提示词生成器",
+    "subtitle": "为5个专业行业提供即用型AI提示词模板",
+    "description": "选择您的行业，获取专业提示词，直接复制到ChatGPT或Claude使用",
+    "freeNotice": "100% 免费使用，无需注册",
+    "selectIndustry": "选择您的行业开始使用",
+    "users": "用户",
+    "templates": "模板",
+    "industries": "行业"
     "footer": {
-      "tagline": "让专业工作更智能，让AI助手更懂你",
-      "copyright": "© 2024 AI Prompt Builder Pro. 版权所有。"
+      "tagline": "专业行业AI提示词生成工具",
+      "copyright": "© 2025 AI Prompt Generator. 版权所有。"
+    },
+    "howItWorks": {
+      "title": "使用流程",
+      "step1": "选择您的行业",
+      "step2": "填写具体需求",
+      "step3": "复制生成的提示词",
+      "step4": "粘贴到AI助手使用"
     }
   },
   "industries": {

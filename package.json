@@ -1,5 +1,5 @@
 {
-  "name": "ai-prompt-builder-pro",
+  "name": "ai-prompt-generator",
   "version": "1.0.0",
   "description": "垂直行业专用的智能AI Prompt生成器",
   "private": true,
@@ -105,6 +105,6 @@
     "E2E Testing",
     "Playwright"
   ],
-  "author": "AI Prompt Builder Pro Team",
+  "author": "AI Prompt Generator Team",
   "license": "MIT"
 }

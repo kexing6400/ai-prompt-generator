@@ -29,7 +29,7 @@ export function SmartHeader() {
         <div className="mr-4 flex flex-1">
           <Link href={`/${currentLocale}`} className="mr-6 flex items-center space-x-2">
             <span className="font-bold text-lg bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              AI Prompt Pro
+              AI Prompt Generator
             </span>
           </Link>
         </div>

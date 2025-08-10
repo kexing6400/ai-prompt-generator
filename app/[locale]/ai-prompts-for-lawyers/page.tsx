@@ -2,265 +2,125 @@
 
 import { useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
-import { 
-  Scale, 
-  FileText, 
-  Search, 
-  Users, 
-  AlertCircle,
-  CheckCircle,
-  ArrowRight,
-  Sparkles
-} from 'lucide-react'
+import { Scale, Sparkles } from 'lucide-react'
 
-import { Button } from "../../../components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
-import PromptWizard from "../../../components/prompt-wizard/PromptWizard"
-import { useClientTranslations } from "../../../lib/hooks/use-client-translations"
-import { Locale } from "../../../lib/i18n"
-import type { GeneratedPrompt } from "../../../components/prompt-wizard/types"
+import SimplePromptGenerator from "@/components/simple-prompt-generator"
+import { lawyerTemplates } from "@/components/simple-prompt-generator/lawyers-templates"
+import type { GeneratedResult } from "@/components/simple-prompt-generator"
 
 export default function LawyerAIPrompts() {
   const params = useParams()
-  const locale = params.locale as Locale
-  const { t, dictionary, loading: translationsLoading } = useClientTranslations(locale)
+  const locale = params.locale || 'en'
   
-  // 生成的提示词结果状态
-  const [generatedResults, setGeneratedResults] = useState<GeneratedPrompt[]>([])
+  const [generatedResults, setGeneratedResults] = useState<GeneratedResult[]>([])
 
-  // 处理PromptWizard完成事件
-  const handlePromptComplete = useCallback((result: GeneratedPrompt) => {
+  const handleGenerate = useCallback((result: GeneratedResult) => {
     setGeneratedResults(prev => [result, ...prev])
-    // 可以在这里添加其他逻辑，如保存到本地存储等
-    console.log('Generated prompt:', result)
+    console.log('Generated prompt for lawyer:', result)
   }, [])
-
-  // 处理重置事件
-  const handleReset = useCallback(() => {
-    // 可以添加重置相关的逻辑
-    console.log('Wizard reset')
-  }, [])
-
-  // 如果翻译还在加载中，显示加载状态
-  if (translationsLoading || !dictionary) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-lawyer/5 via-white to-lawyer/10 dark:from-gray-900 dark:via-lawyer/5 dark:to-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <Sparkles className="h-8 w-8 text-lawyer animate-pulse mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-300">Loading...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // 构建模板分类数据（使用翻译）
-  const templateCategories = [
-    {
-      id: 'contract-review',
-      name: t('pages.lawyer.categories.contractReview.name'),
-      description: t('pages.lawyer.categories.contractReview.description'),
-      icon: FileText,
-      templates: dictionary.pages.lawyer.categories.contractReview.templates,
-      popular: true
-    },
-    {
-      id: 'case-analysis',
-      name: t('pages.lawyer.categories.caseAnalysis.name'),
-      description: t('pages.lawyer.categories.caseAnalysis.description'),
-      icon: Search,
-      templates: dictionary.pages.lawyer.categories.caseAnalysis.templates
-    },
-    {
-      id: 'legal-research',
-      name: t('pages.lawyer.categories.legalResearch.name'),
-      description: t('pages.lawyer.categories.legalResearch.description'),
-      icon: AlertCircle,
-      templates: dictionary.pages.lawyer.categories.legalResearch.templates
-    },
-    {
-      id: 'document-drafting',
-      name: t('pages.lawyer.categories.documentDrafting.name'),
-      description: t('pages.lawyer.categories.documentDrafting.description'),
-      icon: Users,
-      templates: dictionary.pages.lawyer.categories.documentDrafting.templates
-    }
-  ]
-
-  // 成功指标数据（使用翻译）
-  const successMetrics = [
-    { label: t('pages.lawyer.metrics.served'), value: '2,300+', icon: Users },
-    { label: t('pages.lawyer.metrics.generated'), value: '150K+', icon: Sparkles },
-    { label: t('pages.lawyer.metrics.timeSaved'), value: '70%', icon: CheckCircle },
-    { label: t('pages.lawyer.metrics.accuracy'), value: '95%', icon: Scale },
-  ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-lawyer/5 via-white to-lawyer/10 dark:from-gray-900 dark:via-lawyer/5 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-blue-900/5 dark:to-gray-900">
       
-      {/* Header Section */}
-      <section className="relative overflow-hidden">
-        {/* Background decoration */}
+      {/* 简化的头部区域 */}
+      <section className="relative overflow-hidden py-12">
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25" />
-        <div className="absolute right-0 top-0 -z-10 blur-3xl">
-          <div className="aspect-square w-96 bg-gradient-to-br from-lawyer/20 to-lawyer-dark/20 opacity-60" />
-        </div>
-
-        <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-6">
-            {/* Industry icon */}
-            <div className="h-20 w-20 rounded-2xl gradient-lawyer flex items-center justify-center">
-              <Scale className="h-10 w-10 text-white" />
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-4">
+            {/* 图标和标题 */}
+            <div className="flex justify-center">
+              <div className="h-16 w-16 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 flex items-center justify-center">
+                <Scale className="h-8 w-8 text-white" />
+              </div>
             </div>
             
-            {/* Title information */}
-            <div>
+            <div className="space-y-2">
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
-                {t('pages.lawyer.title')}
+                律师AI提示词生成器
               </h1>
-              <p className="mt-2 text-xl text-gray-600 dark:text-gray-300">
-                {t('pages.lawyer.subtitle')}
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                专为法律专业人员设计的智能提示词工具，提升法律文书质量，优化案件分析效率
               </p>
-              
-              {/* Breadcrumb navigation */}
-              <nav className="mt-4 flex items-center space-x-2 text-sm text-gray-500">
-                <a href={`/${locale}`} className="hover:text-lawyer">{t('navigation.home')}</a>
-                <span>/</span>
-                <span className="text-lawyer">{t('pages.lawyer.breadcrumb')}</span>
-              </nav>
-              
-
             </div>
+            
+            {/* 面包屑导航 */}
+            <nav className="flex items-center justify-center space-x-2 text-sm text-gray-500">
+              <a href="/" className="hover:text-blue-600 transition-colors">首页</a>
+              <span>/</span>
+              <span className="text-blue-600">律师AI提示词</span>
+            </nav>
           </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 pb-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      {/* 主要内容区域 */}
+      <section className="pb-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Left Sidebar - Template Categories */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                {t('pages.lawyer.categoriesTitle')}
-              </h2>
-              
-              <div className="space-y-4">
-                {templateCategories.map((category) => {
-                  const IconComponent = category.icon
-                  return (
-                    <Card 
-                      key={category.id} 
-                      className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:border-lawyer/50 ${
-                        category.popular ? 'ring-2 ring-lawyer/20 border-lawyer/30' : ''
-                      }`}
-                    >
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-lg gradient-lawyer flex items-center justify-center">
-                            <IconComponent className="h-5 w-5 text-white" />
-                          </div>
-                          <div>
-                            <CardTitle className="text-lg flex items-center gap-2">
-                              {category.name}
-                              {category.popular && (
-                                <span className="text-xs bg-lawyer/10 text-lawyer px-2 py-1 rounded-full">
-                                  {t('pages.lawyer.popular')}
-                                </span>
-                              )}
-                            </CardTitle>
-                          </div>
-                        </div>
-                        <CardDescription>{category.description}</CardDescription>
-                      </CardHeader>
-                      
-                      <CardContent>
-                        <div className="space-y-2">
-                          {category.templates.map((template, index) => (
-                            <div 
-                              key={index}
-                              className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-lawyer cursor-pointer transition-colors"
-                            >
-                              <div className="h-1.5 w-1.5 rounded-full bg-lawyer/40" />
-                              {template}
-                            </div>
-                          ))}
-                        </div>
-                        
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full mt-4 hover:bg-lawyer hover:text-white"
-                        >
-                          {t('pages.lawyer.selectCategory')}
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  )
-                })}
+          {/* 核心功能：简化的提示词生成器 */}
+          <SimplePromptGenerator
+            industry="lawyers"
+            templates={lawyerTemplates}
+            onGenerate={handleGenerate}
+            className="mb-12"
+          />
+
+          {/* 功能特色说明 */}
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="text-center space-y-3">
+              <div className="h-12 w-12 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mx-auto">
+                <Sparkles className="h-6 w-6 text-white" />
               </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                专业模板
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 text-sm">
+                法律文件起草、案例分析、合同审查等专业模板，覆盖法律实务全场景
+              </p>
+            </div>
+            
+            <div className="text-center space-y-3">
+              <div className="h-12 w-12 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-700 flex items-center justify-center mx-auto">
+                <span className="text-white font-bold text-lg">AI</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                智能生成
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 text-sm">
+                基于最新AI技术和法律知识库，生成符合法律规范的专业提示词内容
+              </p>
+            </div>
+            
+            <div className="text-center space-y-3">
+              <div className="h-12 w-12 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center mx-auto">
+                <span className="text-white text-2xl">⚖️</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                专业严谨
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 text-sm">
+                严格遵循法律条文和实务标准，确保生成内容的专业性和准确性
+              </p>
             </div>
           </div>
 
-          {/* Main Content - AI Prompt Wizard */}
-          <div className="lg:col-span-2">
-            <div className="space-y-6">
-              {/* PromptWizard Integration */}
-              <PromptWizard
-                industry="lawyers"
-                onComplete={handlePromptComplete}
-                onReset={handleReset}
-                className="lawyer-theme"
-              />
-              
-              {/* Template Library Link */}
-              <Card className="text-center p-6 bg-gradient-to-r from-lawyer/5 to-lawyer-dark/5 border-lawyer/20">
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <div className="h-12 w-12 rounded-lg gradient-lawyer flex items-center justify-center">
-                    <FileText className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                      专业模板库
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      浏览我们为法律专业人员精心设计的提示词模板
-                    </p>
-                  </div>
-                </div>
-                <a 
-                  href={`/${locale}/ai-prompts-for-lawyers/templates`}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-lawyer text-white rounded-lg hover:bg-lawyer-dark transition-colors font-medium"
-                >
-                  <Sparkles className="h-5 w-5" />
-                  查看专业模板库 (10个模板)
-                  <ArrowRight className="h-4 w-4" />
-                </a>
-              </Card>
-
-              {/* Success metrics display */}
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                {successMetrics.map((metric) => {
-                  const IconComponent = metric.icon
-                  return (
-                    <Card key={metric.label} className="text-center p-4">
-                      <div className="h-10 w-10 rounded-lg gradient-lawyer flex items-center justify-center mx-auto mb-3">
-                        <IconComponent className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {metric.value}
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {metric.label}
-                      </div>
-                    </Card>
-                  )
-                })}
-              </div>
+          {/* 使用提示 */}
+          <div className="mt-12 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-6 max-w-4xl mx-auto">
+            <div className="text-center space-y-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center justify-center gap-2">
+                <span className="text-2xl">📚</span>
+                专业提醒
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 text-sm">
+                所有模板都基于现行法律法规和司法实践优化。生成的内容仅供参考，
+                具体法律文书和策略建议请结合案件实际情况进行调整和完善。
+              </p>
             </div>
           </div>
+
         </div>
-      </div>
+      </section>
     </div>
   )
 }

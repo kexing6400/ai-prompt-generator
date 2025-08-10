@@ -130,7 +130,7 @@ ${template ? `\n参考模版：\n${template.template}\n` : ''}`;
         'Authorization': `Bearer ${apiConfig.openrouterApiKey}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'https://ai-prompt-generator.vercel.app',
-        'X-Title': 'AI Prompt Builder Pro'
+        'X-Title': 'AI Prompt Generator'
       },
       body: JSON.stringify({
         model: modelConfig.model.model_id,

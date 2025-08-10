@@ -210,7 +210,7 @@ function generateSecurityConfigTemplate() {
 在Vercel Dashboard中配置以下环境变量:
 - OPENROUTER_API_KEY=sk-or-your_production_api_key
 - NEXT_PUBLIC_APP_URL=https://your-domain.com
-- NEXT_PUBLIC_APP_NAME="AI Prompt Builder Pro"
+- NEXT_PUBLIC_APP_NAME="AI Prompt Generator"
 
 ### 2. 安全头部验证
 访问以下URL验证安全头部配置：

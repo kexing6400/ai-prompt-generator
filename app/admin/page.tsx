@@ -496,7 +496,7 @@ export default function AdminPage() {
           <div className={`mt-6 text-center text-xs ${
             state.isDarkMode ? 'text-gray-500' : 'text-gray-400'
           }`}>
-            版权所有 © 2024 AI Prompt Generator Pro
+            版权所有 © 2025 AI Prompt Generator
           </div>
         </Card>
       </div>
