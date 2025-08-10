@@ -1,3 +1,5 @@
+'use client'
+
 import { Home } from 'lucide-react'
 import IndustryTemplatesPage from '../../../../components/industry-templates-page'
 

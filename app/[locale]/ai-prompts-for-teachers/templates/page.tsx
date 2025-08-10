@@ -1,3 +1,5 @@
+'use client'
+
 import { GraduationCap } from 'lucide-react'
 import IndustryTemplatesPage from '../../../../components/industry-templates-page'
 
