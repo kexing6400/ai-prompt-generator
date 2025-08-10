@@ -3,11 +3,15 @@
     "title": "AI Prompt Generator",
     "subtitle": "Ready-to-use AI prompt templates for 5 professional industries",
     "description": "Choose your industry, get professional prompts, copy and paste directly to ChatGPT or Claude",
-    "freeNotice": "100% Free - No Registration Required",
-    "selectIndustry": "Choose Your Industry to Get Started",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More",
+    "contactAdvisor": "Contact Advisor",
+    "freeStart": "Start Free",
     "users": "Users",
     "templates": "Templates",
-    "industries": "Industries"
+    "generated": "Generated",
+    "satisfaction": "Satisfaction",
+    "industries": "Industries",
     "footer": {
       "tagline": "Professional AI Prompt Generator for Industries",
       "copyright": "© 2025 AI Prompt Generator. All rights reserved."

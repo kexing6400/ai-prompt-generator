@@ -3,11 +3,15 @@
     "title": "AI提示词生成器",
     "subtitle": "为5个专业行业提供即用型AI提示词模板",
     "description": "选择您的行业，获取专业提示词，直接复制到ChatGPT或Claude使用",
-    "freeNotice": "100% 免费使用，无需注册",
-    "selectIndustry": "选择您的行业开始使用",
+    "getStarted": "开始使用",
+    "learnMore": "了解更多",
+    "contactAdvisor": "联系顾问",
+    "freeStart": "免费开始",
     "users": "用户",
     "templates": "模板",
-    "industries": "行业"
+    "generated": "已生成",
+    "satisfaction": "满意度",
+    "industries": "行业",
     "footer": {
       "tagline": "专业行业AI提示词生成工具",
       "copyright": "© 2025 AI Prompt Generator. 版权所有。"
