@@ -11,11 +11,9 @@ import {
   CheckCircle,
   Zap
 } from 'lucide-react'
-import { useState } from 'react'
 
 import { Button } from "../../components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
-import { UsageIndicator, PricingSection, SubscriptionModal } from "../../components/subscription"
 import { IndustryType } from "../../types"
 
 // 路径映射
@@ -65,8 +63,6 @@ interface HomePageProps {
 }
 
 export default function HomePage({ params: { locale } }: HomePageProps) {
-  // 订阅弹窗状态管理
-  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
   
   // 简化的翻译数据（转换为客户端组件后的临时解决方案）
   const t = (key: string) => {
@@ -151,15 +147,6 @@ export default function HomePage({ params: { locale } }: HomePageProps) {
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25 pointer-events-none" />
 
         <div className="container mx-auto px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-          {/* 使用量指示器 - 顶部显示 */}
-          <div className="flex justify-center mb-6">
-            <UsageIndicator 
-              variant="compact" 
-              showUpgradePrompt={true}
-              onUpgrade={() => setIsSubscriptionModalOpen(true)}
-            />
-          </div>
-          
           <div className="text-center">
             {/* 100%免费标识 */}
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 text-sm font-medium mb-6">
@@ -222,11 +209,6 @@ export default function HomePage({ params: { locale } }: HomePageProps) {
         </div>
       </section>
 
-      {/* Pricing Section - 价格展示区域 */}
-      <PricingSection 
-        onUpgrade={(planId) => setIsSubscriptionModalOpen(true)}
-        className="bg-white dark:bg-gray-900"
-      />
 
       {/* Industry Selection - 行业选择区域 */}
       <section id="industry-selection" className="py-12 sm:py-16 scroll-mt-16">
@@ -311,16 +293,6 @@ export default function HomePage({ params: { locale } }: HomePageProps) {
         </div>
       </footer>
       
-      {/* 订阅弹窗 */}
-      <SubscriptionModal
-        isOpen={isSubscriptionModalOpen}
-        onClose={() => setIsSubscriptionModalOpen(false)}
-        onSuccess={(planId) => {
-          console.log('订阅成功:', planId)
-          setIsSubscriptionModalOpen(false)
-          // 可以在这里添加成功后的处理逻辑，比如刷新页面数据
-        }}
-      />
     </div>
   )
 }

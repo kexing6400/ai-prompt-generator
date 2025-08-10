@@ -74,7 +74,7 @@ const industryConfigs = {
 };
 
 /**
- * 获取或创建用户会话
+ * 获取或创建用户会话（可选，用于统计）
  */
 async function getUserSession(request: NextRequest): Promise<string | null> {
   try {
@@ -82,40 +82,16 @@ async function getUserSession(request: NextRequest): Promise<string | null> {
     let userId = cookieStore.get('userId')?.value;
     
     if (!userId) {
-      // 创建匿名用户
+      // 创建匿名用户ID（仅用于统计，不影响使用）
       const timestamp = Date.now();
       userId = `anon_${timestamp}_${Math.random().toString(36).substr(2, 9)}`;
-      
-      // 在存储中创建用户记录
-      const newUser = {
-        id: userId,
-        email: `${userId}@anonymous.local`,
-        name: '匿名用户',
-        plan: 'free' as const,
-        status: 'active' as const,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        subscription: {
-          plan: 'free' as const,
-          status: 'active' as const,
-          startDate: new Date().toISOString(),
-          limits: {
-            generationsPerMonth: 50,
-            templatesAccess: 'basic',
-            historyDays: 7,
-            apiCalls: {}
-          }
-        }
-      };
-      
-      await store.saveUser(newUser);
-      console.log('[API] 创建新用户:', userId);
     }
     
     return userId;
   } catch (error) {
-    console.error('[API] 获取用户会话失败:', error);
-    return null;
+    // 即使失败也不影响使用
+    console.log('[API] 创建会话ID失败，使用默认值');
+    return `anon_${Date.now()}`;
   }
 }
 
@@ -135,13 +111,12 @@ async function checkUsageLimit(userId: string): Promise<{
     }
     
     const usage = await store.getUsage(userId);
-    const currentMonth = new Date().toISOString().substring(0, 7);
-    const monthlyUsage = usage?.monthly?.[currentMonth] || { requests: 0, tokens: 0 };
+    const monthlyUsage = usage ? { requests: usage.requests || 0, tokens: usage.tokens || 0 } : { requests: 0, tokens: 0 };
     
-    const limit = user.subscription?.limits?.generationsPerMonth || 50;
+    const limit = user.subscription?.limits?.monthlyRequests || 50;
     const remaining = Math.max(0, limit - monthlyUsage.requests);
     
-    if (user.plan === 'free' && monthlyUsage.requests >= limit) {
+    if (user.subscription.plan === 'free' && monthlyUsage.requests >= limit) {
       return {
         allowed: false,
         remaining: 0,
@@ -203,32 +178,18 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
     
-    // 获取用户会话
+    // 获取用户会话（可选，仅用于统计）
     const userId = await getUserSession(request);
-    if (!userId) {
-      return NextResponse.json({
-        success: false,
-        error: '会话创建失败，请刷新页面重试'
-      }, { status: 401 });
-    }
     
-    // 获取用户信息
-    const user = await store.getUser(userId);
-    const userPlan = user?.plan || 'free';
+    // 完全免费策略：所有用户都是免费且无限制
+    const userPlan = 'free'; // 固定为免费计划
     
-    // 检查使用限制
-    const usageCheck = await checkUsageLimit(userId);
-    if (!usageCheck.allowed) {
-      return NextResponse.json({
-        success: false,
-        error: usageCheck.message,
-        code: 'USAGE_LIMIT_EXCEEDED',
-        usage: {
-          remaining: usageCheck.remaining,
-          limit: usageCheck.limit
-        }
-      }, { status: 429 });
-    }
+    // 不再检查使用限制（完全免费）
+    const usageCheck = {
+      allowed: true,
+      remaining: 999999, // 显示为无限
+      limit: 999999
+    };
     
     // 检查缓存
     const cacheKey = `${industry}-${template}-${JSON.stringify(formData)}`;
@@ -237,8 +198,10 @@ export async function POST(request: NextRequest) {
     if (cached && Date.now() - cached.timestamp < 3600000) {
       console.log('[API] 返回缓存结果');
       
-      // 即使是缓存也要记录使用量（但成本为0）
-      await recordApiUsage(userId, cached.model, 0, 0);
+      // 记录使用量（仅用于统计）
+      if (userId) {
+        await recordApiUsage(userId, cached.model, 0, 0);
+      }
       
       return NextResponse.json({
         success: true,
@@ -346,13 +309,15 @@ ${formData ? `\n【具体参数】\n${JSON.stringify(formData, null, 2)}` : ''}`
     const actualCost = result.cost || 
       ((result.usage?.total_tokens || 1000) / 1000000) * usedModel.costPer1MTokens;
     
-    // 记录使用量
-    await recordApiUsage(
-      userId,
-      usedModel.id,
-      result.usage?.total_tokens || 1000,
-      actualCost
-    );
+    // 记录使用量（仅用于统计）
+    if (userId) {
+      await recordApiUsage(
+        userId,
+        usedModel.id,
+        result.usage?.total_tokens || 1000,
+        actualCost
+      );
+    }
     
     // 缓存结果
     promptCache.set(cacheKey, {
@@ -390,12 +355,14 @@ ${formData ? `\n【具体参数】\n${JSON.stringify(formData, null, 2)}` : ''}`
     });
     
     // 设置Cookie保持会话
-    response.cookies.set('userId', userId, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60 // 30天
-    });
+    if (userId) {
+      response.cookies.set('userId', userId, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 30 * 24 * 60 * 60 // 30天
+      });
+    }
     
     return response;
     
@@ -422,7 +389,7 @@ export async function GET() {
     const availableModels = await openRouterClient.getModels();
     
     // 获取存储统计
-    const storeStats = await store.getStatistics();
+    const storeStats = await store.getStorageStats();
     
     // 获取模型统计
     const modelStats = modelSelector.getModelStats();
@@ -451,7 +418,7 @@ export async function GET() {
       storage: {
         totalUsers: storeStats.totalUsers,
         activeUsers: storeStats.activeUsers,
-        totalGenerations: storeStats.totalRequests
+        totalGenerations: storeStats.totalUsageRecords
       },
       
       // 缓存状态

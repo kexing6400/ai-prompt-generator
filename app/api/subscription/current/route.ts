@@ -14,58 +14,49 @@ const store = getDefaultStore();
  */
 export async function GET(request: NextRequest) {
   try {
-    // 从cookie获取用户ID
+    // 完全免费策略：不需要认证，返回默认免费无限状态
     const cookieStore = cookies();
-    const userId = cookieStore.get('userId')?.value;
+    const userId = cookieStore.get('userId')?.value || 'anonymous';
     
-    if (!userId) {
-      return NextResponse.json({
-        success: false,
-        error: '未登录',
-        code: 'UNAUTHORIZED'
-      }, { status: 401 });
+    // 获取使用量信息（仅用于统计，不影响使用）
+    let monthlyUsage = { requests: 0, tokens: 0 };
+    if (userId !== 'anonymous') {
+      try {
+        const user = await store.getUser(userId);
+        if (user) {
+          const usage = await store.getUsage(userId);
+          monthlyUsage = usage ? { requests: usage.requests || 0, tokens: usage.tokens || 0 } : { requests: 0, tokens: 0 };
+        }
+      } catch (error) {
+        // 忽略错误，使用默认值
+        console.log('[Subscription API] 获取使用量失败，使用默认值');
+      }
     }
     
-    // 获取用户信息
-    const user = await store.getUser(userId);
-    
-    if (!user) {
-      return NextResponse.json({
-        success: false,
-        error: '用户不存在',
-        code: 'USER_NOT_FOUND'
-      }, { status: 404 });
-    }
-    
-    // 获取使用量信息
-    const usage = await store.getUsage(userId);
-    const currentMonth = new Date().toISOString().substring(0, 7);
-    const monthlyUsage = usage?.monthly?.[currentMonth] || { requests: 0, tokens: 0 };
-    
-    // 获取订阅限制
-    const limits = user.subscription?.limits || {
-      generationsPerMonth: 50,
-      templatesAccess: 'basic',
-      historyDays: 7
+    // 完全免费：无限制
+    const limits = {
+      generationsPerMonth: 999999, // 显示为无限
+      templatesAccess: 'all',
+      historyDays: 999999
     };
     
-    // 计算剩余额度
-    const remaining = Math.max(0, limits.generationsPerMonth - monthlyUsage.requests);
+    // 剩余额度：始终显示为无限
+    const remaining = 999999;
     
     // 构建响应
     return NextResponse.json({
       success: true,
       data: {
         subscription: {
-          id: user.subscription?.id || `sub_${userId}`,
-          userEmail: user.email,
-          plan: user.plan || 'free',
-          status: user.subscription?.status || 'active',
-          currentPeriodStart: user.subscription?.startDate || user.createdAt,
-          currentPeriodEnd: user.subscription?.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          cancelAtPeriodEnd: user.subscription?.cancelAtPeriodEnd || false,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt
+          id: `sub_free_unlimited`,
+          userEmail: 'free@aiprompts.ink',
+          plan: 'free',
+          status: 'active',
+          currentPeriodStart: new Date().toISOString(),
+          currentPeriodEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 一年后
+          cancelAtPeriodEnd: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         },
         usage: {
           current: monthlyUsage.requests,
@@ -77,35 +68,14 @@ export async function GET(request: NextRequest) {
           resetDate: new Date(Date.now() + (30 - new Date().getDate()) * 24 * 60 * 60 * 1000).toISOString()
         },
         permissions: {
-          canGenerate: remaining > 0 || user.plan !== 'free',
-          canAccessPremiumTemplates: user.plan !== 'free',
-          canExportHistory: user.plan !== 'free',
-          canUseAdvancedModels: user.plan === 'team',
-          maxHistoryDays: limits.historyDays,
-          templatesAccess: limits.templatesAccess
+          canGenerate: true, // 完全免费，始终可以生成
+          canAccessPremiumTemplates: true, // 所有模板免费
+          canExportHistory: true, // 可以导出
+          canUseAdvancedModels: true, // 可以使用所有模型
+          maxHistoryDays: 999999,
+          templatesAccess: 'all'
         },
-        availableUpgrades: user.plan === 'free' 
-          ? [
-              {
-                plan: 'pro',
-                price: 4.99,
-                features: ['500次生成/月', '高级模板', '30天历史记录', '优先支持']
-              },
-              {
-                plan: 'team',
-                price: 19.99,
-                features: ['无限生成', '所有模板', '无限历史', 'GPT-4模型', '团队协作']
-              }
-            ]
-          : user.plan === 'pro'
-          ? [
-              {
-                plan: 'team',
-                price: 19.99,
-                features: ['无限生成', 'GPT-4模型', '团队协作', 'API访问']
-              }
-            ]
-          : []
+        availableUpgrades: [] // 不需要升级，已经是完全免费
       },
       timestamp: new Date().toISOString()
     });
