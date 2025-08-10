@@ -329,3 +329,10 @@ export interface ComponentProps {
  * 导出AI对话相关类型
  */
 export * from './ai-chat'
+
+// ============ 订阅系统类型 ============
+
+/**
+ * 导出订阅系统相关类型
+ */
+export * from './subscription'
