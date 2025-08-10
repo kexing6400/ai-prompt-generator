@@ -134,7 +134,7 @@ export default function PromptWizard({
   const updateFormData = useCallback((data: Partial<FormData>) => {
     setWizardState(prev => ({
       ...prev,
-      formData: { ...prev.formData, ...data }
+      formData: { ...prev.formData, ...data } as FormData
     }))
   }, [])
 

@@ -37,7 +37,7 @@ interface GenerateResult {
 }
 
 // Claude模型映射配置 - 使用正确的模型名称
-const CLAUDE_MODEL_MAP = {
+const CLAUDE_MODEL_MAP: Record<string, string> = {
   'anthropic/claude-3-haiku': 'claude-3-5-haiku-20241022',
   'anthropic/claude-3-sonnet': 'claude-3-5-sonnet-20241022', 
   'anthropic/claude-3-opus': 'claude-3-opus-20240229',
@@ -51,7 +51,7 @@ const CLAUDE_MODEL_MAP = {
 };
 
 // 模型成本配置（每100万token的美元价格）
-const CLAUDE_MODEL_COSTS = {
+const CLAUDE_MODEL_COSTS: Record<string, { input: number; output: number }> = {
   'claude-3-5-haiku-20241022': { input: 0.25, output: 1.25 },
   'claude-3-5-sonnet-20241022': { input: 3, output: 15 },
   'claude-3-opus-20240229': { input: 15, output: 75 }

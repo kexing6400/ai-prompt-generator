@@ -354,7 +354,8 @@ export class DynamicConfigService extends EventEmitter {
       
     } catch (error) {
       console.error('[DynamicConfigService] 配置验证失败:', error);
-      errors.push(`配置验证异常: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : '未知错误';
+      errors.push(`配置验证异常: ${errorMessage}`);
       
       return {
         valid: false,

@@ -81,6 +81,23 @@ export interface SubscriptionFeatures {
 // ============ 用户订阅状态类型 ============
 
 /**
+ * 使用量统计
+ */
+export interface UsageStats {
+  currentPeriodUsage: number
+  totalUsage: number
+  currentMonth: {
+    generations: number
+    tokens: number
+    documents: number
+  }
+  dailyHistory: {
+    date: string
+    generations: number
+  }[]
+}
+
+/**
  * 用户订阅状态
  */
 export type SubscriptionStatus = 

@@ -59,6 +59,27 @@ const nextConfig = {
 
   // Webpack配置优化
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // 忽略可选的drizzle-orm依赖（rate-limiter-flexible的可选依赖）
+    config.resolve = {
+      ...config.resolve,
+      alias: {
+        ...config.resolve?.alias,
+        'drizzle-orm': false
+      },
+      fallback: {
+        ...config.resolve?.fallback,
+        'drizzle-orm': false
+      }
+    };
+    
+    // 使用webpack.IgnorePlugin忽略drizzle-orm
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^drizzle-orm$/,
+        contextRegExp: /rate-limiter-flexible/
+      })
+    );
+    
     // 优化Bundle分析
     if (!dev && !isServer) {
       config.optimization.splitChunks.cacheGroups = {

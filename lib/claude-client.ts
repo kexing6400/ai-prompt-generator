@@ -528,7 +528,7 @@ export class ClaudeClient {
         throw error;
       }
 
-      if (error.name === 'AbortError') {
+      if (error instanceof Error && error.name === 'AbortError') {
         throw new ClaudeApiError(
           '请求超时',
           ClaudeErrorType.TIMEOUT_ERROR,
@@ -538,8 +538,9 @@ export class ClaudeClient {
         );
       }
 
+      const errorMessage = error instanceof Error ? error.message : '未知错误';
       throw new ClaudeApiError(
-        `网络请求失败: ${error.message}`,
+        `网络请求失败: ${errorMessage}`,
         ClaudeErrorType.NETWORK_ERROR,
         undefined,
         error,

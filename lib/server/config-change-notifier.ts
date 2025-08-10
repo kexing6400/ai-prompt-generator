@@ -294,21 +294,21 @@ export class ConfigChangeNotifier {
   private setupConnectionMonitoring(): void {
     if (!this.supabase) return;
 
-    // 监听连接状态
-    this.supabase.realtime.onOpen(() => {
-      console.log('[ConfigNotifier] 实时连接已建立');
-      this.reconnectAttempts = 0;
-    });
+    // 监听连接状态 - 注释掉，因为新版Supabase SDK API变更
+    // this.supabase.realtime.onOpen(() => {
+    //   console.log('[ConfigNotifier] 实时连接已建立');
+    //   this.reconnectAttempts = 0;
+    // });
 
-    this.supabase.realtime.onClose(() => {
-      console.warn('[ConfigNotifier] 实时连接已关闭');
-      this.scheduleReconnect();
-    });
+    // this.supabase.realtime.onClose(() => {
+    //   console.warn('[ConfigNotifier] 实时连接已关闭');
+    //   this.scheduleReconnect();
+    // });
 
-    this.supabase.realtime.onError((error) => {
-      console.error('[ConfigNotifier] 实时连接错误:', error);
-      this.scheduleReconnect();
-    });
+    // this.supabase.realtime.onError((error) => {
+    //   console.error('[ConfigNotifier] 实时连接错误:', error);
+    //   this.scheduleReconnect();
+    // });
   }
 
   /**

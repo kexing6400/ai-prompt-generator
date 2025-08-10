@@ -4,9 +4,9 @@
  */
 
 import { 
-  JsonStore, getDefaultStore, createNewUser, createStore,
-  User, Usage, JsonStoreConfig 
+  JsonStore, getDefaultStore, createNewUser, createStore
 } from './json-store';
+import { User, Usage, JsonStoreConfig } from './types';
 
 /**
  * 基础使用示例

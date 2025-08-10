@@ -109,16 +109,18 @@ export class SecureSessionManager {
       const accessTokenPayload: Partial<JWTPayload> = {
         sessionId,
         permissions: session.permissions,
-        deviceFingerprint
+        deviceFingerprint,
+        type: 'access'
       };
 
       const refreshTokenPayload: Partial<JWTPayload> = {
         sessionId,
-        deviceFingerprint
+        deviceFingerprint,
+        type: 'refresh'
       };
 
-      const accessToken = SecureJWT.generateSecureToken(accessTokenPayload, 'access');
-      const refreshToken = SecureJWT.generateSecureToken(refreshTokenPayload, 'refresh');
+      const accessToken = SecureJWT.generateSecureToken(accessTokenPayload as any, 'access');
+      const refreshToken = SecureJWT.generateSecureToken(refreshTokenPayload as any, 'refresh');
 
       // 记录安全事件
       this.logSecurityEvent({
@@ -358,10 +360,11 @@ export class SecureSessionManager {
       const accessTokenPayload: Partial<JWTPayload> = {
         sessionId: session.sessionId,
         permissions: session.permissions,
-        deviceFingerprint: session.deviceFingerprint
+        deviceFingerprint: session.deviceFingerprint,
+        type: 'access'
       };
 
-      const newAccessToken = SecureJWT.generateSecureToken(accessTokenPayload, 'access');
+      const newAccessToken = SecureJWT.generateSecureToken(accessTokenPayload as any, 'access');
       
       console.log(`[会话管理] 访问token已刷新: ${session.sessionId}`);
       

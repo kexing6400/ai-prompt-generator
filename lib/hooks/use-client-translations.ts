@@ -26,12 +26,12 @@ export function useClientTranslations(locale: Locale) {
           } else {
             dict = await import(`../../locales/en.json`)
           }
-          setDictionary(dict.default)
+          setDictionary(dict.default as unknown as Dictionary)
         } catch (error) {
           console.error(`Failed to load ${fileName}.json:`, error)
           // 降级到默认语言
           const defaultDict = await import(`../../locales/zh.json`)
-          setDictionary(defaultDict.default)
+          setDictionary(defaultDict.default as unknown as Dictionary)
         }
       } catch (error) {
         console.error('Failed to load dictionary:', error)

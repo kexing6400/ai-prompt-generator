@@ -94,7 +94,7 @@ export class SecureCrypto {
       const derivedKey = this.deriveKey(masterKey, salt);
       
       // 创建GCM模式的加密器
-      const cipher = crypto.createCipherGCM(this.ALGORITHM, derivedKey, iv);
+      const cipher = crypto.createCipheriv(this.ALGORITHM, derivedKey, iv);
       
       // 如果有附加认证数据，添加到AAD
       if (additionalData) {
@@ -166,7 +166,7 @@ export class SecureCrypto {
       const derivedKey = this.deriveKey(masterKey, salt, result.iterations);
       
       // 创建GCM模式的解密器
-      const decipher = crypto.createDecipherGCM(result.algorithm, derivedKey, iv);
+      const decipher = crypto.createDecipheriv(result.algorithm, derivedKey, iv);
       
       // 设置认证标签
       decipher.setAuthTag(authTag);

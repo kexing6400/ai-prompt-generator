@@ -18,27 +18,33 @@ const SUBSCRIPTION_PLANS = {
     name: '免费版',
     price: 0,
     limits: {
-      generationsPerMonth: 50,
-      templatesAccess: 'basic',
-      historyDays: 7
+      monthlyRequests: 50,
+      dailyRequests: 10,
+      maxTokensPerRequest: 4000,
+      maxPromptsPerDay: 20,
+      maxDocumentSize: 5
     }
   },
   pro: {
     name: '专业版',
     price: 4.99,
     limits: {
-      generationsPerMonth: 500,
-      templatesAccess: 'premium',
-      historyDays: 30
+      monthlyRequests: 500,
+      dailyRequests: 50,
+      maxTokensPerRequest: 8000,
+      maxPromptsPerDay: 100,
+      maxDocumentSize: 20
     }
   },
   team: {
     name: '团队版',
     price: 19.99,
     limits: {
-      generationsPerMonth: -1, // 无限
-      templatesAccess: 'all',
-      historyDays: -1 // 无限
+      monthlyRequests: 10000,
+      dailyRequests: 1000,
+      maxTokensPerRequest: 16000,
+      maxPromptsPerDay: 1000,
+      maxDocumentSize: 100
     }
   }
 };
@@ -84,7 +90,7 @@ export async function POST(request: NextRequest) {
     }
     
     // 检查是否已经是该计划
-    if (user.plan === plan) {
+    if (user.subscription?.plan === plan) {
       return NextResponse.json({
         success: false,
         error: '您已经是该计划用户',
@@ -93,8 +99,9 @@ export async function POST(request: NextRequest) {
     }
     
     // 检查是否降级
-    const planOrder = { free: 0, pro: 1, team: 2 };
-    if (planOrder[plan] < planOrder[user.plan || 'free']) {
+    const planOrder: Record<string, number> = { free: 0, pro: 1, team: 2 };
+    const currentPlan = user.subscription?.plan || 'free';
+    if (planOrder[plan] < planOrder[currentPlan]) {
       return NextResponse.json({
         success: false,
         error: '不支持降级操作，请联系客服',
@@ -115,30 +122,26 @@ export async function POST(request: NextRequest) {
     const endDate = new Date();
     endDate.setMonth(endDate.getMonth() + 1);
     
-    user.plan = plan as 'free' | 'pro' | 'team';
+    const previousPlan = user.subscription?.plan || 'free';
     user.subscription = {
-      id: `sub_${Date.now()}`,
-      plan,
+      plan: plan as 'free' | 'pro' | 'enterprise',
       status: 'active',
-      startDate: now,
-      endDate: endDate.toISOString(),
-      cancelAtPeriodEnd: false,
-      limits: SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS].limits
+      startDate: new Date(),
+      endDate,
+      limits: SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS].limits,
+      autoRenew: true
     };
-    user.updatedAt = now;
+    user.updatedAt = new Date();
     
     // 保存更新
     await store.saveUser(user);
     
-    // 记录订阅事件
-    await store.addActivity(userId, {
-      type: 'subscription_upgraded',
-      description: `升级到${SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS].name}`,
-      metadata: {
-        from_plan: user.plan,
-        to_plan: plan,
-        price: SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS].price
-      }
+    // TODO: 记录订阅事件（addActivity方法需要实现）
+    console.log('[Upgrade API] 订阅升级成功:', {
+      userId,
+      from: previousPlan,
+      to: plan,
+      price: SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS].price
     });
     
     return NextResponse.json({
@@ -146,7 +149,7 @@ export async function POST(request: NextRequest) {
       message: '订阅升级成功',
       data: {
         subscription: user.subscription,
-        previousPlan: user.plan,
+        previousPlan: previousPlan,
         newPlan: plan,
         effectiveDate: now,
         nextBillingDate: endDate.toISOString()
@@ -191,7 +194,7 @@ export async function DELETE(request: NextRequest) {
       }, { status: 404 });
     }
     
-    if (user.plan === 'free') {
+    if (user.subscription?.plan === 'free') {
       return NextResponse.json({
         success: false,
         error: '免费用户无需取消订阅',
@@ -199,22 +202,18 @@ export async function DELETE(request: NextRequest) {
       }, { status: 400 });
     }
     
-    // 设置为期末取消
+    // 设置为期末取消（标记为cancelled状态）
     if (user.subscription) {
-      user.subscription.cancelAtPeriodEnd = true;
-      user.subscription.status = 'canceling';
-      user.updatedAt = new Date().toISOString();
+      user.subscription.status = 'cancelled';
+      user.updatedAt = new Date();
       
       await store.saveUser(user);
       
-      // 记录活动
-      await store.addActivity(userId, {
-        type: 'subscription_canceled',
-        description: '订阅已设置为期末取消',
-        metadata: {
-          plan: user.plan,
-          cancelDate: user.subscription.endDate
-        }
+      // TODO: 记录活动（addActivity方法需要实现）
+      console.log('[Upgrade API] 订阅已取消:', {
+        userId,
+        plan: user.subscription.plan,
+        endDate: user.subscription.endDate
       });
     }
     

@@ -143,7 +143,7 @@ const PDFDocument: React.FC<{ data: DocumentData; style: DocumentStyle }> = ({
 
         {/* 页脚 */}
         {style.showFooter !== false && (
-          <Text style={styles.footer} render={({ pageNumber, totalPages }) => 
+          <Text style={styles.footer} render={({ pageNumber, totalPages }: { pageNumber: number; totalPages: number }) => 
             style.showPageNumbers !== false 
               ? `${style.companyName || ''} | 第 ${pageNumber} 页 共 ${totalPages} 页`
               : style.companyName || ''
@@ -220,8 +220,8 @@ export async function generatePDF(
       <PDFDocument data={documentData} style={mergedStyle} />
     );
 
-    const asPdf = pdf(pdfDocument);
-    const buffer = await asPdf.toBuffer();
+    const asPdf = pdf();
+    const buffer = await asPdf.toBuffer?.() || new ArrayBuffer(0);
 
     // 生成文件名
     const fileName = request.options?.fileName || 

@@ -27,10 +27,11 @@ const SUBSCRIPTION_PLANS = {
       '不能使用GPT-4模型'
     ],
     limits: {
-      generationsPerMonth: 50,
-      templatesAccess: 'basic',
-      historyDays: 7,
-      models: ['gemini-pro', 'claude-haiku', 'llama-3']
+      monthlyRequests: 50,
+      dailyRequests: 10,
+      maxTokensPerRequest: 4000,
+      maxPromptsPerDay: 20,
+      maxDocumentSize: 5
     },
     recommended: false,
     badge: null
@@ -56,10 +57,11 @@ const SUBSCRIPTION_PLANS = {
       '不支持团队协作'
     ],
     limits: {
-      generationsPerMonth: 500,
-      templatesAccess: 'premium',
-      historyDays: 30,
-      models: ['claude-sonnet', 'gpt-3.5-turbo', 'mistral-medium']
+      monthlyRequests: 500,
+      dailyRequests: 50,
+      maxTokensPerRequest: 8000,
+      maxPromptsPerDay: 100,
+      maxDocumentSize: 20
     },
     recommended: true,
     badge: '最受欢迎'
@@ -85,10 +87,11 @@ const SUBSCRIPTION_PLANS = {
     ],
     limitations: [],
     limits: {
-      generationsPerMonth: -1, // 无限
-      templatesAccess: 'all',
-      historyDays: -1, // 无限
-      models: ['gpt-4-turbo', 'claude-opus', 'gemini-pro-1.5']
+      monthlyRequests: 10000,
+      dailyRequests: 1000,
+      maxTokensPerRequest: 16000,
+      maxPromptsPerDay: 1000,
+      maxDocumentSize: 100
     },
     recommended: false,
     badge: '企业首选'

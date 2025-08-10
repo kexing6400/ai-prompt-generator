@@ -49,20 +49,21 @@ export default function TemplateSelectionStep({
   const [selectedIndustry, setSelectedIndustry] = useState<string>(mappedIndustry || 'all')
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all')
 
+  // Use the templates hook to get templates
+  const { templates, industries: uniqueIndustries, difficulties: uniqueDifficulties, loading, error } = useTemplates(industry)
+
   // Get unique industries and difficulties
   const industries = useMemo(() => {
-    const uniqueIndustries = [...new Set(MOCK_TEMPLATES.map(t => t.industry))]
     return ['all', ...uniqueIndustries]
-  }, [])
+  }, [uniqueIndustries])
 
   const difficulties = useMemo(() => {
-    const uniqueDifficulties = [...new Set(MOCK_TEMPLATES.map(t => t.difficulty))]
     return ['all', ...uniqueDifficulties]
-  }, [])
+  }, [uniqueDifficulties])
 
   // Filter templates based on search and filters
   const filteredTemplates = useMemo(() => {
-    return MOCK_TEMPLATES.filter(template => {
+    return templates.filter(template => {
       const matchesSearch = !searchQuery || 
         template.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         template.description.toLowerCase().includes(searchQuery.toLowerCase()) ||

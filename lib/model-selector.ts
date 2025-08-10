@@ -234,14 +234,16 @@ export class ModelSelector {
       }
       
       if (preferences.maxCost !== undefined) {
+        const maxCost = preferences.maxCost;
         candidates = candidates.filter(m => 
-          m.costPer1MTokens <= preferences.maxCost
+          m.costPer1MTokens <= maxCost
         );
       }
       
       if (preferences.minQuality !== undefined) {
+        const minQuality = preferences.minQuality;
         candidates = candidates.filter(m => 
-          m.quality >= preferences.minQuality
+          m.quality >= minQuality
         );
       }
       

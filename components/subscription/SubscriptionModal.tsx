@@ -20,7 +20,9 @@ import {
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
-import type { SubscriptionPlan, BillingCycle } from '@/types/subscription'
+import type { SubscriptionPlan } from '@/types/subscription'
+
+type BillingCycle = 'monthly' | 'yearly'
 
 interface SubscriptionModalProps {
   isOpen: boolean
@@ -131,7 +133,8 @@ export default function SubscriptionModal({
 
   const calculatePrice = (plan: SubscriptionPlan) => {
     if (!plan || plan.id === 'free') return 0
-    return billingCycle === 'yearly' ? plan.price * 0.8 * 12 : plan.price
+    const monthlyPrice = plan.priceMonthly / 100 // 转换为美元
+    return billingCycle === 'yearly' ? monthlyPrice * 0.8 * 12 : monthlyPrice
   }
 
   const currentPlan = getCurrentPlan()
@@ -243,7 +246,14 @@ export default function SubscriptionModal({
                 
                 {/* 功能列表 */}
                 <div className="grid grid-cols-2 gap-2 mt-3">
-                  {currentPlan.features.slice(0, 6).map((feature, index) => (
+                  {[
+                    currentPlan.features.advancedTemplates ? '高级模板' : '基础模板',
+                    currentPlan.features.advancedAiModels ? '高级AI模型' : '基础AI模型',
+                    currentPlan.features.historyAccess ? '历史记录' : '无历史记录',
+                    currentPlan.features.dataExport ? '导出功能' : '无导出',
+                    currentPlan.features.prioritySupport ? '优先支持' : '标准支持',
+                    currentPlan.features.teamCollaboration ? '团队协作' : '个人使用'
+                  ].slice(0, 6).map((feature, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
                       <span className="text-sm text-gray-700 dark:text-gray-300">

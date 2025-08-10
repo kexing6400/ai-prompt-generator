@@ -55,7 +55,7 @@ export {
 import { subscriptionService } from './subscription-service'
 import { usageTrackingService } from './usage-tracking-service'
 import { paymentService } from './payment-service'
-import { permissionChecker } from './permissions'
+import { permissionChecker, getUserPermissionSummary } from './permissions'
 
 /**
  * 订阅系统服务集合

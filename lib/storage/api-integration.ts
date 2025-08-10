@@ -4,7 +4,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getDefaultStore, createNewUser, JsonStoreError, ErrorCodes } from './json-store';
+import { getDefaultStore, createNewUser } from './json-store';
+import { JsonStoreError, ErrorCodes } from './types';
 import { getCurrentDateString } from './utils';
 
 // 获取存储实例
@@ -212,7 +213,7 @@ export async function handleTrackUsage(request: NextRequest) {
       tokens: currentUsage.tokens + tokens,
       apiCalls: {
         ...currentUsage.apiCalls,
-        [apiCall]: (currentUsage.apiCalls[apiCall] || 0) + 1
+        [apiCall]: ((currentUsage.apiCalls as any)[apiCall] || 0) + 1
       },
       errors: error ? currentUsage.errors + 1 : currentUsage.errors,
       avgResponseTime: responseTime > 0 

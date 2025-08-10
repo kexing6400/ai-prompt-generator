@@ -618,6 +618,7 @@ export class APISecurityMiddleware {
    */
   public static create(config: Partial<SecurityConfig> = {}) {
     const finalConfig = { ...this.DEFAULT_CONFIG, ...config };
+    const self = this;
 
     return async function securityMiddleware(
       request: NextRequest,
@@ -625,7 +626,7 @@ export class APISecurityMiddleware {
     ): Promise<NextResponse> {
       try {
         const startTime = Date.now();
-        const ip = this.getClientIP(request);
+        const ip = self.getClientIP(request);
         const endpoint = new URL(request.url).pathname;
 
         // 1. 速率限制检查
@@ -733,7 +734,7 @@ export class APISecurityMiddleware {
           return new NextResponse(null, {
             status: 200,
             headers: {
-              'Access-Control-Allow-Origin': allowOrigin,
+              'Access-Control-Allow-Origin': allowOrigin || 'null',
               'Access-Control-Allow-Methods': finalConfig.cors.allowedMethods.join(', '),
               'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token',
               'Access-Control-Allow-Credentials': finalConfig.cors.allowCredentials.toString(),
@@ -746,7 +747,7 @@ export class APISecurityMiddleware {
         const response = await handler(request);
 
         // 7. 添加安全响应头
-        const secureResponse = this.addSecurityHeaders(response, finalConfig);
+        const secureResponse = self.addSecurityHeaders(response, finalConfig);
 
         // 8. 记录性能指标
         const responseTime = Date.now() - startTime;

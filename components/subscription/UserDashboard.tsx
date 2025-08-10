@@ -72,20 +72,24 @@ export default function UserDashboard({
 
   const getUsagePercentage = () => {
     if (!subscription || !usage) return 0
-    const limit = subscription.limits.generationsPerMonth
+    const plan = getPlanInfo(subscription.planId)
+    if (!plan) return 0
+    const limit = plan.monthlyQuota
     if (limit === -1) return 0 // 无限制
     return Math.min((usage.currentMonth.generations / limit) * 100, 100)
   }
 
   const getRemainingGenerations = () => {
     if (!subscription || !usage) return 0
-    const limit = subscription.limits.generationsPerMonth
+    const plan = getPlanInfo(subscription.planId)
+    if (!plan) return 0
+    const limit = plan.monthlyQuota
     if (limit === -1) return Infinity
     return Math.max(limit - usage.currentMonth.generations, 0)
   }
 
   const getNextBillingDate = () => {
-    if (!subscription || subscription.plan === 'free') return null
+    if (!subscription || subscription.planType === 'free') return null
     return new Date(subscription.currentPeriodEnd).toLocaleDateString('zh-CN')
   }
 
@@ -150,7 +154,7 @@ export default function UserDashboard({
     return null
   }
 
-  const currentPlan = getPlanInfo(subscription.plan)
+  const currentPlan = getPlanInfo(subscription.planId)
   const usagePercentage = getUsagePercentage()
   const remainingGenerations = getRemainingGenerations()
   const nextBillingDate = getNextBillingDate()
@@ -160,11 +164,11 @@ export default function UserDashboard({
       
       {/* 当前计划概览 */}
       <Card className="overflow-hidden">
-        <CardHeader className={cn("text-white", getPlanColor(subscription.plan))}>
+        <CardHeader className={cn("text-white", getPlanColor(subscription.planId))}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center">
-                {getPlanIcon(subscription.plan)}
+                {getPlanIcon(subscription.planId)}
               </div>
               <div>
                 <CardTitle className="text-white">{currentPlan?.name || '未知计划'}</CardTitle>
@@ -184,7 +188,7 @@ export default function UserDashboard({
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">本月使用量</span>
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {usage.currentMonth.generations} / {subscription.limits.generationsPerMonth === -1 ? '无限制' : subscription.limits.generationsPerMonth}
+                  {usage.currentMonth.generations} / {currentPlan?.monthlyQuota === -1 ? '无限制' : currentPlan?.monthlyQuota}
                 </span>
               </div>
               <Progress 
@@ -208,14 +212,14 @@ export default function UserDashboard({
                 <Calendar className="h-4 w-4" />
                 计费信息
               </span>
-              {subscription.plan === 'free' ? (
+              {subscription.planType === 'free' ? (
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   永远免费使用
                 </p>
               ) : (
                 <div className="space-y-1">
                   <p className="text-lg font-semibold">
-                    ¥{currentPlan?.price}/月
+                    ¥{currentPlan?.priceMonthly ? (currentPlan.priceMonthly / 100).toFixed(2) : '0.00'}/月
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     下次扣费：{nextBillingDate}
@@ -228,7 +232,7 @@ export default function UserDashboard({
             <div className="space-y-2">
               <span className="text-sm font-medium">操作</span>
               <div className="flex flex-col gap-2">
-                {subscription.plan === 'free' && (
+                {subscription.planType === 'free' && (
                   <Button 
                     onClick={onUpgrade}
                     size="sm"
@@ -237,7 +241,7 @@ export default function UserDashboard({
                     升级到专业版
                   </Button>
                 )}
-                {subscription.plan !== 'free' && (
+                {subscription.planType !== 'free' && (
                   <Button variant="outline" size="sm">
                     管理订阅
                   </Button>
@@ -260,23 +264,21 @@ export default function UserDashboard({
           <CardContent>
             <div className="text-2xl font-bold">{usage.currentMonth.generations}</div>
             <p className="text-xs text-muted-foreground">
-              比上月 {usage.previousMonth.generations > 0 
-                ? `${(((usage.currentMonth.generations - usage.previousMonth.generations) / usage.previousMonth.generations) * 100).toFixed(0)}%` 
-                : '+∞%'}
+              本月使用量
             </p>
           </CardContent>
         </Card>
 
-        {/* 本月下载次数 */}
+        {/* 本月文档数 */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">本月下载</CardTitle>
+            <CardTitle className="text-sm font-medium">本月文档</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{usage.currentMonth.downloads}</div>
+            <div className="text-2xl font-bold">{usage.currentMonth.documents}</div>
             <p className="text-xs text-muted-foreground">
-              文档下载次数
+              处理文档数
             </p>
           </CardContent>
         </Card>
@@ -288,30 +290,30 @@ export default function UserDashboard({
             <CheckCircle2 className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{usage.total.generations}</div>
+            <div className="text-2xl font-bold">{usage.totalUsage}</div>
             <p className="text-xs text-muted-foreground">
               累计生成次数
             </p>
           </CardContent>
         </Card>
 
-        {/* 使用天数 */}
+        {/* Token使用量 */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">使用天数</CardTitle>
+            <CardTitle className="text-sm font-medium">Token使用</CardTitle>
             <Calendar className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{usage.activeDays}</div>
+            <div className="text-2xl font-bold">{usage.currentMonth.tokens}</div>
             <p className="text-xs text-muted-foreground">
-              活跃使用天数
+              本月Token使用量
             </p>
           </CardContent>
         </Card>
       </div>
 
       {/* 升级提示 */}
-      {subscription.plan === 'free' && usagePercentage > 60 && (
+      {subscription.planType === 'free' && usagePercentage > 60 && (
         <Card className="border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">

@@ -47,47 +47,49 @@ export async function GET(request: NextRequest) {
     
     // 获取订阅限制
     const limits = user.subscription?.limits || {
-      generationsPerMonth: 50,
-      templatesAccess: 'basic',
-      historyDays: 7
+      monthlyRequests: 50,
+      dailyRequests: 10,
+      maxTokensPerRequest: 4000,
+      maxPromptsPerDay: 20,
+      maxDocumentSize: 5
     };
     
-    // 计算剩余额度
-    const remaining = Math.max(0, (limits as any).generationsPerMonth - monthlyUsage.requests);
+    // 计算剩余额度（使用monthlyRequests而不是generationsPerMonth）
+    const remaining = Math.max(0, limits.monthlyRequests - monthlyUsage.requests);
     
     // 构建响应
     return NextResponse.json({
       success: true,
       data: {
         subscription: {
-          id: user.subscription?.id || `sub_${userId}`,
+          id: `sub_${userId}`, // 使用用户ID生成订阅ID
           userEmail: user.email,
-          plan: user.plan || 'free',
+          plan: user.subscription?.plan || 'free',
           status: user.subscription?.status || 'active',
           currentPeriodStart: user.subscription?.startDate || user.createdAt,
           currentPeriodEnd: user.subscription?.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          cancelAtPeriodEnd: user.subscription?.cancelAtPeriodEnd || false,
+          cancelAtPeriodEnd: false, // Subscription类型中没有此属性
           createdAt: user.createdAt,
           updatedAt: user.updatedAt
         },
         usage: {
           current: monthlyUsage.requests,
-          limit: (limits as any).generationsPerMonth,
+          limit: limits.monthlyRequests,
           remaining,
-          percentage: limits.generationsPerMonth > 0 
-            ? Math.round((monthlyUsage.requests / limits.generationsPerMonth) * 100)
+          percentage: limits.monthlyRequests > 0 
+            ? Math.round((monthlyUsage.requests / limits.monthlyRequests) * 100)
             : 0,
           resetDate: new Date(Date.now() + (30 - new Date().getDate()) * 24 * 60 * 60 * 1000).toISOString()
         },
         permissions: {
-          canGenerate: remaining > 0 || user.plan !== 'free',
-          canAccessPremiumTemplates: user.plan !== 'free',
-          canExportHistory: user.plan !== 'free',
-          canUseAdvancedModels: user.plan === 'team',
-          maxHistoryDays: limits.historyDays,
-          templatesAccess: limits.templatesAccess
+          canGenerate: remaining > 0 || user.subscription?.plan !== 'free',
+          canAccessPremiumTemplates: user.subscription?.plan !== 'free',
+          canExportHistory: user.subscription?.plan !== 'free',
+          canUseAdvancedModels: user.subscription?.plan === 'enterprise',
+          maxHistoryDays: 30,
+          templatesAccess: user.subscription?.plan === 'free' ? 'basic' : 'all'
         },
-        availableUpgrades: user.plan === 'free' 
+        availableUpgrades: user.subscription?.plan === 'free' 
           ? [
               {
                 plan: 'pro',
@@ -100,7 +102,7 @@ export async function GET(request: NextRequest) {
                 features: ['无限生成', '所有模板', '无限历史', 'GPT-4模型', '团队协作']
               }
             ]
-          : user.plan === 'pro'
+          : user.subscription?.plan === 'pro'
           ? [
               {
                 plan: 'team',
@@ -183,7 +185,7 @@ export async function PATCH(request: NextRequest) {
       ...user.preferences,
       ...preferences
     };
-    user.updatedAt = new Date().toISOString();
+    user.updatedAt = new Date();
     
     await store.saveUser(user);
     

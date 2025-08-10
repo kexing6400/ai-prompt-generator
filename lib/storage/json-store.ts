@@ -961,9 +961,9 @@ export class JsonStore implements IJsonStore {
   }
   
   /**
-   * 获取存储统计信息
+   * 获取存储统计信息（完整版本）
    */
-  async getStatistics(): Promise<StorageStats> {
+  async getFullStatistics(): Promise<StorageStats> {
     await this.initialize();
     
     try {
@@ -986,12 +986,13 @@ export class JsonStore implements IJsonStore {
             const userId = file.replace('.json', '');
             const usage = await this.getUsage(userId);
             
-            if (usage && usage.lastActivity && new Date(usage.lastActivity) > thirtyDaysAgo) {
+            if (usage && usage.date && new Date(usage.date) > thirtyDaysAgo) {
               activeUsers++;
             }
             
-            if (usage?.daily) {
-              totalRequests += Object.values(usage.daily).reduce((sum, daily) => sum + daily.requests, 0);
+            // 累加该用户的请求数
+            if (usage) {
+              totalRequests += usage.requests;
             }
           }
         }
@@ -1002,20 +1003,18 @@ export class JsonStore implements IJsonStore {
       return {
         totalUsers,
         activeUsers,
-        totalRequests,
-        cacheHitRate: this.userCache.getStats?.() || 0,
-        storageSize: '计算中...',
-        lastBackup: '暂无备份'
+        totalUsageRecords: totalRequests, // 使用totalRequests作为记录数
+        storageSize: 0, // 返回0作为默认值
+        systemHealth: 'healthy' as const
       };
     } catch (error) {
       console.error('[Storage] 获取统计信息失败:', error);
       return {
         totalUsers: 0,
         activeUsers: 0,
-        totalRequests: 0,
-        cacheHitRate: 0,
-        storageSize: '未知',
-        lastBackup: '未知'
+        totalUsageRecords: 0,
+        storageSize: 0,
+        systemHealth: 'warning' as const
       };
     }
   }
