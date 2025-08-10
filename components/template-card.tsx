@@ -54,7 +54,7 @@ export default function TemplateCard({ template, industryName }: TemplateCardPro
   const [showDetails, setShowDetails] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  // 难度颜色映射
+  // Difficulty color mapping
   const difficultyColors = {
     beginner: 'bg-green-100 text-green-800',
     intermediate: 'bg-yellow-100 text-yellow-800',
@@ -62,22 +62,22 @@ export default function TemplateCard({ template, industryName }: TemplateCardPro
   }
 
   const difficultyLabels = {
-    beginner: '初级',
-    intermediate: '中级',
-    advanced: '高级'
+    beginner: 'Beginner',
+    intermediate: 'Intermediate',
+    advanced: 'Advanced'
   }
 
-  // 复制提示词
+  // Copy prompt
   const copyPrompt = () => {
-    const fullPrompt = `系统角色：${template.prompt.system}
+    const fullPrompt = `System Role: ${template.prompt.system}
 
-背景信息：${template.prompt.context}
+Context: ${template.prompt.context}
 
-任务要求：${template.prompt.task}
+Task Requirements: ${template.prompt.task}
 
-输出格式：${template.prompt.format}
+Output Format: ${template.prompt.format}
 
-示例：${template.prompt.examples}`
+Examples: ${template.prompt.examples}`
 
     navigator.clipboard.writeText(fullPrompt)
     setCopied(true)
@@ -139,9 +139,9 @@ export default function TemplateCard({ template, industryName }: TemplateCardPro
             </div>
           </div>
 
-          {/* 使用场景 */}
+          {/* Use cases */}
           <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-            <p className="text-xs font-medium text-gray-700 mb-2">适用场景：</p>
+            <p className="text-xs font-medium text-gray-700 mb-2">Use Cases:</p>
             <div className="flex flex-wrap gap-2">
               {template.useCases.slice(0, 4).map((useCase, index) => (
                 <span 
@@ -161,7 +161,7 @@ export default function TemplateCard({ template, industryName }: TemplateCardPro
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="flex-1">
                   <Eye className="h-4 w-4 mr-1" />
-                  查看详情
+                  View Details
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
@@ -177,41 +177,41 @@ export default function TemplateCard({ template, industryName }: TemplateCardPro
                 </DialogHeader>
 
                 <div className="space-y-4 mt-4">
-                  {/* 系统角色 */}
+                  {/* System role */}
                   <div className="p-4 bg-blue-50 rounded-lg">
-                    <h4 className="font-medium text-blue-900 mb-2">🤖 系统角色定义</h4>
+                    <h4 className="font-medium text-blue-900 mb-2">🤖 System Role</h4>
                     <p className="text-sm text-blue-800">{template.prompt.system}</p>
                   </div>
 
-                  {/* 背景信息 */}
+                  {/* Context */}
                   <div className="p-4 bg-green-50 rounded-lg">
-                    <h4 className="font-medium text-green-900 mb-2">📋 背景信息</h4>
+                    <h4 className="font-medium text-green-900 mb-2">📋 Context</h4>
                     <p className="text-sm text-green-800 whitespace-pre-line">{template.prompt.context}</p>
                   </div>
 
-                  {/* 任务要求 */}
+                  {/* Task requirements */}
                   <div className="p-4 bg-purple-50 rounded-lg">
-                    <h4 className="font-medium text-purple-900 mb-2">🎯 任务要求</h4>
+                    <h4 className="font-medium text-purple-900 mb-2">🎯 Task Requirements</h4>
                     <p className="text-sm text-purple-800 whitespace-pre-line">{template.prompt.task}</p>
                   </div>
 
-                  {/* 输出格式 */}
+                  {/* Output format */}
                   <div className="p-4 bg-orange-50 rounded-lg">
-                    <h4 className="font-medium text-orange-900 mb-2">📝 输出格式</h4>
+                    <h4 className="font-medium text-orange-900 mb-2">📝 Output Format</h4>
                     <pre className="text-sm text-orange-800 whitespace-pre-wrap font-mono">
                       {template.prompt.format}
                     </pre>
                   </div>
 
-                  {/* 示例 */}
+                  {/* Examples */}
                   <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-gray-900 mb-2">💡 使用示例</h4>
+                    <h4 className="font-medium text-gray-900 mb-2">💡 Examples</h4>
                     <p className="text-sm text-gray-700">{template.prompt.examples}</p>
                   </div>
 
-                  {/* 最佳实践 */}
+                  {/* Best practices */}
                   <div className="p-4 bg-indigo-50 rounded-lg">
-                    <h4 className="font-medium text-indigo-900 mb-2">✨ 最佳实践</h4>
+                    <h4 className="font-medium text-indigo-900 mb-2">✨ Best Practices</h4>
                     <ul className="space-y-1">
                       {template.bestPractices.map((practice, index) => (
                         <li key={index} className="text-sm text-indigo-800 flex items-start">
@@ -222,9 +222,9 @@ export default function TemplateCard({ template, industryName }: TemplateCardPro
                     </ul>
                   </div>
 
-                  {/* 标签 */}
+                  {/* Tags */}
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">🏷️ 标签</h4>
+                    <h4 className="font-medium text-gray-900 mb-2">🏷️ Tags</h4>
                     <div className="flex flex-wrap gap-2">
                       {template.tags.map((tag, index) => (
                         <span 
@@ -237,7 +237,7 @@ export default function TemplateCard({ template, industryName }: TemplateCardPro
                     </div>
                   </div>
 
-                  {/* 复制按钮 */}
+                  {/* Copy button */}
                   <div className="pt-4 border-t">
                     <Button 
                       onClick={copyPrompt}
@@ -247,12 +247,12 @@ export default function TemplateCard({ template, industryName }: TemplateCardPro
                       {copied ? (
                         <>
                           <CheckCircle className="h-4 w-4 mr-2" />
-                          已复制到剪贴板
+                          Copied to Clipboard
                         </>
                       ) : (
                         <>
                           <Copy className="h-4 w-4 mr-2" />
-                          复制完整提示词
+                          Copy Full Prompt
                         </>
                       )}
                     </Button>
@@ -270,12 +270,12 @@ export default function TemplateCard({ template, industryName }: TemplateCardPro
               {copied ? (
                 <>
                   <CheckCircle className="h-4 w-4 mr-1" />
-                  已复制
+                  Copied
                 </>
               ) : (
                 <>
                   <Copy className="h-4 w-4 mr-1" />
-                  复制使用
+                  Copy & Use
                 </>
               )}
             </Button>

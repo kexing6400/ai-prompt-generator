@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs/promises'
-import path from 'path'
+import { templatesData } from '@/lib/data/templates-2025-data'
 
 /**
  * 获取单个模板详情API
+ * 已优化：使用静态导入，确保Vercel部署时正确加载
  */
 export async function GET(
   request: NextRequest,
@@ -12,10 +12,8 @@ export async function GET(
   try {
     const templateId = params.id
     
-    // 读取模板数据
-    const templatesPath = path.join(process.cwd(), 'data', 'templates-2025.json')
-    const fileContent = await fs.readFile(templatesPath, 'utf-8')
-    const data = JSON.parse(fileContent)
+    // 使用静态导入的模板数据
+    const data = templatesData
     
     // 在所有行业中查找模板
     for (const [industryKey, industryData] of Object.entries(data.industries)) {

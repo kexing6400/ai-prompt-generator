@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs/promises'
-import path from 'path'
+import { templatesData } from '@/lib/data/templates-2025-data'
 
 /**
  * 获取模板列表API
  * 支持按行业筛选
+ * 已优化：使用静态导入，确保Vercel部署时正确加载
  */
 export async function GET(request: NextRequest) {
   try {
@@ -12,10 +12,8 @@ export async function GET(request: NextRequest) {
     const industry = searchParams.get('industry')
     const limit = searchParams.get('limit')
     
-    // 读取模板数据
-    const templatesPath = path.join(process.cwd(), 'data', 'templates-2025.json')
-    const fileContent = await fs.readFile(templatesPath, 'utf-8')
-    const data = JSON.parse(fileContent)
+    // 使用静态导入的模板数据
+    const data = templatesData
     
     // 如果指定了行业，返回该行业的模板
     if (industry && data.industries[industry]) {

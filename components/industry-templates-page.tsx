@@ -60,7 +60,7 @@ export default function IndustryTemplatesPage({
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
-  // 获取行业模板
+  // Get industry templates
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
@@ -71,7 +71,7 @@ export default function IndustryTemplatesPage({
           setFilteredTemplates(data.templates || [])
         }
       } catch (error) {
-        console.error('获取模板失败:', error)
+        console.error('Failed to fetch templates:', error)
       } finally {
         setLoading(false)
       }
@@ -79,11 +79,11 @@ export default function IndustryTemplatesPage({
     fetchTemplates()
   }, [industryKey])
 
-  // 过滤模板
+  // Filter templates
   useEffect(() => {
     let filtered = [...templates]
     
-    // 搜索过滤
+    // Search filter
     if (searchQuery) {
       filtered = filtered.filter(template => 
         template.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -92,12 +92,12 @@ export default function IndustryTemplatesPage({
       )
     }
     
-    // 分类过滤
+    // Category filter
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(template => template.category === selectedCategory)
     }
     
-    // 难度过滤
+    // Difficulty filter
     if (selectedDifficulty !== 'all') {
       filtered = filtered.filter(template => template.difficulty === selectedDifficulty)
     }
@@ -105,10 +105,10 @@ export default function IndustryTemplatesPage({
     setFilteredTemplates(filtered)
   }, [searchQuery, selectedCategory, selectedDifficulty, templates])
 
-  // 获取所有分类
+  // Get all categories
   const categories = Array.from(new Set(templates.map(t => t.category)))
   
-  // 统计数据
+  // Statistics
   const stats = {
     total: templates.length,
     beginner: templates.filter(t => t.difficulty === 'beginner').length,
@@ -116,11 +116,11 @@ export default function IndustryTemplatesPage({
     advanced: templates.filter(t => t.difficulty === 'advanced').length
   }
 
-  // 难度标签映射
+  // Difficulty labels mapping
   const difficultyLabels = {
-    beginner: '初级',
-    intermediate: '中级',
-    advanced: '高级'
+    beginner: 'Beginner',
+    intermediate: 'Intermediate',
+    advanced: 'Advanced'
   }
 
   if (loading) {
@@ -128,7 +128,7 @@ export default function IndustryTemplatesPage({
       <div className={`min-h-screen bg-gradient-to-br from-${industryKey}/5 via-white to-${industryKey}/10 flex items-center justify-center`}>
         <div className="text-center">
           <Sparkles className={`h-8 w-8 text-${industryKey} animate-pulse mx-auto mb-4`} />
-          <p className="text-gray-600">加载模板中...</p>
+          <p className="text-gray-600">Loading templates...</p>
         </div>
       </div>
     )
@@ -154,20 +154,20 @@ export default function IndustryTemplatesPage({
                 {industryDescription}
               </p>
               
-              {/* 统计信息 */}
+              {/* Statistics */}
               <div className="mt-4 flex flex-wrap gap-4">
                 <Badge variant="secondary" className="px-3 py-1">
                   <BookOpen className="h-3 w-3 mr-1" />
-                  共 {stats.total} 个模板
+                  {stats.total} templates total
                 </Badge>
                 <Badge variant="outline" className="px-3 py-1 bg-green-50 text-green-700 border-green-200">
-                  初级 {stats.beginner} 个
+                  {stats.beginner} Beginner
                 </Badge>
                 <Badge variant="outline" className="px-3 py-1 bg-yellow-50 text-yellow-700 border-yellow-200">
-                  中级 {stats.intermediate} 个
+                  {stats.intermediate} Intermediate
                 </Badge>
                 <Badge variant="outline" className="px-3 py-1 bg-red-50 text-red-700 border-red-200">
-                  高级 {stats.advanced} 个
+                  {stats.advanced} Advanced
                 </Badge>
               </div>
             </div>
@@ -175,47 +175,47 @@ export default function IndustryTemplatesPage({
         </div>
       </section>
 
-      {/* 过滤和搜索栏 */}
+      {/* Filter and search bar */}
       <section className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col lg:flex-row gap-4">
-            {/* 搜索框 */}
+            {/* Search box */}
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 type="text"
-                placeholder="搜索模板..."
+                placeholder="Search templates..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
               />
             </div>
             
-            {/* 分类筛选 */}
+            {/* Category filter */}
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className={`px-4 py-2 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-${industryKey}/20`}
             >
-              <option value="all">所有分类</option>
+              <option value="all">All Categories</option>
               {categories.map(category => (
                 <option key={category} value={category}>{category}</option>
               ))}
             </select>
             
-            {/* 难度筛选 */}
+            {/* Difficulty filter */}
             <select
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(e.target.value)}
               className={`px-4 py-2 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-${industryKey}/20`}
             >
-              <option value="all">所有难度</option>
-              <option value="beginner">初级</option>
-              <option value="intermediate">中级</option>
-              <option value="advanced">高级</option>
+              <option value="all">All Difficulties</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
             </select>
             
-            {/* 视图切换 */}
+            {/* View toggle */}
             <div className="flex gap-2">
               <Button
                 variant={viewMode === 'grid' ? 'default' : 'outline'}
@@ -236,20 +236,20 @@ export default function IndustryTemplatesPage({
             </div>
           </div>
           
-          {/* 结果统计 */}
+          {/* Results count */}
           <div className="mt-3 text-sm text-gray-600">
-            找到 {filteredTemplates.length} 个符合条件的模板
+            Found {filteredTemplates.length} templates matching your criteria
           </div>
         </div>
       </section>
 
-      {/* 模板列表 */}
+      {/* Template list */}
       <section className="container mx-auto px-4 py-8">
         {filteredTemplates.length === 0 ? (
           <div className="text-center py-12">
             <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900">没有找到符合条件的模板</h3>
-            <p className="mt-2 text-gray-600">请尝试调整搜索条件或筛选选项</p>
+            <h3 className="text-lg font-medium text-gray-900">No templates found</h3>
+            <p className="mt-2 text-gray-600">Try adjusting your search criteria or filters</p>
           </div>
         ) : (
           <div className={viewMode === 'grid' 
@@ -267,7 +267,7 @@ export default function IndustryTemplatesPage({
         )}
       </section>
 
-      {/* 底部提示 */}
+      {/* Footer info */}
       <section className="container mx-auto px-4 py-8 border-t">
         <div className={`bg-${industryKey}/5 rounded-lg p-6`}>
           <div className="flex items-start gap-4">
@@ -276,20 +276,20 @@ export default function IndustryTemplatesPage({
             </div>
             <div>
               <h3 className="font-semibold text-gray-900 mb-2">
-                持续更新中
+                Continuously Updated
               </h3>
               <p className="text-gray-600 text-sm">
-                我们的{industryName}AI提示词模板库会根据最新的行业实践和AI技术发展持续更新。
-                建议您定期查看，获取最新的模板和最佳实践。
+                Our {industryName} AI prompt template library is continuously updated based on the latest industry practices and AI technology developments. 
+                We recommend checking back regularly to get the latest templates and best practices.
               </p>
               <div className="mt-4 flex gap-3">
                 <Button variant="outline" size="sm">
                   <Users className="h-4 w-4 mr-2" />
-                  联系专家团队
+                  Contact Expert Team
                 </Button>
                 <Button variant="outline" size="sm">
                   <BookOpen className="h-4 w-4 mr-2" />
-                  查看使用指南
+                  View Usage Guide
                 </Button>
               </div>
             </div>
