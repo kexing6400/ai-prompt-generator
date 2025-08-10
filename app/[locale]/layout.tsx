@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation'
 import { ReactNode } from 'react'
 
 // 支持的语言列表
-export const locales = ['en', 'cn'] as const
-export type Locale = typeof locales[number]
+const locales = ['en', 'cn'] as const
+type Locale = typeof locales[number]
 
 // 验证locale参数
 function isValidLocale(locale: string): locale is Locale {

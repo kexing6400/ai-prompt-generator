@@ -1,67 +1,91 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { 
-  Scale, 
-  Home, 
-  Shield, 
+  MessageSquare, 
+  Send, 
   GraduationCap, 
+  Scale, 
   Calculator,
-  ArrowRight,
-  CheckCircle,
-  Zap,
-  Brain,
-  MessageCircle,
-  Sparkles,
-  Users
+  Home,
+  Shield,
+  Settings,
+  Globe,
+  Copy,
+  Download,
+  Trash2,
+  Menu,
+  X,
+  User,
+  Bot,
+  Sparkles
 } from 'lucide-react'
-import { useState } from 'react'
 
 import { Button } from "../../components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
-import { UsageIndicator, PricingSection, SubscriptionModal } from "../../components/subscription"
-import { IndustryType } from "../../types"
+import { Input } from "../../components/ui/input"
+import { Card, CardContent } from "../../components/ui/card"
+import { Badge } from "../../components/ui/badge"
 
-// 路径映射
-const industryPaths: Record<string, string> = {
-  lawyer: 'ai-prompts-for-lawyers',
-  realtor: 'ai-prompts-for-realtors',
-  insurance: 'ai-prompts-for-insurance-advisors',
-  teacher: 'ai-prompts-for-teachers',
-  accountant: 'ai-prompts-for-accountants'
-}
-
-// 行业基础配置（图标和样式）
-const industryBaseConfig: Record<IndustryType, {
-  icon: React.ComponentType<{ className?: string }>
-  gradient: string
-  stats: { users: string; templates: string }
-}> = {
-  lawyer: {
-    icon: Scale,
-    gradient: 'gradient-lawyer',
-    stats: { users: '2,300+', templates: '150+' }
+// AI专家配置
+const AI_EXPERTS = [
+  {
+    id: 'teacher',
+    name: '教师专家',
+    icon: '📚',
+    iconComponent: GraduationCap,
+    color: 'bg-blue-500',
+    hoverColor: 'hover:bg-blue-600',
+    description: '教案设计、学习评估、教育方法',
+    prompt: '您是一位拥有15年教学经验的资深教育专家。请以专业、耐心的态度为用户提供教育相关的建议和解决方案。'
   },
-  realtor: {
-    icon: Home,
-    gradient: 'gradient-realtor',
-    stats: { users: '1,800+', templates: '120+' }
+  {
+    id: 'lawyer',
+    name: '律师专家',
+    icon: '⚖️', 
+    iconComponent: Scale,
+    color: 'bg-purple-500',
+    hoverColor: 'hover:bg-purple-600',
+    description: '法律咨询、合同审查、法务建议',
+    prompt: '您是一位拥有18年执业经验的资深律师。请以专业、严谨的态度为用户提供法律相关的咨询和建议。'
   },
-  insurance: {
-    icon: Shield,
-    gradient: 'gradient-insurance',
-    stats: { users: '1,500+', templates: '100+' }
+  {
+    id: 'accountant',
+    name: '会计师专家',
+    icon: '💰',
+    iconComponent: Calculator,
+    color: 'bg-green-500',
+    hoverColor: 'hover:bg-green-600',
+    description: '财务分析、税务筹划、会计咨询',
+    prompt: '您是一位拥有12年财务管理经验的注册会计师。请以专业、精准的态度为用户提供财务和会计相关的建议。'
   },
-  teacher: {
-    icon: GraduationCap,
-    gradient: 'gradient-teacher',
-    stats: { users: '3,200+', templates: '200+' }
+  {
+    id: 'realtor',
+    name: '房产专家',
+    icon: '🏠',
+    iconComponent: Home,
+    color: 'bg-orange-500',
+    hoverColor: 'hover:bg-orange-600',
+    description: '房产投资、市场分析、置业建议',
+    prompt: '您是一位拥有10年房地产经验的资深房产顾问。请以专业、实用的态度为用户提供房地产相关的投资建议。'
   },
-  accountant: {
-    icon: Calculator,
-    gradient: 'gradient-accountant',
-    stats: { users: '1,900+', templates: '130+' }
+  {
+    id: 'insurance',
+    name: '保险顾问',
+    icon: '🛡️',
+    iconComponent: Shield,
+    color: 'bg-teal-500',
+    hoverColor: 'hover:bg-teal-600',
+    description: '保险规划、风险评估、理赔指导',
+    prompt: '您是一位拥有8年保险行业经验的保险规划师。请以专业、贴心的态度为用户提供保险规划和风险管理建议。'
   }
+]
+
+interface Message {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: Date
 }
 
 interface HomePageProps {
@@ -69,338 +93,362 @@ interface HomePageProps {
 }
 
 export default function HomePage({ params: { locale } }: HomePageProps) {
-  // 订阅弹窗状态管理
-  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
-  
-  // 简化的翻译数据（转换为客户端组件后的临时解决方案）
-  const t = (key: string) => {
-    const translations: Record<string, string> = {
-      'common.freeNotice': '100% 免费使用',
-      'common.title': '专业AI提示词生成器',
-      'common.subtitle': '为各行业专业人士量身定制的智能提示词工具',
-      'common.description': '快速生成高质量、专业的AI提示词模板，提升您的工作效率',
-      'common.selectIndustry': '选择您的行业开始使用',
-      'common.howItWorks.step1': '选择行业',
-      'common.howItWorks.step2': '描述需求', 
-      'common.howItWorks.step3': '生成提示词',
-      'common.howItWorks.step4': '一键复制使用',
-      'common.footer.tagline': '专业AI提示词，让工作更高效',
-      'common.footer.copyright': '© 2025 AI Prompt Generator. All rights reserved.',
-      'common.newAI': '全新AI对话体验',
-      'common.newAIDesc': '告别模板选择，享受真正的AI专家对话'
-    }
-    return translations[key] || key
+  const [selectedExpert, setSelectedExpert] = useState<string>('')
+  const [messages, setMessages] = useState<Message[]>([])
+  const [input, setInput] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  // 语言切换功能
+  const switchLanguage = () => {
+    const newLocale = locale === 'zh' ? 'en' : 'zh'
+    window.location.href = `/${newLocale}`
   }
-  
-  const dictionary = {
-    industries: {
-      lawyer: {
-        name: 'lawyer',
-        displayName: '律师',
-        description: '法律文书、案例分析、合同审查专用AI提示词',
-        features: ['法律文书', '案例分析', '合同审查'],
-        enter: '进入法律助手'
-      },
-      realtor: {
-        name: 'realtor', 
-        displayName: '房地产经纪',
-        description: '房源描述、客户沟通、市场分析专用提示词',
-        features: ['房源描述', '客户沟通', '市场分析'],
-        enter: '进入房产助手'
-      },
-      insurance: {
-        name: 'insurance',
-        displayName: '保险顾问', 
-        description: '保险产品介绍、风险评估、理赔指导提示词',
-        features: ['产品介绍', '风险评估', '理赔指导'],
-        enter: '进入保险助手'
-      },
-      teacher: {
-        name: 'teacher',
-        displayName: '教师',
-        description: '教案设计、作业批改、学生评价专用提示词',
-        features: ['教案设计', '作业批改', '学生评价'],
-        enter: '进入教学助手'
-      },
-      accountant: {
-        name: 'accountant',
-        displayName: '会计师',
-        description: '财务分析、报表解读、税务咨询专用提示词', 
-        features: ['财务分析', '报表解读', '税务咨询'],
-        enter: '进入财务助手'
+
+  // 选择专家
+  const handleSelectExpert = (expertId: string) => {
+    setSelectedExpert(expertId)
+    setMessages([])
+    const expert = AI_EXPERTS.find(e => e.id === expertId)
+    if (expert) {
+      setMessages([{
+        id: 'welcome',
+        role: 'assistant',
+        content: `您好！我是${expert.name}，专业提供${expert.description}。请告诉我您的具体需求，我将为您提供专业的建议和解决方案。`,
+        timestamp: new Date()
+      }])
+    }
+    setSidebarOpen(false)
+  }
+
+  // 发送消息
+  const handleSendMessage = async () => {
+    if (!input.trim() || !selectedExpert) return
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: input,
+      timestamp: new Date()
+    }
+
+    setMessages(prev => [...prev, userMessage])
+    setInput('')
+    setIsLoading(true)
+
+    try {
+      const expert = AI_EXPERTS.find(e => e.id === selectedExpert)
+      const response = await fetch('/api/ai-conversation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [...messages, userMessage].map(m => ({
+            role: m.role,
+            content: m.content
+          })),
+          systemPrompt: expert?.prompt || '',
+          expertId: selectedExpert
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: data.response || '抱歉，我现在无法回应。请稍后再试。',
+          timestamp: new Date()
+        }
+        setMessages(prev => [...prev, assistantMessage])
+      }
+    } catch (error) {
+      console.error('发送消息失败:', error)
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: '抱歉，发生了一个错误。请检查网络连接后重试。',
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // 复制消息
+  const handleCopyMessage = (content: string) => {
+    navigator.clipboard.writeText(content)
+  }
+
+  // 清空对话
+  const handleClearChat = () => {
+    setMessages([])
+    if (selectedExpert) {
+      const expert = AI_EXPERTS.find(e => e.id === selectedExpert)
+      if (expert) {
+        setMessages([{
+          id: 'welcome',
+          role: 'assistant',
+          content: `您好！我是${expert.name}，专业提供${expert.description}。请告诉我您的具体需求，我将为您提供专业的建议和解决方案。`,
+          timestamp: new Date()
+        }])
       }
     }
   }
-  
-  // 构建行业数据（结合翻译和基础配置）
-  const industries = Object.keys(industryBaseConfig).map(industryKey => {
-    const id = industryKey as IndustryType
-    const baseConfig = industryBaseConfig[id]
-    const industryData = dictionary.industries[id]
-    
-    return {
-      id,
-      name: industryData.name,
-      displayName: industryData.displayName,
-      description: industryData.description,
-      features: industryData.features,
-      enterText: industryData.enter,
-      ...baseConfig
-    }
-  })
+
+  const currentExpert = AI_EXPERTS.find(e => e.id === selectedExpert)
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* 全新AI对话系统横幅 */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                <Brain className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-lg">{t('common.newAI')}</span>
-                  <span className="bg-yellow-400 text-black px-2 py-1 rounded-full text-xs font-bold">NEW</span>
-                </div>
-                <p className="text-blue-100 text-sm">{t('common.newAIDesc')}</p>
-              </div>
+    <div className="flex h-screen bg-gray-50">
+      {/* 左侧边栏 - 专家选择 */}
+      <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:relative z-30 flex flex-col w-80 bg-white border-r border-gray-200 transition-transform duration-300`}>
+        {/* 侧边栏头部 */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <Link href={`/${locale}/ai-chat`}>
-              <Button className="bg-white text-purple-600 hover:bg-gray-100 font-semibold px-6">
-                立即体验
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
+            <h1 className="text-lg font-semibold text-gray-900">AI专家对话</h1>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X className="w-4 h-4" />
+          </Button>
         </div>
-      </div>
 
-      {/* Hero Section - 英雄区域 */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20">
-        {/* 背景装饰 */}
-        <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25 pointer-events-none" />
-
-        <div className="container mx-auto px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-          {/* 使用量指示器 - 顶部显示 */}
-          <div className="flex justify-center mb-6">
-            <UsageIndicator 
-              variant="compact" 
-              showUpgradePrompt={true}
-              onUpgrade={() => setIsSubscriptionModalOpen(true)}
-            />
-          </div>
-          
-          <div className="text-center">
-            {/* 100%免费标识 */}
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 text-sm font-medium mb-6">
-              <CheckCircle className="mr-2 h-4 w-4" />
-              {t('common.freeNotice')}
-            </div>
-            
-            {/* 主标题 */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 dark:text-white mb-4">
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                {t('common.title')}
-              </span>
-            </h1>
-            
-            {/* 副标题 */}
-            <p className="mx-auto mt-4 max-w-2xl text-xl text-gray-600 dark:text-gray-300 mb-2">
-              {t('common.subtitle')}
-            </p>
-            
-            {/* 简要说明 */}
-            <p className="mx-auto max-w-3xl text-lg text-gray-500 dark:text-gray-400 mb-8">
-              {t('common.description')}
-            </p>
-            
-            {/* 新AI系统展示卡片 */}
-            <div className="max-w-4xl mx-auto mb-12">
-              <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-8 rounded-2xl shadow-2xl">
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                    <Sparkles className="w-7 h-7" />
-                  </div>
-                  <h2 className="text-3xl font-bold">全新5层AI对话系统</h2>
-                </div>
-                <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-                  告别固定模板选择器，体验真正的AI专家对话。从需求分析到内容生成，一站式专业服务。
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                  <div className="bg-white/10 p-4 rounded-lg">
-                    <Brain className="w-8 h-8 mx-auto mb-2" />
-                    <h3 className="font-semibold mb-1">需求洞察AI</h3>
-                    <p className="text-sm text-blue-200">心理学专家分析</p>
-                  </div>
-                  <div className="bg-white/10 p-4 rounded-lg">
-                    <Users className="w-8 h-8 mx-auto mb-2" />
-                    <h3 className="font-semibold mb-1">专家匹配AI</h3>
-                    <p className="text-sm text-blue-200">智能专家选择</p>
-                  </div>
-                  <div className="bg-white/10 p-4 rounded-lg">
-                    <MessageCircle className="w-8 h-8 mx-auto mb-2" />
-                    <h3 className="font-semibold mb-1">专业对话AI</h3>
-                    <p className="text-sm text-blue-200">深度信息收集</p>
-                  </div>
-                  <div className="bg-white/10 p-4 rounded-lg">
-                    <CheckCircle className="w-8 h-8 mx-auto mb-2" />
-                    <h3 className="font-semibold mb-1">内容生成AI</h3>
-                    <p className="text-sm text-blue-200">定制化输出</p>
-                  </div>
-                </div>
-                
-                <Link href={`/${locale}/ai-chat`}>
-                  <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100 font-bold px-8 py-4 text-lg">
-                    🚀 立即体验AI对话系统
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
-            
-            {/* 主要CTA - 传统模式 */}
-            <div className="mb-12">
-              <Button 
-                size="xl" 
-                className="text-lg px-8 py-4 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl bg-gradient-to-r from-blue-600 to-purple-600 border-0"
-                asChild
-              >
-                <a href="#industry-selection">
-                  <Zap className="mr-2 h-5 w-5" />
-                  {t('common.selectIndustry')}
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </a>
-              </Button>
-            </div>
-
-            {/* 简化的使用流程 */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto text-sm text-gray-600 dark:text-gray-400">
-              <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-semibold mb-2">1</div>
-                <span>{t('common.howItWorks.step1')}</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-semibold mb-2">2</div>
-                <span>{t('common.howItWorks.step2')}</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-semibold mb-2">3</div>
-                <span>{t('common.howItWorks.step3')}</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-semibold mb-2">4</div>
-                <span>{t('common.howItWorks.step4')}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section - 价格展示区域 */}
-      <PricingSection 
-        onUpgrade={(planId) => setIsSubscriptionModalOpen(true)}
-        className="bg-white dark:bg-gray-900"
-      />
-
-      {/* Industry Selection - 行业选择区域 */}
-      <section id="industry-selection" className="py-12 sm:py-16 scroll-mt-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              选择您的专业领域
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-4">
-              点击进入对应行业，获取专业的AI提示词模板
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-500">
-              🔄 传统模板模式（即将升级为AI对话）
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {industries.map((industry) => {
-              const IconComponent = industry.icon
+        {/* 专家列表 */}
+        <div className="flex-1 p-4">
+          <h2 className="text-sm font-medium text-gray-700 mb-3">选择AI专家</h2>
+          <div className="space-y-2">
+            {AI_EXPERTS.map((expert) => {
+              const IconComponent = expert.iconComponent
               return (
-                <Link 
-                  key={industry.id} 
-                  href={`/${locale}/${industryPaths[industry.id]}`}
-                  className="group block"
+                <Button
+                  key={expert.id}
+                  variant={selectedExpert === expert.id ? "default" : "ghost"}
+                  className={`w-full justify-start p-3 h-auto ${selectedExpert === expert.id ? expert.color : ''}`}
+                  onClick={() => handleSelectExpert(expert.id)}
                 >
-                  <Card className="industry-card hover:shadow-lg hover:scale-105 transition-all duration-300 h-full">
-                    <CardHeader className="text-center pb-4">
-                      <div className={`mx-auto h-16 w-16 rounded-2xl ${industry.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                        <IconComponent className="h-8 w-8 text-white" />
-                      </div>
-                      <CardTitle className="text-xl group-hover:text-primary transition-colors">
-                        {industry.displayName}
-                      </CardTitle>
-                      <CardDescription className="text-sm leading-relaxed min-h-[3rem]">
-                        {industry.description}
-                      </CardDescription>
-                    </CardHeader>
-                    
-                    <CardContent className="pt-0">
-                      {/* 核心功能标签 */}
-                      <div className="mb-4">
-                        <div className="flex flex-wrap gap-1 justify-center">
-                          {industry.features.slice(0, 3).map((feature) => (
-                            <span
-                              key={feature}
-                              className="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
-                            >
-                              {feature}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      {/* 进入按钮 */}
-                      <Button 
-                        className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors" 
-                        variant="outline"
-                      >
-                        开始使用
-                        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </Link>
+                  <div className="flex items-center gap-3">
+                    <div className="text-lg">{expert.icon}</div>
+                    <div className="flex-1 text-left">
+                      <div className="font-medium">{expert.name}</div>
+                      <div className="text-xs opacity-75">{expert.description}</div>
+                    </div>
+                  </div>
+                </Button>
               )
             })}
           </div>
         </div>
-      </section>
 
-      {/* Footer - 页脚 */}
-      <footer className="border-t bg-gray-50 dark:bg-gray-900 mt-auto">
-        <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-              AI Prompt Generator
-            </h3>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
-              {t('common.footer.tagline')}
-            </p>
-            <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-              {t('common.footer.copyright')}
-            </div>
-          </div>
+        {/* 侧边栏底部 */}
+        <div className="p-4 border-t border-gray-200 space-y-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start"
+            onClick={handleClearChat}
+            disabled={messages.length === 0}
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            清空对话
+          </Button>
+          <Link href={`/${locale}/settings`}>
+            <Button variant="ghost" size="sm" className="w-full justify-start">
+              <Settings className="w-4 h-4 mr-2" />
+              设置
+            </Button>
+          </Link>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start"
+            onClick={switchLanguage}
+          >
+            <Globe className="w-4 h-4 mr-2" />
+            {locale === 'zh' ? 'English' : '中文'}
+          </Button>
         </div>
-      </footer>
-      
-      {/* 订阅弹窗 */}
-      <SubscriptionModal
-        isOpen={isSubscriptionModalOpen}
-        onClose={() => setIsSubscriptionModalOpen(false)}
-        onSuccess={(planId) => {
-          console.log('订阅成功:', planId)
-          setIsSubscriptionModalOpen(false)
-          // 可以在这里添加成功后的处理逻辑，比如刷新页面数据
-        }}
-      />
+      </div>
+
+      {/* 主内容区域 */}
+      <div className="flex-1 flex flex-col">
+        {/* 顶部导航栏 */}
+        <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="md:hidden"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Menu className="w-4 h-4" />
+            </Button>
+            {currentExpert ? (
+              <>
+                <div className="text-lg">{currentExpert.icon}</div>
+                <div>
+                  <h2 className="font-semibold text-gray-900">{currentExpert.name}</h2>
+                  <p className="text-sm text-gray-500">{currentExpert.description}</p>
+                </div>
+              </>
+            ) : (
+              <h2 className="font-semibold text-gray-900">请选择AI专家开始对话</h2>
+            )}
+          </div>
+          
+          {currentExpert && (
+            <Badge variant="secondary" className={currentExpert.color + ' text-white'}>
+              专业服务
+            </Badge>
+          )}
+        </div>
+
+        {/* 对话区域 */}
+        <div className="flex-1 overflow-hidden">
+          {!selectedExpert ? (
+            // 欢迎界面
+            <div className="h-full flex items-center justify-center p-8">
+              <div className="text-center max-w-md">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <MessageSquare className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  欢迎使用AI专家对话系统
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  请从左侧选择一位AI专家，开始您的专业咨询对话。
+                  我们的专家将为您提供个性化的建议和解决方案。
+                </p>
+                <Button
+                  onClick={() => setSidebarOpen(true)}
+                  className="md:hidden bg-gradient-to-r from-blue-600 to-purple-600"
+                >
+                  选择AI专家
+                </Button>
+              </div>
+            </div>
+          ) : (
+            // 消息列表
+            <div className="h-full flex flex-col">
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div className={`flex gap-3 max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                      {/* 头像 */}
+                      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                        message.role === 'user' 
+                          ? 'bg-blue-500' 
+                          : currentExpert?.color || 'bg-gray-500'
+                      }`}>
+                        {message.role === 'user' ? (
+                          <User className="w-4 h-4 text-white" />
+                        ) : (
+                          <Bot className="w-4 h-4 text-white" />
+                        )}
+                      </div>
+
+                      {/* 消息气泡 */}
+                      <div className="group relative">
+                        <Card className={`${
+                          message.role === 'user'
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-white border border-gray-200'
+                        }`}>
+                          <CardContent className="p-3">
+                            <div className="text-sm whitespace-pre-wrap">
+                              {message.content}
+                            </div>
+                            <div className={`text-xs mt-2 ${
+                              message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
+                            }`}>
+                              {message.timestamp.toLocaleTimeString()}
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        {/* 复制按钮 */}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleCopyMessage(message.content)}
+                        >
+                          <Copy className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* 加载状态 */}
+                {isLoading && (
+                  <div className="flex justify-start">
+                    <div className="flex gap-3 max-w-[80%]">
+                      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${currentExpert?.color || 'bg-gray-500'}`}>
+                        <Bot className="w-4 h-4 text-white" />
+                      </div>
+                      <Card className="bg-white border border-gray-200">
+                        <CardContent className="p-3">
+                          <div className="flex space-x-1">
+                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 输入区域 */}
+              <div className="p-4 bg-white border-t border-gray-200">
+                <div className="flex gap-2">
+                  <Input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={`向${currentExpert?.name}提问...`}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handleSendMessage()
+                      }
+                    }}
+                    className="flex-1"
+                  />
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={!input.trim() || isLoading}
+                    className="bg-blue-500 hover:bg-blue-600"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  按 Enter 发送，Shift + Enter 换行
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 移动端遮罩 */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
     </div>
   )
 }

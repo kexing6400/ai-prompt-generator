@@ -1,0 +1,84 @@
+{
+  "testDate": "2025-08-10T17:44:48.693Z",
+  "version": "2025.2-optimized",
+  "summary": {
+    "totalExperts": 5,
+    "optimizedExperts": 5,
+    "compatibleExperts": 5,
+    "averageTokens": 357,
+    "maxTokens": 454,
+    "minTokens": 291
+  },
+  "details": [
+    {
+      "expert": "律师专家",
+      "expertKey": "lawyer",
+      "templateId": "lawyer-professional-consultation",
+      "isOptimized": true,
+      "hasSystemPrompt": true,
+      "hasContext": true,
+      "hasFormat": true,
+      "hasSafety": true,
+      "promptStructure": "valid",
+      "apiCompatible": true,
+      "messageFormat": "valid",
+      "estimatedTokens": 315
+    },
+    {
+      "expert": "房产专家",
+      "expertKey": "realtor",
+      "templateId": "realtor-professional-consultation",
+      "isOptimized": true,
+      "hasSystemPrompt": true,
+      "hasContext": true,
+      "hasFormat": true,
+      "hasSafety": true,
+      "promptStructure": "valid",
+      "apiCompatible": true,
+      "messageFormat": "valid",
+      "estimatedTokens": 390
+    },
+    {
+      "expert": "保险顾问",
+      "expertKey": "insurance",
+      "templateId": "insurance-professional-consultation",
+      "isOptimized": true,
+      "hasSystemPrompt": true,
+      "hasContext": true,
+      "hasFormat": true,
+      "hasSafety": true,
+      "promptStructure": "valid",
+      "apiCompatible": true,
+      "messageFormat": "valid",
+      "estimatedTokens": 454
+    },
+    {
+      "expert": "教师专家",
+      "expertKey": "teacher",
+      "templateId": "teacher-professional-consultation",
+      "isOptimized": true,
+      "hasSystemPrompt": true,
+      "hasContext": true,
+      "hasFormat": true,
+      "hasSafety": true,
+      "promptStructure": "valid",
+      "apiCompatible": true,
+      "messageFormat": "valid",
+      "estimatedTokens": 291
+    },
+    {
+      "expert": "会计师专家",
+      "expertKey": "accountant",
+      "templateId": "accountant-professional-consultation",
+      "isOptimized": true,
+      "hasSystemPrompt": true,
+      "hasContext": true,
+      "hasFormat": true,
+      "hasSafety": true,
+      "promptStructure": "valid",
+      "apiCompatible": true,
+      "messageFormat": "valid",
+      "estimatedTokens": 337
+    }
+  ]
+}
