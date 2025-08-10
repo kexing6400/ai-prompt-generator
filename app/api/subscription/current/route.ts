@@ -9,6 +9,9 @@ import { cookies } from 'next/headers'
 
 const store = getDefaultStore();
 
+
+// 强制动态路由 - 防止Vercel部署时的静态生成错误
+export const dynamic = 'force-dynamic'
 /**
  * 获取当前用户订阅状态
  */

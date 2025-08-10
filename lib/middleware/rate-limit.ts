@@ -5,7 +5,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { RateLimiterMemory, RateLimiterRedis, IRateLimiterOptions } from 'rate-limiter-flexible'
+import { RateLimiterMemory, IRateLimiterOptions } from 'rate-limiter-flexible'
+// 注意：移除了RateLimiterRedis以避免drizzle-orm依赖问题
 
 // 🔐 速率限制配置
 const RATE_LIMIT_CONFIGS = {

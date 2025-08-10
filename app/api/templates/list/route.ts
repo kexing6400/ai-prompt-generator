@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { templatesData } from '@/lib/data/templates-2025-data'
 
+// 强制动态路由 - 防止Vercel部署时的静态生成错误
+export const dynamic = 'force-dynamic'
+
 /**
  * 获取模板列表API
  * 支持按行业筛选

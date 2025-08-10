@@ -95,6 +95,9 @@ const SUBSCRIPTION_PLANS = {
   }
 };
 
+
+// 强制动态路由 - 防止Vercel部署时的静态生成错误
+export const dynamic = 'force-dynamic'
 /**
  * 获取所有订阅计划
  */

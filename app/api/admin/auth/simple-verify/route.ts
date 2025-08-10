@@ -6,6 +6,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 
+// 强制动态路由 - 防止Vercel部署时的静态生成错误
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // 检查是否有会话cookie

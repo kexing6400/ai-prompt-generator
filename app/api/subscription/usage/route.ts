@@ -12,6 +12,9 @@ import {
 } from '@/lib/subscription'
 import { UsageStatsResponse } from '@/types/subscription'
 
+// 强制动态路由 - 防止Vercel部署时的静态生成错误
+export const dynamic = 'force-dynamic'
+
 /**
  * 获取用户使用量统计
  * 
