@@ -79,11 +79,15 @@ export class OpenRouterClient {
     
     // OpenRouter API正确格式
     const requestBody: any = {
-      model: model || 'meta-llama/llama-3-8b-instruct', // 使用OpenRouter模型格式
+      model: model || 'anthropic/claude-3-haiku', // 默认使用Claude Haiku
       messages,
       max_tokens: options.maxTokens ?? 2000,
       temperature: options.temperature ?? 0.7,
-      stream: options.stream ?? false
+      stream: options.stream ?? false,
+      // 启用使用统计
+      usage: {
+        include: true
+      }
     };
     
     // OpenRouter支持系统提示作为消息
@@ -102,16 +106,54 @@ export class OpenRouterClient {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
         
-        // 使用OpenRouter API格式
-        const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
+        // 根据baseURL调整认证方式和API格式
+        const isGaccodeProxy = this.config.baseUrl.includes('gaccode.com');
+        let apiUrl: string;
+        let requestPayload: any;
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
+        
+        if (isGaccodeProxy) {
+          // gaccode代理使用Anthropic API格式
+          headers['x-api-key'] = this.config.apiKey;
+          headers['anthropic-version'] = '2023-06-01';
+          apiUrl = `${this.config.baseUrl}/v1/messages`;
+          
+          // 转换为Anthropic API格式
+          // gaccode代理可能期望的模型名称格式
+          let claudeModel = model.replace('anthropic/', '');
+          if (claudeModel.includes('claude-3-haiku')) {
+            claudeModel = 'claude-3-haiku-20240307';
+          } else if (claudeModel.includes('claude-3-sonnet')) {
+            claudeModel = 'claude-3-sonnet-20240229';
+          } else if (claudeModel.includes('claude-3-opus')) {
+            claudeModel = 'claude-3-opus-20240229';
+          } else {
+            claudeModel = 'claude-3-haiku-20240307'; // 默认使用Haiku
+          }
+          
+          requestPayload = {
+            model: claudeModel,
+            max_tokens: options.maxTokens ?? 2000,
+            temperature: options.temperature ?? 0.7,
+            messages: messages.filter(m => m.role !== 'system'),
+            ...(options.systemPrompt && { system: options.systemPrompt })
+          };
+        } else {
+          // 标准OpenRouter使用OpenAI格式
+          headers['Authorization'] = `Bearer ${this.config.apiKey}`;
+          headers['HTTP-Referer'] = this.config.siteUrl || 'https://www.aiprompts.ink';
+          headers['X-Title'] = this.config.siteName || 'AI Prompt Generator';
+          headers['User-Agent'] = 'AI-Prompt-Generator/1.0';
+          apiUrl = `${this.config.baseUrl}/chat/completions`;
+          requestPayload = requestBody;
+        }
+        
+        const response = await fetch(apiUrl, {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.config.apiKey}`, // OpenRouter使用Bearer token
-            'Content-Type': 'application/json',
-            'HTTP-Referer': this.config.siteUrl || 'https://www.aiprompts.ink',
-            'X-Title': this.config.siteName || 'AI Prompt Generator'
-          },
-          body: JSON.stringify(requestBody),
+          headers,
+          body: JSON.stringify(requestPayload),
           signal: controller.signal
         }).finally(() => clearTimeout(timeoutId));
         
@@ -134,12 +176,40 @@ export class OpenRouterClient {
         
         const data = await response.json();
         
-        // OpenRouter响应格式
-        if (!data.choices || data.choices.length === 0) {
-          throw new Error('API返回了空响应');
+        // 根据API类型解析响应
+        let content: string;
+        let usage: any;
+        let cost = 0;
+        
+        if (isGaccodeProxy) {
+          // Anthropic API响应格式
+          if (!data.content || data.content.length === 0) {
+            console.error('[OpenRouter] Anthropic API无效响应:', data);
+            throw new Error('API返回了空响应');
+          }
+          
+          content = data.content[0]?.text || '';
+          usage = data.usage ? {
+            total_tokens: data.usage.input_tokens + data.usage.output_tokens,
+            prompt_tokens: data.usage.input_tokens,
+            completion_tokens: data.usage.output_tokens
+          } : undefined;
+        } else {
+          // OpenRouter/OpenAI响应格式
+          if (!data.choices || data.choices.length === 0) {
+            console.error('[OpenRouter] OpenAI API无效响应:', data);
+            throw new Error('API返回了空响应');
+          }
+          
+          content = data.choices[0]?.message?.content || '';
+          usage = data.usage;
+          cost = data.usage?.cost || 0;
         }
         
-        const content = data.choices[0]?.message?.content || '';
+        if (!content.trim()) {
+          console.error('[OpenRouter] 空内容响应:', data);
+          throw new Error('API返回了空内容');
+        }
         
         if (this.config.debug) {
           console.log('[OpenRouter] 生成成功:', {
@@ -149,19 +219,21 @@ export class OpenRouterClient {
           });
         }
         
-        // 适配OpenRouter响应格式
-        return {
+        // 适配响应格式
+        const result = {
           content,
           model: data.model || model,
-          usage: data.usage ? {
-            total_tokens: data.usage.total_tokens,
-            prompt_tokens: data.usage.prompt_tokens,
-            completion_tokens: data.usage.completion_tokens
-          } : undefined,
-          cost: data.usage?.total_cost || 0,
-          provider: 'openrouter',
+          usage,
+          cost,
+          provider: isGaccodeProxy ? 'anthropic-proxy' : 'openrouter',
           id: data.id
         };
+        
+        if (this.config.debug) {
+          console.log('[OpenRouter] 最终结果:', result);
+        }
+        
+        return result;
         
       } catch (error: any) {
         lastError = error;
@@ -189,44 +261,124 @@ export class OpenRouterClient {
    */
   async getModels(): Promise<any[]> {
     try {
-      const response = await fetch(`${this.config.baseUrl}/models`, {
-        headers: {
-          'Authorization': `Bearer ${this.config.apiKey}`
+      const isGaccodeProxy = this.config.baseUrl.includes('gaccode.com');
+      
+      // gaccode代理可能不支持models端点，直接返回推荐模型
+      if (isGaccodeProxy) {
+        if (this.config.debug) {
+          console.log('[OpenRouter] 使用gaccode代理，返回预定义模型列表');
         }
+        return RECOMMENDED_MODELS;
+      }
+      
+      const headers: Record<string, string> = {
+        'Authorization': `Bearer ${this.config.apiKey}`,
+        'User-Agent': 'AI-Prompt-Generator/1.0'
+      };
+      
+      const response = await fetch(`${this.config.baseUrl}/models`, {
+        headers,
+        timeout: 10000 // 10秒超时
       });
       
       if (!response.ok) {
-        throw new Error(`获取模型列表失败: ${response.statusText}`);
+        const errorText = await response.text().catch(() => 'Unknown error');
+        throw new Error(`获取模型列表失败 [${response.status}]: ${errorText}`);
       }
       
       const data = await response.json();
-      return data.data || [];
+      const models = data.data || data || [];
+      
+      if (this.config.debug) {
+        console.log(`[OpenRouter] 获取到 ${models.length} 个模型`);
+      }
+      
+      return models;
       
     } catch (error: any) {
       console.error('[OpenRouter] 获取模型列表失败:', error);
-      return [];
+      // 返回推荐模型作为备选
+      return RECOMMENDED_MODELS;
     }
   }
   
   /**
    * 健康检查
    */
-  async healthCheck(): Promise<{ connected: boolean; responseTime: number; timestamp: string }> {
+  async healthCheck(): Promise<{ connected: boolean; responseTime: number; timestamp: string; details?: any }> {
     const startTime = Date.now();
     
     try {
-      const models = await this.getModels();
+      // 根据代理类型调整健康检查方式
+      const isGaccodeProxy = this.config.baseUrl.includes('gaccode.com');
+      let testResponse: Response;
+      
+      if (isGaccodeProxy) {
+        // gaccode代理：尝试简单的聊天completions测试
+        const testPayload = {
+          model: 'anthropic/claude-3-haiku',
+          messages: [{role: 'user', content: 'test'}],
+          max_tokens: 1
+        };
+        
+        testResponse = await fetch(`${this.config.baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': this.config.apiKey
+          },
+          body: JSON.stringify(testPayload),
+          signal: AbortSignal.timeout(8000) // 8秒超时
+        });
+      } else {
+        // 标准OpenRouter：使用models端点
+        testResponse = await fetch(`${this.config.baseUrl}/models`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${this.config.apiKey}`,
+            'User-Agent': 'AI-Prompt-Generator/1.0'
+          },
+          signal: AbortSignal.timeout(5000) // 5秒超时
+        });
+      }
+      
+      const responseTime = Date.now() - startTime;
+      const connected = testResponse.ok;
+      
+      let details: any = {
+        status: testResponse.status,
+        statusText: testResponse.statusText
+      };
+      
+      if (connected) {
+        try {
+          const data = await testResponse.json();
+          details.modelsCount = data.data?.length || data?.length || 0;
+        } catch (e) {
+          details.parseError = 'Could not parse response';
+        }
+      } else {
+        details.errorBody = await testResponse.text().catch(() => 'No error body');
+      }
       
       return {
-        connected: models.length > 0,
-        responseTime: Date.now() - startTime,
-        timestamp: new Date().toISOString()
+        connected,
+        responseTime,
+        timestamp: new Date().toISOString(),
+        details
       };
-    } catch (error) {
+      
+    } catch (error: any) {
+      const responseTime = Date.now() - startTime;
+      
       return {
         connected: false,
-        responseTime: Date.now() - startTime,
-        timestamp: new Date().toISOString()
+        responseTime,
+        timestamp: new Date().toISOString(),
+        details: {
+          error: error.message,
+          name: error.name
+        }
       };
     }
   }
@@ -240,37 +392,63 @@ export class OpenRouterClient {
 }
 
 /**
- * 创建OpenRouter客户端实例 - 修复：使用正确的Anthropic代理配置
+ * 创建OpenRouter客户端实例 - 修复：处理Claude Code专用密钥
  */
 export function createOpenRouterClient(config?: Partial<OpenRouterConfig>): OpenRouterClient {
-  // 使用OpenRouter API
-  const apiKey = config?.apiKey || 
-    process.env.OPENROUTER_API_KEY || '';
+  const apiKey = config?.apiKey || process.env.OPENROUTER_API_KEY || '';
   
-  // 使用OpenRouter官方API端点
-  const baseUrl = 'https://openrouter.ai/api/v1';
+  // 检查是否为Claude Code专用密钥
+  const isClaudeCodeKey = apiKey.startsWith('sk-ant-oat01-');
+  
+  let baseUrl: string;
+  let defaultModel: string;
+  
+  if (isClaudeCodeKey && process.env.OPENROUTER_BASE_URL?.includes('gaccode.com')) {
+    // Claude Code专用密钥不能用于直接API调用
+    console.warn('[OpenRouter] 警告：检测到Claude Code专用密钥，但它不能用于直接API调用');
+    console.warn('[OpenRouter] 建议：使用标准OpenRouter API密钥或其他兼容的API服务');
+    
+    // 回退到模拟模式或抛出错误
+    throw new Error('Claude Code专用API密钥不能用于Web应用程序。请使用标准的OpenRouter API密钥。');
+  } else {
+    baseUrl = process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
+    defaultModel = 'anthropic/claude-3-haiku';
+  }
+  
+  console.log('[OpenRouter] 初始化客户端:', {
+    baseUrl,
+    hasApiKey: !!apiKey,
+    keyType: isClaudeCodeKey ? 'Claude Code专用' : '标准API',
+    apiKeyPrefix: apiKey ? apiKey.substring(0, 10) + '...' : 'N/A'
+  });
   
   return new OpenRouterClient({
     apiKey,
-    baseUrl: baseUrl, // OpenRouter API已包含/api/v1
-    defaultModel: 'meta-llama/llama-3-8b-instruct', // 使用Llama模型
+    baseUrl,
+    defaultModel,
     ...config
   });
 }
 
-// 推荐的模型列表（按性价比排序）
+// 推荐的模型列表（按性价比排序，支持代理API）
 export const RECOMMENDED_MODELS = [
   {
     id: 'anthropic/claude-3-haiku',
     name: 'Claude 3 Haiku',
-    description: '快速、经济的选择',
+    description: '快速、经济的选择，支持代理',
     costPer1MTokens: 0.25
   },
   {
     id: 'anthropic/claude-3-sonnet',
     name: 'Claude 3 Sonnet',
-    description: '平衡性能和成本',
+    description: '平衡性能和成本，支持代理',
     costPer1MTokens: 3
+  },
+  {
+    id: 'anthropic/claude-3-opus',
+    name: 'Claude 3 Opus',
+    description: '最强大的Claude模型',
+    costPer1MTokens: 15
   },
   {
     id: 'openai/gpt-3.5-turbo',
@@ -279,16 +457,10 @@ export const RECOMMENDED_MODELS = [
     costPer1MTokens: 0.5
   },
   {
-    id: 'openai/gpt-4-turbo',
-    name: 'GPT-4 Turbo',
-    description: '最强大但较贵',
-    costPer1MTokens: 10
-  },
-  {
-    id: 'google/gemini-pro',
-    name: 'Gemini Pro',
-    description: 'Google的先进模型',
-    costPer1MTokens: 0.125
+    id: 'openai/gpt-4o',
+    name: 'GPT-4o',
+    description: '最新GPT-4版本',
+    costPer1MTokens: 5
   },
   {
     id: 'meta-llama/llama-3-70b-instruct',

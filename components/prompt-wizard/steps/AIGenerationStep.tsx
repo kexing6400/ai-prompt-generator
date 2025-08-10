@@ -23,7 +23,7 @@ import {
   Bot
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import AIChat from '@/components/ai-chat/AIChat'
+// AI聊天组件已移除，改用内置优化功能
 import type { PromptTemplate, FormData, GeneratedPrompt } from '../types'
 
 interface AIGenerationStepProps {
@@ -50,7 +50,7 @@ export default function AIGenerationStep({
   const [copySuccess, setCopySuccess] = useState<string>('')
   const [isOptimizing, setIsOptimizing] = useState(false)
   const [editablePrompt, setEditablePrompt] = useState('')
-  const [showAIChat, setShowAIChat] = useState(false)
+  // AI聊天功能已移除
 
   // Generate the base prompt from template and form data
   const generateBasePrompt = (): string => {
@@ -281,50 +281,6 @@ export default function AIGenerationStep({
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">Your Generated Prompt</CardTitle>
                   <div className="flex items-center gap-2">
-                    <Dialog open={showAIChat} onOpenChange={setShowAIChat}>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="default"
-                          size="sm"
-                          className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
-                        >
-                          <Bot className="h-4 w-4" />
-                          AI优化助手
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] p-0">
-                        <DialogHeader className="px-6 py-4 border-b">
-                          <DialogTitle className="flex items-center gap-2">
-                            <Bot className="h-5 w-5" />
-                            AI提示词优化助手
-                          </DialogTitle>
-                        </DialogHeader>
-                        <div className="p-6">
-                          <AIChat
-                            initialPrompt={editablePrompt}
-                            onOptimizedPrompt={(optimizedPrompt) => {
-                              setEditablePrompt(optimizedPrompt);
-                              // 更新生成的提示词
-                              if (generatedPrompt) {
-                                const updatedPrompt: GeneratedPrompt = {
-                                  ...generatedPrompt,
-                                  content: optimizedPrompt,
-                                  optimizations: [
-                                    ...generatedPrompt.optimizations || [],
-                                    'AI助手优化建议已应用',
-                                    '提升了提示词的专业性和效果'
-                                  ]
-                                };
-                                onGenerate(updatedPrompt);
-                              }
-                              setShowAIChat(false);
-                            }}
-                            className="h-[600px]"
-                          />
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                    
                     <Button
                       variant="outline"
                       size="sm"
@@ -406,46 +362,15 @@ export default function AIGenerationStep({
                 <CardTitle className="text-lg">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                    >
-                      <Bot className="h-4 w-4 mr-2" />
-                      AI对话优化
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] p-0">
-                    <DialogHeader className="px-6 py-4 border-b">
-                      <DialogTitle className="flex items-center gap-2">
-                        <Bot className="h-5 w-5" />
-                        AI提示词优化助手
-                      </DialogTitle>
-                    </DialogHeader>
-                    <div className="p-6">
-                      <AIChat
-                        initialPrompt={editablePrompt}
-                        onOptimizedPrompt={(optimizedPrompt) => {
-                          setEditablePrompt(optimizedPrompt);
-                          if (generatedPrompt) {
-                            const updatedPrompt: GeneratedPrompt = {
-                              ...generatedPrompt,
-                              content: optimizedPrompt,
-                              optimizations: [
-                                ...generatedPrompt.optimizations || [],
-                                'AI专家优化完成',
-                                '应用了最新的提示词工程技术'
-                              ]
-                            };
-                            onGenerate(updatedPrompt);
-                          }
-                        }}
-                        className="h-[600px]"
-                      />
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={handleOptimize}
+                  disabled={isOptimizing}
+                >
+                  <Bot className="h-4 w-4 mr-2" />
+                  {isOptimizing ? '正在优化...' : 'AI智能优化'}
+                </Button>
                 
                 <Button
                   variant="outline"
@@ -498,7 +423,7 @@ export default function AIGenerationStep({
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="font-medium">🤖</span>
-                    使用AI助手进行深度优化和专业分析
+                    使用AI智能优化提升提示词质量
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="font-medium">📋</span>

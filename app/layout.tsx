@@ -3,6 +3,8 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { OrganizationJsonLd, WebApplicationJsonLd, FAQJsonLd } from '../components/seo/JsonLd'
 import { SmartHeader } from '../components/layout/smart-header'
+import { IndustryThemeProvider } from '../components/providers/industry-theme-provider'
+import { Toaster } from '../components/ui/toast'
 
 // 使用最新的Next.js 15字体优化
 const inter = Inter({ 
@@ -129,16 +131,21 @@ export default function RootLayout({
       </head>
       
       <body className={`${inter.className} min-h-screen bg-background antialiased selection:bg-primary/10`}>
-        {/* 全局Header导航栏 - 智能locale感知 */}
-        <SmartHeader />
-        
-        {/* 页面加载进度条 - 可以后续添加 */}
-        <div id="progress-bar"></div>
-        
-        {/* 主要内容区域 */}
-        <main className="relative flex min-h-screen flex-col">
-          {children}
-        </main>
+        <IndustryThemeProvider>
+          {/* 全局Header导航栏 - 智能locale感知 */}
+          <SmartHeader />
+          
+          {/* 页面加载进度条 - 可以后续添加 */}
+          <div id="progress-bar"></div>
+          
+          {/* 主要内容区域 */}
+          <main className="relative flex min-h-screen flex-col">
+            {children}
+          </main>
+          
+          {/* 世界级Toast通知系统 */}
+          <Toaster />
+        </IndustryThemeProvider>
         
         {/* 全局通知系统容器 - 可以后续添加 */}
         <div id="notifications-root"></div>

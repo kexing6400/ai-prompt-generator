@@ -1,7 +1,6 @@
 /**
- * AI提示词生成API - Anthropic Claude直接集成版本
- * 使用Anthropic API直接访问Claude模型，确保稳定可靠
- * 完全真实数据，无模拟，无硬编码
+ * AI提示词生成API - 生产级OpenRouter集成
+ * 真实API调用，无模拟，企业级错误处理和性能优化
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -10,21 +9,24 @@ import { modelSelector } from '@/lib/model-selector';
 import { getDefaultStore } from '@/lib/storage';
 import { cookies } from 'next/headers';
 
-// 强制动态渲染 - 确保每次请求都重新执行
+// 强制动态渲染
 export const dynamic = 'force-dynamic';
 
-// OpenRouter客户端实例
+// ✅ OpenRouter客户端实例 - 使用环境变量
+if (!process.env.OPENROUTER_API_KEY) {
+  throw new Error('OPENROUTER_API_KEY环境变量未设置');
+}
+
 const openRouterClient = createOpenRouterClient({
-  apiKey: process.env.OPENROUTER_API_KEY || 'sk-ant-oat01-ee0f35df8f630aae92f9a6561dd9be32edfe84a1e5f0f6e4636923a0e7ad5aca',
+  apiKey: process.env.OPENROUTER_API_KEY!,
   siteUrl: 'https://www.aiprompts.ink',
   siteName: 'AI Prompt Generator',
   debug: process.env.NODE_ENV === 'development'
 });
 
-// 存储实例
 const store = getDefaultStore();
 
-// 缓存管理（提高响应速度，降低成本）
+// 智能缓存系统
 const promptCache = new Map<string, {
   content: string;
   model: string;
@@ -32,7 +34,10 @@ const promptCache = new Map<string, {
   cost: number;
 }>();
 
-// 清理过期缓存
+// 请求去重系统（防止短时间内重复请求）
+const requestDeduplicator = new Map<string, Promise<any>>();
+
+// 缓存清理
 function cleanCache() {
   const now = Date.now();
   const CACHE_TTL = 60 * 60 * 1000; // 1小时
@@ -85,11 +90,9 @@ async function getUserSession(request: NextRequest): Promise<string | null> {
     let userId = cookieStore.get('userId')?.value;
     
     if (!userId) {
-      // 创建匿名用户
       const timestamp = Date.now();
       userId = `anon_${timestamp}_${Math.random().toString(36).substr(2, 9)}`;
       
-      // 在存储中创建用户记录
       const newUser = {
         id: userId,
         email: `${userId}@anonymous.local`,
@@ -196,7 +199,61 @@ async function recordApiUsage(
 }
 
 /**
- * POST - 生成提示词（使用OpenRouter多模型）
+ * 智能提示词生成 - 使用真实OpenRouter API
+ */
+async function generateWithOpenRouter(
+  enhancedPrompt: string,
+  systemPrompt: string,
+  modelSelection: any,
+  userPlan: string
+): Promise<any> {
+  const modelsToTry = [modelSelection.primary, ...modelSelection.fallbacks];
+  let lastError: Error | null = null;
+  let attemptedModels: string[] = [];
+  
+  for (const model of modelsToTry) {
+    try {
+      attemptedModels.push(model.id);
+      console.log(`[API] 尝试模型: ${model.name} (${model.id})`);
+      
+      const result = await openRouterClient.generate(enhancedPrompt, {
+        model: model.id,
+        systemPrompt,
+        temperature: 0.7,
+        maxTokens: userPlan === 'free' ? 1500 : 3000,
+        topP: 0.9
+      });
+      
+      console.log(`[API] 模型 ${model.name} 生成成功, tokens: ${result.usage?.total_tokens}, cost: ${result.cost}`);
+      
+      return {
+        ...result,
+        usedModel: model,
+        attemptedModels
+      };
+      
+    } catch (error: any) {
+      lastError = error;
+      console.error(`[API] 模型 ${model.name} 失败:`, error.message);
+      
+      // 如果是认证错误或API密钥问题，立即停止尝试其他模型
+      if (error.message.includes('401') || error.message.includes('API key') || error.message.includes('authentication')) {
+        throw new Error(`API认证失败: ${error.message}`);
+      }
+      
+      // 如果是速率限制，等待后再试下一个模型
+      if (error.message.includes('429')) {
+        console.log('[API] 速率限制，尝试下一个模型...');
+        continue;
+      }
+    }
+  }
+  
+  throw lastError || new Error('所有模型都无法生成结果');
+}
+
+/**
+ * POST - 生成提示词（生产级实现）
  */
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
@@ -208,7 +265,8 @@ export async function POST(request: NextRequest) {
     console.log('[API] 收到生成请求:', { 
       industry, 
       template,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      promptLength: prompt?.length
     });
     
     // 验证必填字段
@@ -246,58 +304,75 @@ export async function POST(request: NextRequest) {
       }, { status: 429 });
     }
     
-    // 检查缓存
-    const cacheKey = `${industry}-${template}-${JSON.stringify(formData)}`;
-    const cached = promptCache.get(cacheKey);
+    // 请求去重检查
+    const cacheKey = `${industry}-${template}-${JSON.stringify(formData)}-${prompt.substring(0, 100)}`;
+    const duplicateKey = `${userId}-${cacheKey}`;
     
-    if (cached && Date.now() - cached.timestamp < 3600000) {
-      console.log('[API] 返回缓存结果');
-      
-      // 即使是缓存也要记录使用量（但成本为0）
-      await recordApiUsage(userId, cached.model, 0, 0);
-      
-      return NextResponse.json({
-        success: true,
-        content: cached.content,
-        metadata: {
-          model: cached.model,
-          cached: true,
-          responseTime: `${Date.now() - startTime}ms`,
-          usage: {
-            remaining: usageCheck.remaining - 1,
-            limit: usageCheck.limit
-          }
-        }
-      });
+    // 检查是否正在处理相同请求
+    if (requestDeduplicator.has(duplicateKey)) {
+      console.log('[API] 检测到重复请求，等待现有请求完成...');
+      try {
+        return await requestDeduplicator.get(duplicateKey);
+      } catch (error) {
+        // 如果重复请求失败，继续正常处理
+        requestDeduplicator.delete(duplicateKey);
+      }
     }
     
-    // 分析任务复杂度
-    const complexity = modelSelector.analyzeComplexity(prompt, { industry, template });
-    console.log('[API] 任务复杂度:', complexity);
-    
-    // 智能选择模型
-    const modelSelection = modelSelector.selectModel(
-      userPlan as 'free' | 'pro' | 'team',
-      complexity,
-      {
-        requireFast: userPlan === 'free', // 免费用户优先快速模型
-        maxCost: userPlan === 'free' ? 1 : userPlan === 'pro' ? 5 : undefined
+    // 创建当前请求处理器
+    const requestPromise = (async () => {
+      try {
+        // 检查缓存
+        const cached = promptCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < 3600000) {
+          console.log('[API] 返回缓存结果');
+          
+          await recordApiUsage(userId, cached.model, 0, 0);
+          
+          return NextResponse.json({
+            success: true,
+            content: cached.content,
+            metadata: {
+              model: cached.model,
+              cached: true,
+              responseTime: `${Date.now() - startTime}ms`,
+              usage: {
+                remaining: usageCheck.remaining - 1,
+                limit: usageCheck.limit
+              }
+            }
+          });
+        }
+        
+        // 分析任务复杂度
+        const complexity = modelSelector.analyzeComplexity(prompt, { industry, template });
+        console.log('[API] 任务复杂度:', complexity);
+        
+        // 智能选择模型（针对gaccode代理优化）
+        const isGaccodeProxy = process.env.OPENROUTER_BASE_URL?.includes('gaccode.com');
+        const modelSelection = modelSelector.selectModel(
+        userPlan as 'free' | 'pro' | 'team',
+        complexity,
+        {
+        requireFast: userPlan === 'free',
+          maxCost: userPlan === 'free' ? 1 : userPlan === 'pro' ? 5 : undefined,
+            preferredProvider: isGaccodeProxy ? 'anthropic' : undefined
       }
     );
-    
-    console.log('[API] 选择模型:', {
-      primary: modelSelection.primary.name,
-      fallbacks: modelSelection.fallbacks.map(m => m.name),
-      estimatedCost: modelSelection.estimatedCost
-    });
-    
-    // 构建系统提示词
-    const industryConfig = industryConfigs[industry as keyof typeof industryConfigs];
-    const systemPrompt = industryConfig?.systemPrompt || 
-      '你是一位专业的AI助手，请根据用户需求生成高质量的提示词。';
-    
-    // 构建增强提示词
-    const enhancedPrompt = `${industryConfig ? `【行业】${industryConfig.name}\n\n` : ''}【任务】请基于以下信息生成专业的AI提示词：
+        
+        console.log('[API] 选择模型:', {
+          primary: modelSelection.primary.name,
+          fallbacks: modelSelection.fallbacks.map((m: any) => m.name),
+          estimatedCost: modelSelection.estimatedCost
+        });
+        
+        // 构建系统提示词
+        const industryConfig = industryConfigs[industry as keyof typeof industryConfigs];
+        const systemPrompt = industryConfig?.systemPrompt || 
+          '你是一位专业的AI助手，请根据用户需求生成高质量的提示词。';
+        
+        // 构建增强提示词
+        const enhancedPrompt = `${industryConfig ? `【行业】${industryConfig.name}\n\n` : ''}【任务】请基于以下信息生成专业的AI提示词：
 
 ${prompt}
 
@@ -310,105 +385,114 @@ ${prompt}
 6. 用户可以直接复制给ChatGPT/Claude使用
 
 ${formData ? `\n【具体参数】\n${JSON.stringify(formData, null, 2)}` : ''}`;
-    
-    // 临时解决方案：使用高质量模拟生成
-    console.log('[API] 使用模拟生成器 - 由于API凭证限制');
-    
-    // 生成高质量的模拟结果
-    const simulatedResult = generateHighQualityPrompt(enhancedPrompt, industryConfig);
-    
-    let result = {
-      content: simulatedResult,
-      model: 'claude-3-5-sonnet-simulation',
-      usage: {
-        input_tokens: enhancedPrompt.length / 4, // 估算
-        output_tokens: simulatedResult.length / 4,
-        total_tokens: (enhancedPrompt.length + simulatedResult.length) / 4
-      },
-      cost: 0, // 模拟不计成本
-      provider: 'simulation'
-    };
-    
-    let usedModel = modelSelection.primary;
-    let attemptedModels = [usedModel.id];
-    
-    // 计算实际成本
-    const actualCost = 0; // 模拟不计成本
-    
-    // 记录使用量
-    await recordApiUsage(
-      userId,
-      usedModel.id,
-      1000, // 使用固定值，因为模拟生成器没有实际token计数
-      actualCost
-    );
-    
-    // 缓存结果
-    promptCache.set(cacheKey, {
-      content: result.content,
-      model: usedModel.id,
-      timestamp: Date.now(),
-      cost: actualCost
-    });
-    
-    // 定期清理缓存
-    if (Math.random() < 0.1) {
-      cleanCache();
-    }
-    
-    // 构建响应
-    const response = NextResponse.json({
-      success: true,
-      content: result.content,
-      metadata: {
-        model: usedModel.name,
-        modelId: usedModel.id,
-        provider: usedModel.provider,
-        quality: usedModel.quality,
-        cost: actualCost.toFixed(6),
-        usage: {
-          tokens: result.usage?.total_tokens,
-          remaining: usageCheck.remaining - 1,
-          limit: usageCheck.limit
-        },
-        complexity: complexity.level,
-        reasoning: modelSelection.reasoning,
-        responseTime: `${Date.now() - startTime}ms`,
-        generated_at: new Date().toISOString()
+        
+        // ✅ 使用真实的OpenRouter API生成
+        console.log('[API] 调用OpenRouter API生成...');
+        const result = await generateWithOpenRouter(
+          enhancedPrompt,
+          systemPrompt,
+          modelSelection,
+          userPlan
+        );
+        
+        // 记录使用量
+        await recordApiUsage(
+          userId,
+          result.usedModel.id,
+          result.usage?.total_tokens || 1000,
+          result.cost || 0
+        );
+        
+        // 缓存结果
+        promptCache.set(cacheKey, {
+          content: result.content,
+          model: result.usedModel.id,
+          timestamp: Date.now(),
+          cost: result.cost || 0
+        });
+        
+        // 定期清理缓存
+        if (Math.random() < 0.1) {
+          cleanCache();
+        }
+        
+        // 构建响应
+        const response = NextResponse.json({
+          success: true,
+          content: result.content,
+          metadata: {
+            model: result.usedModel.name,
+            modelId: result.usedModel.id,
+            provider: result.usedModel.provider,
+            quality: result.usedModel.quality,
+            cost: (result.cost || 0).toFixed(6),
+            usage: {
+              tokens: result.usage?.total_tokens,
+              promptTokens: result.usage?.prompt_tokens,
+              completionTokens: result.usage?.completion_tokens,
+              remaining: usageCheck.remaining - 1,
+              limit: usageCheck.limit
+            },
+            complexity: complexity.level,
+            reasoning: modelSelection.reasoning,
+            attemptedModels: result.attemptedModels,
+            responseTime: `${Date.now() - startTime}ms`,
+            generated_at: new Date().toISOString(),
+            requestId: result.id
+          }
+        });
+        
+        // 设置Cookie保持会话
+        response.cookies.set('userId', userId, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 30 * 24 * 60 * 60 // 30天
+        });
+        
+        return response;
+        
+      } finally {
+        // 请求完成，移除去重标记
+        requestDeduplicator.delete(duplicateKey);
       }
-    });
+    })();
     
-    // 设置Cookie保持会话
-    response.cookies.set('userId', userId, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60 // 30天
-    });
+    // 设置去重标记
+    requestDeduplicator.set(duplicateKey, requestPromise);
     
-    return response;
+    return await requestPromise;
     
   } catch (error: any) {
     console.error('[API] 生成失败:', error);
     
+    // 提供更详细的错误信息
+    let errorMessage = error.message || '生成失败，请稍后重试';
+    let errorCode = 'GENERATION_FAILED';
+    let statusCode = 500;
+    
+    if (error.message.includes('API认证失败')) {
+      errorMessage = 'API服务认证失败，请联系管理员';
+      errorCode = 'AUTH_FAILED';
+      statusCode = 503;
+    } else if (error.message.includes('429') || error.message.includes('速率限制')) {
+      errorMessage = '请求过于频繁，请稍后再试';
+      errorCode = 'RATE_LIMITED';
+      statusCode = 429;
+    } else if (error.message.includes('timeout') || error.message.includes('超时')) {
+      errorMessage = '请求超时，请重试';
+      errorCode = 'TIMEOUT';
+      statusCode = 408;
+    }
+    
     return NextResponse.json({
       success: false,
-      error: error.message || '生成失败，请稍后重试',
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    }, { status: 500 });
+      error: errorMessage,
+      code: errorCode,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+      timestamp: new Date().toISOString()
+    }, { status: statusCode });
   }
-}
-
-/**
- * 高质量模拟生成器 - 临时解决方案
- */
-function generateHighQualityPrompt(enhancedPrompt: string, industryConfig: any): string {
-  const templates = {
-    lawyer: `# 法律专业AI助手提示词\n\n你是一位资深法律专家，拥有15年以上的执业经验，精通各类法律文书起草、案例分析和法律风险评估。\n\n## 角色定位\n- 专业资质：高级律师、法学硕士\n- 专长领域：合同法、公司法、民商法、诉讼实务\n- 工作经验：处理过1000+起法律案件，起草过5000+份法律文件\n\n## 核心任务\n请根据用户提供的具体需求，提供专业、准确、实用的法律建议和文书起草服务。\n\n## 工作流程\n1. **需求分析**：仔细理解用户的法律需求和背景\n2. **法条检索**：查找相关法律法规和司法解释\n3. **风险评估**：识别潜在的法律风险点\n4. **方案制定**：提供详细的解决方案或文书模板\n5. **专业建议**：给出实用的操作指导\n\n## 输出标准\n- 使用专业法律术语，确保准确性\n- 条理清晰，逻辑严密\n- 提供具体的操作步骤\n- 标注重要风险提示\n- 引用相关法条依据\n\n## 注意事项\n⚠️ 所有法律建议仅供参考，具体案件请咨询专业律师\n⚠️ 法律法规可能更新，请以最新版本为准\n⚠️ 不同地区可能有特殊规定，需结合当地实际情况\n\n请告诉我您的具体法律需求，我将为您提供专业的服务。`,
-    teacher: `# 教育专家AI助手提示词\n\n你是一位经验丰富的教育专家，拥有10年以上的教学经验，精通课程设计、教学方法和学生评价。\n\n## 角色定位\n- 专业资质：教育学硕士、高级教师\n- 专长领域：课程设计、教学方法、学习评估、班级管理\n- 教学经验：培养过2000+名学生，设计过100+门课程\n\n请描述您的教学需求，我将为您制定专业的教育方案。`
-  };
-  
-  return templates[industryConfig?.name as keyof typeof templates] || templates.lawyer;
 }
 
 /**
@@ -416,8 +500,8 @@ function generateHighQualityPrompt(enhancedPrompt: string, industryConfig: any):
  */
 export async function GET() {
   try {
-    // 检查Anthropic连接
-    const anthropicHealth = await openRouterClient.healthCheck();
+    // 检查OpenRouter连接
+    const healthCheck = await openRouterClient.healthCheck();
     
     // 获取可用模型
     const availableModels = await openRouterClient.getModels();
@@ -432,12 +516,12 @@ export async function GET() {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       
-      // Anthropic状态
-      anthropic: {
-        connected: anthropicHealth.connected,
-        responseTime: anthropicHealth.responseTime,
+      // OpenRouter状态
+      openrouter: {
+        connected: healthCheck.connected,
+        responseTime: healthCheck.responseTime,
         availableModels: availableModels.length,
-        lastCheck: anthropicHealth.timestamp
+        lastCheck: healthCheck.timestamp
       },
       
       // 模型配置
@@ -458,13 +542,13 @@ export async function GET() {
       // 缓存状态
       cache: {
         entries: promptCache.size,
-        hitRate: '计算中...'
+        deduplicator: requestDeduplicator.size
       },
       
       // 支持的行业
       industries: Object.keys(industryConfigs),
       
-      message: '✅ API运行正常，使用Anthropic Claude直接API'
+      message: '✅ API运行正常，使用真实OpenRouter API'
     });
     
   } catch (error: any) {

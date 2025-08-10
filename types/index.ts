@@ -323,12 +323,8 @@ export interface ComponentProps {
   children?: React.ReactNode
 }
 
-// ============ AI对话系统类型 ============
-
-/**
- * 导出AI对话相关类型
- */
-export * from './ai-chat'
+// ============ AI对话系统类型已移除 ============
+// 聊天功能已从系统中完全移除
 
 // ============ 订阅系统类型 ============
 

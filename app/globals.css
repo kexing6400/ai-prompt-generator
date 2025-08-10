@@ -24,6 +24,11 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
+    
+    /* 行业主题变量 */
+    --industry-primary: #1e3a8a;
+    --industry-secondary: #3b82f6;
+    --industry-accent: #e0f2fe;
   }
 
   .dark {
