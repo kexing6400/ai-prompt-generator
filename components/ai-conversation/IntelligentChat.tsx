@@ -56,6 +56,7 @@ interface AIResponse {
   success: boolean;
   conversationId: string;
   currentLayer: number;
+  error?: string;
   response: {
     type: string;
     content: string;

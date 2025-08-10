@@ -485,7 +485,7 @@ const SettingsPage: React.FC = () => {
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="systemPrompt">
-                      {EXPERT_PROMPTS[activeExpert].name} 系统提示词
+                      {EXPERT_PROMPTS[activeExpert as keyof typeof EXPERT_PROMPTS].name} 系统提示词
                     </Label>
                     <Textarea
                       id="systemPrompt"
@@ -511,7 +511,7 @@ const SettingsPage: React.FC = () => {
                         ...prev,
                         systemPrompts: {
                           ...prev.systemPrompts,
-                          [activeExpert]: EXPERT_PROMPTS[activeExpert].defaultPrompt
+                          [activeExpert]: EXPERT_PROMPTS[activeExpert as keyof typeof EXPERT_PROMPTS].defaultPrompt
                         }
                       }))}
                     >

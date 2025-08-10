@@ -104,7 +104,7 @@ class FiveLayerAISystem {
       await this.loadUserSettings();
       this.client = await this.initializeAI();
     } catch (error) {
-      console.log('[AI系统] 初始化失败，使用智能模拟模式:', error.message);
+      console.log('[AI系统] 初始化失败，使用智能模拟模式:', error instanceof Error ? error.message : String(error));
       this.client = {
         generate: async (prompt: string, options: any = {}) => {
           return this.intelligentSimulation(prompt, options);
@@ -126,7 +126,7 @@ class FiveLayerAISystem {
         console.log('[AI系统] 用户设置加载成功');
       }
     } catch (error) {
-      console.log('[AI系统] 用户设置加载失败:', error.message);
+      console.log('[AI系统] 用户设置加载失败:', error instanceof Error ? error.message : String(error));
     }
   }
 
@@ -172,7 +172,7 @@ class FiveLayerAISystem {
         }
       }
     } catch (error) {
-      console.log('[AI系统] 无法加载设置，使用智能模拟模式:', error.message);
+      console.log('[AI系统] 无法加载设置，使用智能模拟模式:', error instanceof Error ? error.message : String(error));
     }
     
     console.log('[AI系统] 使用智能模拟模式');
@@ -400,6 +400,27 @@ ${generatedContent.content}
    * 智能模拟生成（临时方案）
    * 在API密钥修复前使用高质量模拟
    */
+  /**
+   * 获取会话状态
+   */
+  public getConversation(conversationId: string) {
+    return this.conversationMemory.get(conversationId);
+  }
+
+  /**
+   * 设置会话状态
+   */
+  public setConversation(conversationId: string, conversation: any) {
+    this.conversationMemory.set(conversationId, conversation);
+  }
+
+  /**
+   * 获取活跃会话数量
+   */
+  public getActiveConversationsCount(): number {
+    return this.conversationMemory.size;
+  }
+
   private async intelligentSimulation(prompt: string, options: any): Promise<{ content: string }> {
     // 基于提示词关键词智能生成内容
     const keywords = this.extractKeywords(prompt);
@@ -696,7 +717,7 @@ export async function POST(request: NextRequest) {
 
     // 获取或创建会话上下文
     const aiSystemInstance = getAISystem();
-    let conversation = aiSystemInstance.conversationMemory.get(conversationId);
+    let conversation = aiSystemInstance.getConversation(conversationId);
     
     console.log('[调试] 对话状态检查:', {
       conversationId,
@@ -714,7 +735,7 @@ export async function POST(request: NextRequest) {
         currentLayer: 1,
         industry: context.industry
       };
-      aiSystemInstance.conversationMemory.set(conversationId, conversation);
+      aiSystemInstance.setConversation(conversationId, conversation);
     }
 
     // 添加用户消息
@@ -881,7 +902,7 @@ export async function GET(request: NextRequest) {
     
     if (action === 'conversation' && conversationId) {
       const aiSystemInstance = getAISystem();
-      const conversation = aiSystemInstance.conversationMemory.get(conversationId);
+      const conversation = aiSystemInstance.getConversation(conversationId);
       
       if (!conversation) {
         return NextResponse.json({
@@ -909,7 +930,7 @@ export async function GET(request: NextRequest) {
       success: true,
       system: '5层智能AI对话系统',
       status: 'running',
-      activeConversations: aiSystemInstance.conversationMemory.size,
+      activeConversations: aiSystemInstance.getActiveConversationsCount(),
       layers: [
         '第1层：需求洞察AI（心理学专家）',
         '第2层：专家匹配AI',
