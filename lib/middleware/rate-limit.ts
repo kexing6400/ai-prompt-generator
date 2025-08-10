@@ -132,10 +132,10 @@ class RateLimitManager {
       if (!result) return null
       
       return {
-        totalHits: result.totalHits,
-        remainingPoints: result.remainingPoints,
-        msBeforeNext: result.msBeforeNext,
-        resetTime: new Date(Date.now() + result.msBeforeNext)
+        totalHits: (result as any).totalHits || 0,
+        remainingPoints: result.remainingPoints || 0,
+        msBeforeNext: result.msBeforeNext || 0,
+        resetTime: new Date(Date.now() + (result.msBeforeNext || 0))
       }
     } catch {
       return null

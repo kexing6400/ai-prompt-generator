@@ -19,7 +19,7 @@ export interface SessionInfo {
   sessionId: string
   userId: string
   username: string
-  role: 'admin' | 'user'
+  role: 'admin' | 'user' | 'super_admin'
   createdAt: Date
   lastActivity: Date
   ipAddress?: string

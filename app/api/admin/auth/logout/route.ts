@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
 
     // 🔐 记录登出事件
     logAuditEvent(request, AuditEventType.LOGOUT, {
-      user,
+      user: user || undefined,
       success: true,
       statusCode: 200,
       details: {

@@ -17,7 +17,7 @@ const JWT_REFRESH_EXPIRES_IN = '30d' // 刷新Token有效期30天
 export interface UserPayload {
   userId: string
   username: string
-  role: 'admin' | 'user'
+  role: 'admin' | 'user' | 'super_admin'
   permissions: string[]
   lastLogin?: Date
 }

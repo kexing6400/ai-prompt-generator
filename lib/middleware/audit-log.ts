@@ -294,13 +294,34 @@ function generateAuditId(): string {
 function getEventSeverity(eventType: AuditEventType, success: boolean): AuditSeverity {
   // 安全相关事件的严重性映射
   const severityMap: Record<AuditEventType, AuditSeverity> = {
+    // 认证事件
+    [AuditEventType.LOGIN_SUCCESS]: AuditSeverity.LOW,
     [AuditEventType.LOGIN_FAILURE]: AuditSeverity.MEDIUM,
+    [AuditEventType.LOGOUT]: AuditSeverity.LOW,
+    [AuditEventType.TOKEN_REFRESH]: AuditSeverity.LOW,
+    [AuditEventType.TOKEN_REVOKE]: AuditSeverity.MEDIUM,
+    
+    // 权限事件
+    [AuditEventType.ACCESS_GRANTED]: AuditSeverity.LOW,
     [AuditEventType.ACCESS_DENIED]: AuditSeverity.MEDIUM,
+    [AuditEventType.PERMISSION_CHECK]: AuditSeverity.LOW,
+    
+    // 数据操作事件
+    [AuditEventType.CONFIG_READ]: AuditSeverity.LOW,
+    [AuditEventType.CONFIG_UPDATE]: AuditSeverity.MEDIUM,
+    [AuditEventType.TEMPLATE_CREATE]: AuditSeverity.LOW,
+    [AuditEventType.TEMPLATE_UPDATE]: AuditSeverity.LOW,
+    [AuditEventType.TEMPLATE_DELETE]: AuditSeverity.MEDIUM,
+    
+    // 安全事件
     [AuditEventType.SUSPICIOUS_ACTIVITY]: AuditSeverity.HIGH,
-    [AuditEventType.CSRF_ATTACK]: AuditSeverity.HIGH,
-    [AuditEventType.BRUTE_FORCE_ATTEMPT]: AuditSeverity.HIGH,
-    [AuditEventType.INVALID_TOKEN]: AuditSeverity.MEDIUM,
     [AuditEventType.RATE_LIMIT_HIT]: AuditSeverity.LOW,
+    [AuditEventType.CSRF_ATTACK]: AuditSeverity.HIGH,
+    [AuditEventType.INVALID_TOKEN]: AuditSeverity.MEDIUM,
+    [AuditEventType.BRUTE_FORCE_ATTEMPT]: AuditSeverity.HIGH,
+    
+    // 系统事件
+    [AuditEventType.API_ERROR]: AuditSeverity.MEDIUM,
     [AuditEventType.SYSTEM_CONFIG_CHANGE]: AuditSeverity.HIGH,
     [AuditEventType.SECURITY_POLICY_CHANGE]: AuditSeverity.CRITICAL
   }

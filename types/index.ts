@@ -322,3 +322,10 @@ export interface ComponentProps {
   className?: string
   children?: React.ReactNode
 }
+
+// ============ AI对话系统类型 ============
+
+/**
+ * 导出AI对话相关类型
+ */
+export * from './ai-chat'

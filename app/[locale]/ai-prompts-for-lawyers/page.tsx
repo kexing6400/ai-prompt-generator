@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { 
   Scale, 
@@ -10,65 +10,36 @@ import {
   AlertCircle,
   CheckCircle,
   ArrowRight,
-  Sparkles,
-  BookmarkPlus,
-  History
+  Sparkles
 } from 'lucide-react'
 
 import { Button } from "../../../components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
-import { Input } from "../../../components/ui/input"
-import { Label } from "../../../components/ui/label"
-import { Textarea } from "../../../components/ui/textarea"
-import { usePromptGenerator } from "../../../lib/hooks/use-prompt-generator"
-import { industryExamples } from "../../../lib/constants/industry-examples"
-import PromptResult from "../../../components/prompt-result"
+import PromptWizard from "../../../components/prompt-wizard/PromptWizard"
 import { useClientTranslations } from "../../../lib/hooks/use-client-translations"
 import { Locale } from "../../../lib/i18n"
+import type { GeneratedPrompt } from "../../../components/prompt-wizard/types"
 
 export default function LawyerAIPrompts() {
   const params = useParams()
   const locale = params.locale as Locale
   const { t, dictionary, loading: translationsLoading } = useClientTranslations(locale)
   
-  const {
-    loading,
-    result,
-    error,
-    formData,
-    updateFormData,
-    handleSubmit,
-    clearResult,
-    copyToClipboard,
-    saveDraft,
-    loadDraft
-  } = usePromptGenerator('lawyer')
+  // 生成的提示词结果状态
+  const [generatedResults, setGeneratedResults] = useState<GeneratedPrompt[]>([])
 
-  const [wordCount, setWordCount] = useState(0)
-  const examples = industryExamples.lawyer
-
-  // Load draft on component mount
-  useEffect(() => {
-    loadDraft()
+  // 处理PromptWizard完成事件
+  const handlePromptComplete = useCallback((result: GeneratedPrompt) => {
+    setGeneratedResults(prev => [result, ...prev])
+    // 可以在这里添加其他逻辑，如保存到本地存储等
+    console.log('Generated prompt:', result)
   }, [])
 
-  // Calculate word count
-  useEffect(() => {
-    setWordCount(formData.prompt.length)
-  }, [formData.prompt])
-
-  // Fill example data
-  const fillExample = (example: typeof examples.examples[0]) => {
-    updateFormData('scenario', example.scenario)
-    updateFormData('prompt', example.prompt)
-    updateFormData('context', example.context)
-  }
-
-  // Form submit handler
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    await handleSubmit()
-  }
+  // 处理重置事件
+  const handleReset = useCallback(() => {
+    // 可以添加重置相关的逻辑
+    console.log('Wizard reset')
+  }, [])
 
   // 如果翻译还在加载中，显示加载状态
   if (translationsLoading || !dictionary) {
@@ -157,16 +128,7 @@ export default function LawyerAIPrompts() {
                 <span className="text-lawyer">{t('pages.lawyer.breadcrumb')}</span>
               </nav>
               
-              {/* 模板库链接 */}
-              <div className="mt-4">
-                <a 
-                  href={`/${locale}/ai-prompts-for-lawyers/templates`}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-lawyer text-white rounded-lg hover:bg-lawyer-dark transition-colors"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  查看专业模板库 (10个模板)
-                </a>
-              </div>
+
             </div>
           </div>
         </div>
@@ -240,177 +202,61 @@ export default function LawyerAIPrompts() {
             </div>
           </div>
 
-          {/* Main Content - AI Prompt Generator */}
+          {/* Main Content - AI Prompt Wizard */}
           <div className="lg:col-span-2">
-            <Card className="shadow-xl border-2 border-gray-100 dark:border-gray-700">
-              <CardHeader className="bg-gradient-to-r from-lawyer/10 to-lawyer-dark/10">
-                <CardTitle className="text-2xl flex items-center gap-3">
-                  <Sparkles className="h-6 w-6 text-lawyer" />
-                  {t('pages.lawyer.generatorTitle')}
-                </CardTitle>
-                <CardDescription className="text-base">
-                  {t('pages.lawyer.generatorSubtitle')}
-                </CardDescription>
-              </CardHeader>
-
-              <CardContent className="space-y-6 p-6">
-                <form onSubmit={onSubmit} className="space-y-6">
-                  {/* Scenario selection */}
-                  <div className="space-y-2">
-                    <Label htmlFor="scenario" className="text-base font-medium">
-                      {t('pages.lawyer.scenarioLabel')} *
-                    </Label>
-                    <select 
-                      id="scenario"
-                      value={formData.scenario}
-                      onChange={(e) => updateFormData('scenario', e.target.value)}
-                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lawyer/20 focus-visible:ring-offset-2"
-                      required
-                    >
-                      <option value="">{t('pages.lawyer.scenarioPlaceholder')}</option>
-                      {examples.scenarios.map(scenario => (
-                        <option key={scenario.value} value={scenario.value}>
-                          {scenario.label}
-                        </option>
-                      ))}
-                    </select>
+            <div className="space-y-6">
+              {/* PromptWizard Integration */}
+              <PromptWizard
+                industry="lawyers"
+                onComplete={handlePromptComplete}
+                onReset={handleReset}
+                className="lawyer-theme"
+              />
+              
+              {/* Template Library Link */}
+              <Card className="text-center p-6 bg-gradient-to-r from-lawyer/5 to-lawyer-dark/5 border-lawyer/20">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <div className="h-12 w-12 rounded-lg gradient-lawyer flex items-center justify-center">
+                    <FileText className="h-6 w-6 text-white" />
                   </div>
-
-                  {/* Specific requirements description */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="requirements" className="text-base font-medium">
-                        {t('pages.lawyer.requirementsLabel')} *
-                      </Label>
-                      <span className="text-sm text-gray-500">{wordCount} {t('forms.characters')}</span>
-                    </div>
-                    <Textarea
-                      id="requirements"
-                      value={formData.prompt}
-                      onChange={(e) => updateFormData('prompt', e.target.value)}
-                      placeholder={t('pages.lawyer.requirementsPlaceholder')}
-                      className="min-h-[120px] resize-none"
-                      required
-                    />
-                    <div className="text-sm text-gray-500">
-                      {t('pages.lawyer.requirementsTip')}
-                    </div>
-                  </div>
-
-                  {/* Additional information */}
-                  <div className="space-y-2">
-                    <Label htmlFor="context" className="text-base font-medium">
-                      {t('pages.lawyer.contextLabel')}
-                    </Label>
-                    <Textarea
-                      id="context"
-                      value={formData.context}
-                      onChange={(e) => updateFormData('context', e.target.value)}
-                      placeholder={t('pages.lawyer.contextPlaceholder')}
-                      className="min-h-[80px] resize-none"
-                    />
-                  </div>
-
-                  {/* Example prompts */}
-                  <div className="space-y-3">
-                    <Label className="text-base font-medium flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-lawyer" />
-                      {t('forms.quickStart')}
-                    </Label>
-                    <div className="grid gap-3">
-                      {examples.examples.map((example, index) => (
-                        <Card 
-                          key={index} 
-                          className="cursor-pointer hover:border-lawyer/50 transition-colors"
-                          onClick={() => fillExample(example)}
-                        >
-                          <CardContent className="p-4">
-                            <div className="text-sm font-medium text-gray-900 mb-1">
-                              {examples.scenarios.find(s => s.value === example.scenario)?.label}
-                            </div>
-                            <div className="text-xs text-gray-600 mb-2">{example.prompt}</div>
-                            <div className="text-xs text-gray-400">{example.context}</div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Generate button */}
-                  <div className="flex gap-4 pt-6">
-                    <Button 
-                      type="submit"
-                      size="lg" 
-                      disabled={loading || !formData.scenario || !formData.prompt.trim()}
-                      className="flex-1 gradient-lawyer hover:opacity-90 btn-press disabled:opacity-50"
-                    >
-                      <Sparkles className="mr-2 h-5 w-5" />
-                      {loading ? t('forms.generating') : t('pages.lawyer.generateButton')}
-                    </Button>
-                    <Button 
-                      type="button"
-                      variant="outline" 
-                      size="lg"
-                      onClick={saveDraft}
-                    >
-                      <BookmarkPlus className="mr-2 h-4 w-4" />
-                      {t('forms.saveDraft')}
-                    </Button>
-                    <Button 
-                      type="button"
-                      variant="outline" 
-                      size="lg"
-                      onClick={loadDraft}
-                    >
-                      <History className="mr-2 h-4 w-4" />
-                      {t('forms.loadDraft')}
-                    </Button>
-                  </div>
-                </form>
-
-                {/* Usage tips */}
-                <div className="rounded-lg bg-lawyer/5 p-4 border border-lawyer/20">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="h-5 w-5 text-lawyer mt-0.5" />
-                    <div className="text-sm">
-                      <div className="font-medium text-lawyer mb-1">{t('forms.professionalTip')}</div>
-                      <div className="text-gray-600 dark:text-gray-400">
-                        {t('forms.tipContent')}
-                      </div>
-                    </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                      专业模板库
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      浏览我们为法律专业人员精心设计的提示词模板
+                    </p>
                   </div>
                 </div>
+                <a 
+                  href={`/${locale}/ai-prompts-for-lawyers/templates`}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-lawyer text-white rounded-lg hover:bg-lawyer-dark transition-colors font-medium"
+                >
+                  <Sparkles className="h-5 w-5" />
+                  查看专业模板库 (10个模板)
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+              </Card>
 
-                {/* Result display */}
-                <PromptResult
-                  result={result}
-                  loading={loading}
-                  error={error}
-                  onCopy={copyToClipboard}
-                  onClear={clearResult}
-                  onRegenerate={handleSubmit}
-                />
-              </CardContent>
-            </Card>
-
-            {/* Success metrics display */}
-            <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-              {successMetrics.map((metric) => {
-                const IconComponent = metric.icon
-                return (
-                  <Card key={metric.label} className="text-center p-4">
-                    <div className="h-10 w-10 rounded-lg gradient-lawyer flex items-center justify-center mx-auto mb-3">
-                      <IconComponent className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {metric.value}
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {metric.label}
-                    </div>
-                  </Card>
-                )
-              })}
+              {/* Success metrics display */}
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                {successMetrics.map((metric) => {
+                  const IconComponent = metric.icon
+                  return (
+                    <Card key={metric.label} className="text-center p-4">
+                      <div className="h-10 w-10 rounded-lg gradient-lawyer flex items-center justify-center mx-auto mb-3">
+                        <IconComponent className="h-5 w-5 text-white" />
+                      </div>
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {metric.value}
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {metric.label}
+                      </div>
+                    </Card>
+                  )
+                })}
+              </div>
             </div>
           </div>
         </div>

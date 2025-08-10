@@ -1,28 +1,21 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { 
   Home, 
   TrendingUp, 
   MessageSquare, 
   Users, 
-  AlertCircle,
   CheckCircle,
   ArrowRight,
-  Sparkles,
-  BookmarkPlus,
-  History,
-  MapPin
+  Sparkles
 } from 'lucide-react'
 
 import { Button } from "../../../components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
-import { Label } from "../../../components/ui/label"
-import { Textarea } from "../../../components/ui/textarea"
-import { usePromptGenerator } from "../../../lib/hooks/use-prompt-generator"
-import { industryExamples } from "../../../lib/constants/industry-examples"
-import PromptResult from "../../../components/prompt-result"
+import PromptWizard from "../../../components/prompt-wizard/PromptWizard"
+import type { GeneratedPrompt } from "../../../components/prompt-wizard/types"
 
 // Professional template categories for realtors
 const templateCategories = [
@@ -89,40 +82,19 @@ export default function RealtorAIPrompts() {
   const params = useParams()
   const locale = params.locale || 'en'
   
-  const {
-    loading,
-    result,
-    error,
-    formData,
-    updateFormData,
-    handleSubmit,
-    clearResult,
-    copyToClipboard,
-    saveDraft,
-    loadDraft
-  } = usePromptGenerator('realtor')
+  // 生成的提示词结果状态
+  const [generatedResults, setGeneratedResults] = useState<GeneratedPrompt[]>([])
 
-  const [wordCount, setWordCount] = useState(0)
-  const examples = industryExamples.realtor
-
-  useEffect(() => {
-    loadDraft()
+  // 处理PromptWizard完成事件
+  const handlePromptComplete = useCallback((result: GeneratedPrompt) => {
+    setGeneratedResults(prev => [result, ...prev])
+    console.log('Generated prompt:', result)
   }, [])
 
-  useEffect(() => {
-    setWordCount(formData.prompt.length)
-  }, [formData.prompt])
-
-  const fillExample = (example: typeof examples.examples[0]) => {
-    updateFormData('scenario', example.scenario)
-    updateFormData('prompt', example.prompt)
-    updateFormData('context', example.context)
-  }
-
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    await handleSubmit()
-  }
+  // 处理重置事件
+  const handleReset = useCallback(() => {
+    console.log('Wizard reset')
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-green-900/5 dark:to-gray-900">
@@ -154,16 +126,7 @@ export default function RealtorAIPrompts() {
                 <span className="text-green-600">AI Prompts for Realtors</span>
               </nav>
               
-              {/* 模板库链接 */}
-              <div className="mt-4">
-                <a 
-                  href={`/${locale}/ai-prompts-for-realtors/templates`}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  查看专业模板库 (10个模板)
-                </a>
-              </div>
+
             </div>
           </div>
         </div>
@@ -237,157 +200,61 @@ export default function RealtorAIPrompts() {
             </div>
           </div>
 
-          {/* Main Content */}
+          {/* Main Content - AI Prompt Wizard */}
           <div className="lg:col-span-2">
-            <Card className="shadow-xl border-2 border-gray-100 dark:border-gray-700">
-              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50">
-                <CardTitle className="text-2xl flex items-center gap-3">
-                  <Sparkles className="h-6 w-6 text-green-600" />
-                  AI Prompt Generator for Realtors
-                </CardTitle>
-                <CardDescription className="text-base">
-                  Create professional real estate AI prompts for property marketing, client services, and market analysis
-                </CardDescription>
-              </CardHeader>
-
-              <CardContent className="space-y-6 p-6">
-                <form onSubmit={onSubmit} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="scenario" className="text-base font-medium">
-                      Real Estate Service Scenario *
-                    </Label>
-                    <select 
-                      id="scenario"
-                      value={formData.scenario}
-                      onChange={(e) => updateFormData('scenario', e.target.value)}
-                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500/20 focus-visible:ring-offset-2"
-                      required
-                    >
-                      <option value="">Choose your real estate scenario</option>
-                      {examples.scenarios.map(scenario => (
-                        <option key={scenario.value} value={scenario.value}>
-                          {scenario.label}
-                        </option>
-                      ))}
-                    </select>
+            <div className="space-y-6">
+              {/* PromptWizard Integration */}
+              <PromptWizard
+                industry="realtors"
+                onComplete={handlePromptComplete}
+                onReset={handleReset}
+                className="realtor-theme"
+              />
+              
+              {/* Template Library Link */}
+              <Card className="text-center p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <div className="h-12 w-12 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center">
+                    <Home className="h-6 w-6 text-white" />
                   </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="requirements" className="text-base font-medium">
-                        Specific Requirements *
-                      </Label>
-                      <span className="text-sm text-gray-500">{wordCount} characters</span>
-                    </div>
-                    <Textarea
-                      id="requirements"
-                      value={formData.prompt}
-                      onChange={(e) => updateFormData('prompt', e.target.value)}
-                      placeholder="Describe what you want the AI to help with, such as: create a compelling property listing for a luxury waterfront home that highlights unique features..."
-                      className="min-h-[120px] resize-none"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="context" className="text-base font-medium">
-                      Additional Context (Optional)
-                    </Label>
-                    <Textarea
-                      id="context"
-                      value={formData.context}
-                      onChange={(e) => updateFormData('context', e.target.value)}
-                      placeholder="Provide more details such as: property type, location highlights, target buyer demographics, special features..."
-                      className="min-h-[80px] resize-none"
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label className="text-base font-medium flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-green-600" />
-                      Quick Start - Example Templates
-                    </Label>
-                    <div className="grid gap-3">
-                      {examples.examples.map((example, index) => (
-                        <Card 
-                          key={index} 
-                          className="cursor-pointer hover:border-green-500/50 transition-colors"
-                          onClick={() => fillExample(example)}
-                        >
-                          <CardContent className="p-4">
-                            <div className="text-sm font-medium text-gray-900 mb-1">
-                              {examples.scenarios.find(s => s.value === example.scenario)?.label}
-                            </div>
-                            <div className="text-xs text-gray-600 mb-2">{example.prompt}</div>
-                            <div className="text-xs text-gray-400">{example.context}</div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4 pt-6">
-                    <Button 
-                      type="submit"
-                      size="lg" 
-                      disabled={loading || !formData.scenario || !formData.prompt.trim()}
-                      className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white disabled:opacity-50"
-                    >
-                      <Sparkles className="mr-2 h-5 w-5" />
-                      {loading ? 'Generating...' : 'Generate Professional AI Prompt'}
-                    </Button>
-                    <Button 
-                      type="button"
-                      variant="outline" 
-                      size="lg"
-                      onClick={saveDraft}
-                    >
-                      <BookmarkPlus className="mr-2 h-4 w-4" />
-                      Save Draft
-                    </Button>
-                  </div>
-                </form>
-
-                <div className="rounded-lg bg-green-50 p-4 border border-green-200">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="h-5 w-5 text-green-600 mt-0.5" />
-                    <div className="text-sm">
-                      <div className="font-medium text-green-600 mb-1">Professional Tip</div>
-                      <div className="text-gray-600 dark:text-gray-400">
-                        Perfect for residential and commercial real estate agents. Works seamlessly with ChatGPT, Claude, and other AI assistants.
-                      </div>
-                    </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                      专业模板库
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      浏览我们为房地产专业人员精心设计的提示词模板
+                    </p>
                   </div>
                 </div>
+                <a 
+                  href={`/${locale}/ai-prompts-for-realtors/templates`}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:opacity-90 transition-colors font-medium"
+                >
+                  <Sparkles className="h-5 w-5" />
+                  查看专业模板库 (10个模板)
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+              </Card>
 
-                <PromptResult
-                  result={result}
-                  loading={loading}
-                  error={error}
-                  onCopy={copyToClipboard}
-                  onClear={clearResult}
-                  onRegenerate={handleSubmit}
-                />
-              </CardContent>
-            </Card>
-
-            <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-              {successMetrics.map((metric) => {
-                const IconComponent = metric.icon
-                return (
-                  <Card key={metric.label} className="text-center p-4">
-                    <div className="h-10 w-10 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center mx-auto mb-3">
-                      <IconComponent className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {metric.value}
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {metric.label}
-                    </div>
-                  </Card>
-                )
-              })}
+              {/* Success metrics display */}
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                {successMetrics.map((metric) => {
+                  const IconComponent = metric.icon
+                  return (
+                    <Card key={metric.label} className="text-center p-4">
+                      <div className="h-10 w-10 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center mx-auto mb-3">
+                        <IconComponent className="h-5 w-5 text-white" />
+                      </div>
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {metric.value}
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {metric.label}
+                      </div>
+                    </Card>
+                  )
+                })}
+              </div>
             </div>
           </div>
         </div>

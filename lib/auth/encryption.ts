@@ -19,11 +19,11 @@ export function encrypt(plaintext: string): string {
     // 生成随机初始化向量
     const iv = CryptoJS.lib.WordArray.random(16)
     
-    // 使用AES-256-GCM加密
+    // 使用AES-256-CBC加密 (crypto-js不支持GCM模式)
     const encrypted = CryptoJS.AES.encrypt(plaintext, ENCRYPTION_KEY, {
       iv: iv,
-      mode: CryptoJS.mode.GCM,
-      padding: CryptoJS.pad.NoPadding
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.Pkcs7
     })
     
     // 组合IV和密文
@@ -55,8 +55,8 @@ export function decrypt(ciphertext: string): string {
       ENCRYPTION_KEY,
       {
         iv: iv,
-        mode: CryptoJS.mode.GCM,
-        padding: CryptoJS.pad.NoPadding
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
       }
     )
     
