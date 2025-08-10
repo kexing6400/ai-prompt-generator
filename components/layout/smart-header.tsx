@@ -4,7 +4,6 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { LanguageSwitcher } from '../ui/language-switcher';
 import { locales, type Locale } from '../../lib/i18n';
-import { Sparkles } from 'lucide-react';
 
 export function SmartHeader() {
   const pathname = usePathname();
@@ -42,27 +41,11 @@ export function SmartHeader() {
             >
               首页
             </Link>
-            <Link 
-              href="/world-class-ui"
-              className="flex items-center gap-1.5 transition-colors hover:text-foreground/80 text-foreground/60 hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:bg-clip-text hover:text-transparent"
-            >
-              <Sparkles className="h-4 w-4" />
-              世界级UI展示
-            </Link>
           </nav>
         </div>
         
         <div className="flex items-center space-x-4">
-          {/* 移动端菜单按钮 */}
-          <div className="md:hidden">
-            <Link 
-              href="/world-class-ui"
-              className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-950 dark:text-blue-400 rounded-full border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
-            >
-              <Sparkles className="h-3 w-3" />
-              UI展示
-            </Link>
-          </div>
+
           
           <LanguageSwitcher />
         </div>
