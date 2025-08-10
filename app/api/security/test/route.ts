@@ -6,6 +6,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSecurityHeaders, generateNonce, validateNonce } from '../../../../lib/security/csp';
 
+// 强制动态渲染 - 确保每次请求都重新执行
+export const dynamic = 'force-dynamic';
+
+
 /**
  * 测试安全头部配置
  */

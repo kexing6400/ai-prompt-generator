@@ -1,0 +1,94 @@
+{
+  "startTime": "2025-08-10T12:37:37.184Z",
+  "tests": [
+    {
+      "name": "API健康检查",
+      "status": "FAILED",
+      "duration": 76,
+      "error": "HTTP 500: Internal Server Error",
+      "stack": "Error: HTTP 500: Internal Server Error\n    at httpRequest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:88:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async /home/kexing/09-ai-prompt-generator/test-e2e-flow.js:149:24\n    at async E2ETestRunner.runTest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:105:22)\n    at async main (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:501:5)",
+      "timestamp": "2025-08-10T12:37:40.266Z"
+    },
+    {
+      "name": "基础提示词生成",
+      "status": "FAILED",
+      "duration": 26,
+      "error": "HTTP 500: Internal Server Error",
+      "stack": "Error: HTTP 500: Internal Server Error\n    at httpRequest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:88:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async /home/kexing/09-ai-prompt-generator/test-e2e-flow.js:183:24\n    at async E2ETestRunner.runTest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:105:22)\n    at async main (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:502:5)",
+      "timestamp": "2025-08-10T12:37:40.293Z"
+    },
+    {
+      "name": "lawyer行业测试",
+      "status": "FAILED",
+      "duration": 25,
+      "error": "HTTP 500: Internal Server Error",
+      "stack": "Error: HTTP 500: Internal Server Error\n    at httpRequest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:88:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async /home/kexing/09-ai-prompt-generator/test-e2e-flow.js:246:26\n    at async E2ETestRunner.runTest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:105:22)\n    at async E2ETestRunner.testMultipleIndustries (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:239:22)\n    at async main (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:506:5)",
+      "timestamp": "2025-08-10T12:37:40.319Z"
+    },
+    {
+      "name": "teacher行业测试",
+      "status": "FAILED",
+      "duration": 26,
+      "error": "HTTP 500: Internal Server Error",
+      "stack": "Error: HTTP 500: Internal Server Error\n    at httpRequest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:88:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async /home/kexing/09-ai-prompt-generator/test-e2e-flow.js:246:26\n    at async E2ETestRunner.runTest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:105:22)\n    at async E2ETestRunner.testMultipleIndustries (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:239:22)\n    at async main (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:506:5)",
+      "timestamp": "2025-08-10T12:37:41.347Z"
+    },
+    {
+      "name": "doctor行业测试",
+      "status": "FAILED",
+      "duration": 25,
+      "error": "HTTP 500: Internal Server Error",
+      "stack": "Error: HTTP 500: Internal Server Error\n    at httpRequest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:88:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async /home/kexing/09-ai-prompt-generator/test-e2e-flow.js:246:26\n    at async E2ETestRunner.runTest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:105:22)\n    at async E2ETestRunner.testMultipleIndustries (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:239:22)\n    at async main (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:506:5)",
+      "timestamp": "2025-08-10T12:37:42.374Z"
+    },
+    {
+      "name": "realtor行业测试",
+      "status": "FAILED",
+      "duration": 25,
+      "error": "HTTP 500: Internal Server Error",
+      "stack": "Error: HTTP 500: Internal Server Error\n    at httpRequest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:88:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async /home/kexing/09-ai-prompt-generator/test-e2e-flow.js:246:26\n    at async E2ETestRunner.runTest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:105:22)\n    at async E2ETestRunner.testMultipleIndustries (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:239:22)\n    at async main (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:506:5)",
+      "timestamp": "2025-08-10T12:37:43.401Z"
+    },
+    {
+      "name": "空提示词测试",
+      "status": "FAILED",
+      "duration": 34,
+      "error": "HTTP 500: Internal Server Error",
+      "stack": "Error: HTTP 500: Internal Server Error\n    at httpRequest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:88:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async /home/kexing/09-ai-prompt-generator/test-e2e-flow.js:295:26\n    at async E2ETestRunner.runTest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:105:22)\n    at async E2ETestRunner.testErrorHandling (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:294:22)\n    at async main (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:510:5)",
+      "timestamp": "2025-08-10T12:37:44.436Z"
+    },
+    {
+      "name": "无效行业测试",
+      "status": "FAILED",
+      "duration": 24,
+      "error": "HTTP 500: Internal Server Error",
+      "stack": "Error: HTTP 500: Internal Server Error\n    at httpRequest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:88:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async /home/kexing/09-ai-prompt-generator/test-e2e-flow.js:295:26\n    at async E2ETestRunner.runTest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:105:22)\n    at async E2ETestRunner.testErrorHandling (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:294:22)\n    at async main (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:510:5)",
+      "timestamp": "2025-08-10T12:37:44.460Z"
+    },
+    {
+      "name": "超长提示词测试",
+      "status": "FAILED",
+      "duration": 25,
+      "error": "HTTP 500: Internal Server Error",
+      "stack": "Error: HTTP 500: Internal Server Error\n    at httpRequest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:88:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async /home/kexing/09-ai-prompt-generator/test-e2e-flow.js:295:26\n    at async E2ETestRunner.runTest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:105:22)\n    at async E2ETestRunner.testErrorHandling (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:294:22)\n    at async main (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:510:5)",
+      "timestamp": "2025-08-10T12:37:44.485Z"
+    },
+    {
+      "name": "性能基准测试",
+      "status": "FAILED",
+      "duration": 21,
+      "error": "HTTP 500: Internal Server Error",
+      "stack": "Error: HTTP 500: Internal Server Error\n    at httpRequest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:88:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async /home/kexing/09-ai-prompt-generator/test-e2e-flow.js:331:26\n    at async E2ETestRunner.runTest (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:105:22)\n    at async main (/home/kexing/09-ai-prompt-generator/test-e2e-flow.js:514:5)",
+      "timestamp": "2025-08-10T12:37:44.506Z"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "passed": 0,
+    "failed": 10,
+    "skipped": 0,
+    "successRate": 0
+  },
+  "endTime": "2025-08-10T12:38:16.427Z",
+  "totalDuration": 307
+}

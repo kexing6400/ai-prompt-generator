@@ -6,6 +6,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 
+// 强制动态渲染 - 确保每次请求都重新执行
+export const dynamic = 'force-dynamic';
+
 /**
  * 所有请求重定向到相应的新端点
  */

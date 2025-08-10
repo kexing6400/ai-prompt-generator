@@ -9,6 +9,10 @@ import { z } from 'zod';
 import { withAdminAuth } from '@/lib/server/admin-auth';
 import { ConfigManager } from '@/lib/server/config-manager';
 
+// 强制动态渲染 - 确保每次请求都重新执行
+export const dynamic = 'force-dynamic';
+
+
 // AI模型验证模式
 const aiModelSchema = z.object({
   name: z.string().min(1, '模型名称不能为空'),

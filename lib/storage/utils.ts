@@ -235,7 +235,8 @@ export class DataValidator {
   }
 
   private static isValidUserId(id: string): boolean {
-    return typeof id === 'string' && id.length > 0 && id.startsWith('user_');
+    // 修复：允许匿名用户ID以anon_开头
+    return typeof id === 'string' && id.length > 0 && (id.startsWith('user_') || id.startsWith('anon_'));
   }
 
   private static isValidDate(date: string): boolean {

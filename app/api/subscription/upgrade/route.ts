@@ -7,6 +7,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getDefaultStore } from '@/lib/storage'
 import { cookies } from 'next/headers'
 
+// 强制动态渲染 - 确保每次请求都重新执行
+export const dynamic = 'force-dynamic';
+
 const store = getDefaultStore();
 
 // 订阅计划配置

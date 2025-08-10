@@ -8,6 +8,10 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { ConfigManager } from '@/lib/server/config-manager';
 
+// 强制动态渲染 - 确保每次请求都重新执行
+export const dynamic = 'force-dynamic';
+
+
 // 请求参数验证模式
 const generatePromptSchema = z.object({
   industry: z.string().min(1, '请选择行业'),

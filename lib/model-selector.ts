@@ -36,7 +36,7 @@ export const MODEL_CONFIGS: ModelConfig[] = [
     weaknesses: ['创造力一般', '专业深度不足']
   },
   {
-    id: 'anthropic/claude-3-haiku',
+    id: 'claude-3-haiku-20240307', // 使用正确的Claude模型ID
     name: 'Claude 3 Haiku',
     provider: 'anthropic',
     tier: 'basic',
@@ -62,7 +62,7 @@ export const MODEL_CONFIGS: ModelConfig[] = [
   
   // 标准层模型（专业版用户）
   {
-    id: 'anthropic/claude-3-sonnet',
+    id: 'claude-3-sonnet-20240229', // 使用正确的Claude模型ID
     name: 'Claude 3 Sonnet',
     provider: 'anthropic',
     tier: 'standard',
@@ -112,7 +112,7 @@ export const MODEL_CONFIGS: ModelConfig[] = [
     weaknesses: ['成本高', '速度慢']
   },
   {
-    id: 'anthropic/claude-3-opus',
+    id: 'claude-3-opus-20240229', // 使用正确的Claude模型ID
     name: 'Claude 3 Opus',
     provider: 'anthropic',
     tier: 'premium',

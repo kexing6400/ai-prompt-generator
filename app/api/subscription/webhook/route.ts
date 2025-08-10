@@ -12,6 +12,9 @@ import {
   createSubscriptionErrorResponse 
 } from '@/lib/subscription'
 
+// 强制动态渲染 - 确保每次请求都重新执行
+export const dynamic = 'force-dynamic';
+
 /**
  * 处理Creem.io Webhook事件
  * 

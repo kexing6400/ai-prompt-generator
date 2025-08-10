@@ -13,6 +13,9 @@ import { setCSRFToken } from '@/lib/middleware/csrf'
 import { logAuditEvent, AuditEventType, AuditSeverity } from '@/lib/middleware/audit-log'
 import { loginRateLimit, getClientIdentifier } from '@/lib/middleware/rate-limit'
 
+// 强制动态渲染 - 确保每次请求都重新执行
+export const dynamic = 'force-dynamic';
+
 // 🔐 登录请求验证模式
 const loginSchema = z.object({
   username: z.string()

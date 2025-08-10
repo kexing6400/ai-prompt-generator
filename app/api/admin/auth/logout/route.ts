@@ -16,6 +16,9 @@ import { clearCSRFToken } from '@/lib/middleware/csrf'
 import { logAuditEvent, AuditEventType } from '@/lib/middleware/audit-log'
 import { extractUserIdFromToken } from '@/lib/auth/jwt'
 
+// 强制动态渲染 - 确保每次请求都重新执行
+export const dynamic = 'force-dynamic';
+
 /**
  * POST - 管理员登出
  */

@@ -71,29 +71,28 @@ export class OpenRouterClient {
     
     const messages = [];
     
-    // 添加系统提示（如果有）
-    if (options.systemPrompt) {
-      messages.push({
-        role: 'system',
-        content: options.systemPrompt
-      });
-    }
-    
-    // 添加用户消息
+    // 只添加用户消息，系统提示作为顶级参数
     messages.push({
       role: 'user',
       content: prompt
     });
     
-    const requestBody = {
-      model,
+    // OpenRouter API正确格式
+    const requestBody: any = {
+      model: model || 'meta-llama/llama-3-8b-instruct', // 使用OpenRouter模型格式
       messages,
-      temperature: options.temperature ?? 0.7,
       max_tokens: options.maxTokens ?? 2000,
-      top_p: options.topP ?? 1,
-      stream: options.stream ?? false,
-      stop: options.stop
+      temperature: options.temperature ?? 0.7,
+      stream: options.stream ?? false
     };
+    
+    // OpenRouter支持系统提示作为消息
+    if (options.systemPrompt) {
+      messages.unshift({
+        role: 'system',
+        content: options.systemPrompt
+      });
+    }
     
     let lastError: Error | null = null;
     
@@ -103,13 +102,14 @@ export class OpenRouterClient {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
         
+        // 使用OpenRouter API格式
         const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${this.config.apiKey}`,
+            'Authorization': `Bearer ${this.config.apiKey}`, // OpenRouter使用Bearer token
             'Content-Type': 'application/json',
-            'HTTP-Referer': this.config.siteUrl,
-            'X-Title': this.config.siteName
+            'HTTP-Referer': this.config.siteUrl || 'https://www.aiprompts.ink',
+            'X-Title': this.config.siteName || 'AI Prompt Generator'
           },
           body: JSON.stringify(requestBody),
           signal: controller.signal
@@ -134,11 +134,12 @@ export class OpenRouterClient {
         
         const data = await response.json();
         
+        // OpenRouter响应格式
         if (!data.choices || data.choices.length === 0) {
           throw new Error('API返回了空响应');
         }
         
-        const content = data.choices[0].message?.content || '';
+        const content = data.choices[0]?.message?.content || '';
         
         if (this.config.debug) {
           console.log('[OpenRouter] 生成成功:', {
@@ -148,12 +149,17 @@ export class OpenRouterClient {
           });
         }
         
+        // 适配OpenRouter响应格式
         return {
           content,
           model: data.model || model,
-          usage: data.usage,
-          cost: data.usage?.total_cost,
-          provider: data.provider,
+          usage: data.usage ? {
+            total_tokens: data.usage.total_tokens,
+            prompt_tokens: data.usage.prompt_tokens,
+            completion_tokens: data.usage.completion_tokens
+          } : undefined,
+          cost: data.usage?.total_cost || 0,
+          provider: 'openrouter',
           id: data.id
         };
         
@@ -234,16 +240,20 @@ export class OpenRouterClient {
 }
 
 /**
- * 创建OpenRouter客户端实例
+ * 创建OpenRouter客户端实例 - 修复：使用正确的Anthropic代理配置
  */
 export function createOpenRouterClient(config?: Partial<OpenRouterConfig>): OpenRouterClient {
+  // 使用OpenRouter API
   const apiKey = config?.apiKey || 
-    process.env.OPENROUTER_API_KEY || 
-    process.env.ANTHROPIC_API_KEY || // 兼容您提供的密钥
-    'sk-ant-oat01-ee0f35df8f630aae92f9a6561dd9be32edfe84a1e5f0f6e4636923a0e7ad5aca';
+    process.env.OPENROUTER_API_KEY || '';
+  
+  // 使用OpenRouter官方API端点
+  const baseUrl = 'https://openrouter.ai/api/v1';
   
   return new OpenRouterClient({
     apiKey,
+    baseUrl: baseUrl, // OpenRouter API已包含/api/v1
+    defaultModel: 'meta-llama/llama-3-8b-instruct', // 使用Llama模型
     ...config
   });
 }

@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateOpenRouterKey } from '@/lib/utils/api-validation';
 
+// 强制动态渲染 - 确保每次请求都重新执行
+export const dynamic = 'force-dynamic';
+
+
 /**
  * AI对话优化API端点
  * 支持流式响应，提供专业的提示词优化服务

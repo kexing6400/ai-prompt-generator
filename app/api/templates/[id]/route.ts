@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { templatesData } from '@/lib/data/templates-2025-data'
 
+// 强制动态渲染 - 确保每次请求都重新执行
+export const dynamic = 'force-dynamic';
+
+
 /**
  * 获取单个模板详情API
  * 已优化：使用静态导入，确保Vercel部署时正确加载

@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
 
+// 强制动态渲染 - 确保每次请求都重新执行
+export const dynamic = 'force-dynamic';
+
+
 // 🔧 AI提示词生成器 - 修复版
 // 版本: v2.1 - 简化但稳定的错误处理
 

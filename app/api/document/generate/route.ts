@@ -5,6 +5,9 @@ import {
   SimpleDocumentResponse 
 } from '@/types/document';
 
+// 强制动态渲染 - 确保每次请求都重新执行
+export const dynamic = 'force-dynamic';
+
 /**
  * 简化的文档生成API端点
  * Simplified Document Generation API Endpoint

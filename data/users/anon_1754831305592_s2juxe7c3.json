@@ -1,0 +1,20 @@
+{
+  "id": "anon_1754831305592_s2juxe7c3",
+  "email": "anon_1754831305592_s2juxe7c3@anonymous.local",
+  "name": "匿名用户",
+  "plan": "free",
+  "status": "active",
+  "createdAt": "2025-08-10T13:08:25.592Z",
+  "updatedAt": "2025-08-10T13:08:25.593Z",
+  "subscription": {
+    "plan": "free",
+    "status": "active",
+    "startDate": "2025-08-10T13:08:25.592Z",
+    "limits": {
+      "generationsPerMonth": 50,
+      "templatesAccess": "basic",
+      "historyDays": 7,
+      "apiCalls": {}
+    }
+  }
+}

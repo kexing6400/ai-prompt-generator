@@ -1,0 +1,33 @@
+{
+  "id": "anon_1754836628920_qzdvgohts",
+  "email": "anon_1754836628920_qzdvgohts@anonymous.local",
+  "name": "匿名用户",
+  "createdAt": "2025-08-10T14:37:08.920Z",
+  "updatedAt": "2025-08-10T14:37:08.923Z",
+  "preferences": {
+    "language": "zh",
+    "theme": "light",
+    "defaultModel": "claude-3-sonnet",
+    "autoSave": true,
+    "notifications": {
+      "email": false,
+      "browser": false,
+      "quotaWarning": true
+    }
+  },
+  "isActive": true,
+  "emailVerified": false,
+  "subscription": {
+    "plan": "free",
+    "status": "active",
+    "startDate": "2025-08-10T14:37:08.920Z",
+    "autoRenew": false,
+    "limits": {
+      "dailyRequests": 10,
+      "monthlyRequests": 50,
+      "maxTokensPerRequest": 2000,
+      "maxPromptsPerDay": 10,
+      "maxDocumentSize": 5
+    }
+  }
+}

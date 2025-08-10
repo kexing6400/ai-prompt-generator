@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     // 获取使用量信息
     const usage = await store.getUsage(userId);
     const currentMonth = new Date().toISOString().substring(0, 7);
-    const monthlyUsage = usage?.monthly?.[currentMonth] || { requests: 0, tokens: 0 };
+    const monthlyUsage = usage?.month === currentMonth ? usage : { requests: 0, tokens: 0 };
     
     // 获取订阅限制
     const limits = user.subscription?.limits || {
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     };
     
     // 计算剩余额度
-    const remaining = Math.max(0, limits.generationsPerMonth - monthlyUsage.requests);
+    const remaining = Math.max(0, (limits as any).generationsPerMonth - monthlyUsage.requests);
     
     // 构建响应
     return NextResponse.json({
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
         },
         usage: {
           current: monthlyUsage.requests,
-          limit: limits.generationsPerMonth,
+          limit: (limits as any).generationsPerMonth,
           remaining,
           percentage: limits.generationsPerMonth > 0 
             ? Math.round((monthlyUsage.requests / limits.generationsPerMonth) * 100)

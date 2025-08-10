@@ -1,0 +1,14 @@
+{
+  "userId": "anon_1754831929484_5p31f5z3w",
+  "date": "2025-08-10",
+  "month": "2025-08",
+  "requests": 1,
+  "tokens": 0,
+  "generatedPrompts": 0,
+  "documentsProcessed": 0,
+  "apiCalls": {
+    "meta-llama/llama-3-8b-instruct": 1
+  },
+  "errors": 0,
+  "avgResponseTime": 0
+}

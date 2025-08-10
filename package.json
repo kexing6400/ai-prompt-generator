@@ -30,7 +30,9 @@
     "security:secrets": "node scripts/security-tools.js secrets",
     "security:csp": "node scripts/security-tools.js csp",
     "security:api": "node scripts/security-tools.js api",
-    "security:env": "node scripts/security-tools.js env"
+    "security:env": "node scripts/security-tools.js env",
+    "pre-deploy": "node scripts/pre-deploy-check.js",
+    "deploy": "npm run pre-deploy && npx vercel --prod"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

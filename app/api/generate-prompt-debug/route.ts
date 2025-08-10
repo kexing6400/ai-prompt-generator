@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
 
+// 强制动态渲染 - 确保每次请求都重新执行
+export const dynamic = 'force-dynamic';
+
+
 // 🔧 调试版API路由 - 用于诊断问题
 // 这个路由专门用于调试环境变量和API连接问题
 
@@ -46,8 +50,10 @@ export async function POST(request: Request) {
         apiTest = {
           status: testResponse.status,
           ok: testResponse.ok,
-          statusText: testResponse.statusText
-        };
+          statusText: testResponse.statusText,
+          modelCount: 0,
+          error: undefined
+        } as any;
         
         if (testResponse.ok) {
           const data = await testResponse.json();

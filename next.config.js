@@ -12,9 +12,9 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   
-  // TypeScript设置 - 构建时忽略类型错误  
+  // TypeScript设置 - 生产环境严格检查
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: process.env.NODE_ENV === 'development',
   },
   
   // 性能优化

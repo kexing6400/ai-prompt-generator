@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm install --production=false && npm run build",
+  "buildCommand": "npm ci && npm run build",
   "outputDirectory": ".next",
-  "installCommand": "npm install --production=false"
+  "installCommand": "npm ci"
 }

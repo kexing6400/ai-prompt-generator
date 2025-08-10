@@ -756,6 +756,22 @@ export class JsonStore implements IJsonStore {
   }
 
   /**
+   * 获取统计信息（API兼容方法）
+   */
+  async getStatistics(): Promise<{
+    totalUsers: number;
+    activeUsers: number;
+    totalRequests: number;
+  }> {
+    const stats = await this.getStorageStats();
+    return {
+      totalUsers: stats.totalUsers,
+      activeUsers: stats.activeUsers,
+      totalRequests: 0 // 简化实现
+    };
+  }
+
+  /**
    * 获取存储统计信息
    */
   async getStorageStats(): Promise<StorageStats> {
@@ -941,6 +957,66 @@ export class JsonStore implements IJsonStore {
       }
     } catch (error) {
       // 忽略清理错误
+    }
+  }
+  
+  /**
+   * 获取存储统计信息
+   */
+  async getStatistics(): Promise<StorageStats> {
+    await this.initialize();
+    
+    try {
+      const usersDir = join(this.config.dataPath, 'users');
+      const usageDir = join(this.config.dataPath, 'usage');
+      
+      let totalUsers = 0;
+      let activeUsers = 0;
+      let totalRequests = 0;
+      
+      try {
+        const userFiles = await fs.readdir(usersDir);
+        totalUsers = userFiles.filter(file => file.endsWith('.json')).length;
+        
+        // 统计活跃用户（最近30天有活动）
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        
+        for (const file of userFiles) {
+          if (file.endsWith('.json')) {
+            const userId = file.replace('.json', '');
+            const usage = await this.getUsage(userId);
+            
+            if (usage && usage.lastActivity && new Date(usage.lastActivity) > thirtyDaysAgo) {
+              activeUsers++;
+            }
+            
+            if (usage?.daily) {
+              totalRequests += Object.values(usage.daily).reduce((sum, daily) => sum + daily.requests, 0);
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('[Storage] 无法读取用户目录:', error);
+      }
+      
+      return {
+        totalUsers,
+        activeUsers,
+        totalRequests,
+        cacheHitRate: this.userCache.getStats?.() || 0,
+        storageSize: '计算中...',
+        lastBackup: '暂无备份'
+      };
+    } catch (error) {
+      console.error('[Storage] 获取统计信息失败:', error);
+      return {
+        totalUsers: 0,
+        activeUsers: 0,
+        totalRequests: 0,
+        cacheHitRate: 0,
+        storageSize: '未知',
+        lastBackup: '未知'
+      };
     }
   }
 }
