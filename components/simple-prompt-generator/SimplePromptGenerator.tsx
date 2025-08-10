@@ -26,6 +26,7 @@ import {
   Printer
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { UsageIndicator } from '@/components/subscription'
 import type { 
   SimpleTemplate, 
   SimpleFormData, 
@@ -48,6 +49,7 @@ export default function SimplePromptGenerator({
   const [error, setError] = useState<string | null>(null)
   const [isDownloading, setIsDownloading] = useState(false)
   const [downloadError, setDownloadError] = useState<string | null>(null)
+  const [usageLimitReached, setUsageLimitReached] = useState(false)
 
   // 重置表单
   const resetForm = useCallback(() => {
@@ -96,6 +98,7 @@ export default function SimplePromptGenerator({
 
     setIsGenerating(true)
     setError(null)
+    setUsageLimitReached(false)
 
     try {
       // 替换模板中的占位符
@@ -118,7 +121,15 @@ export default function SimplePromptGenerator({
       })
 
       if (!response.ok) {
-        throw new Error('生成失败，请稍后重试')
+        const errorData = await response.json().catch(() => ({}))
+        
+        // 检查是否是使用量限制错误
+        if (response.status === 429 || errorData.code === 'USAGE_LIMIT_EXCEEDED') {
+          setUsageLimitReached(true)
+          throw new Error('本月免费额度已用完，请升级到专业版获得更多使用次数')
+        }
+        
+        throw new Error(errorData.message || '生成失败，请稍后重试')
       }
 
       const data = await response.json()
@@ -270,15 +281,28 @@ export default function SimplePromptGenerator({
       {/* 主卡片 */}
       <Card className="shadow-lg">
         <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-              <Wand2 className="h-5 w-5 text-white" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                <Wand2 className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-xl">AI 提示词生成器</CardTitle>
+                <p className="text-muted-foreground">
+                  选择模板，填写信息，一键生成专业提示词
+                </p>
+              </div>
             </div>
-            <div>
-              <CardTitle className="text-xl">AI 提示词生成器</CardTitle>
-              <p className="text-muted-foreground">
-                选择模板，填写信息，一键生成专业提示词
-              </p>
+            
+            {/* 使用量指示器 */}
+            <div className="hidden md:block">
+              <UsageIndicator 
+                variant="compact" 
+                onUpgrade={() => {
+                  // 可以在这里打开升级模态框
+                  console.log('Open upgrade modal')
+                }}
+              />
             </div>
           </div>
         </CardHeader>
@@ -376,9 +400,30 @@ export default function SimplePromptGenerator({
 
               {/* 错误提示 */}
               {error && (
-                <div className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-lg">
+                <div className={cn(
+                  "flex items-center gap-2 p-3 rounded-lg",
+                  usageLimitReached 
+                    ? "text-yellow-700 bg-yellow-50 border border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800" 
+                    : "text-red-600 bg-red-50 dark:bg-red-900/20"
+                )}>
                   <AlertCircle className="h-4 w-4" />
-                  <span className="text-sm">{error}</span>
+                  <div className="flex-1">
+                    <span className="text-sm">{error}</span>
+                    {usageLimitReached && (
+                      <div className="mt-2">
+                        <Button 
+                          size="sm" 
+                          onClick={() => {
+                            // 打开升级模态框
+                            console.log('Open upgrade modal')
+                          }}
+                          className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                        >
+                          立即升级到专业版
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
