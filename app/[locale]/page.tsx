@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { 
   Scale, 
@@ -9,12 +11,12 @@ import {
   CheckCircle,
   Zap
 } from 'lucide-react'
+import { useState } from 'react'
 
 import { Button } from "../../components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
+import { UsageIndicator, PricingSection, SubscriptionModal } from "../../components/subscription"
 import { IndustryType } from "../../types"
-import { getTranslations } from "../../lib/hooks/use-translations"
-import { Locale } from "../../lib/i18n"
 
 // 路径映射
 const industryPaths: Record<string, string> = {
@@ -62,9 +64,67 @@ interface HomePageProps {
   params: { locale: string }
 }
 
-export default async function HomePage({ params: { locale } }: HomePageProps) {
-  // 获取翻译
-  const { t, dictionary } = await getTranslations(locale as Locale)
+export default function HomePage({ params: { locale } }: HomePageProps) {
+  // 订阅弹窗状态管理
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
+  
+  // 简化的翻译数据（转换为客户端组件后的临时解决方案）
+  const t = (key: string) => {
+    const translations: Record<string, string> = {
+      'common.freeNotice': '100% 免费使用',
+      'common.title': '专业AI提示词生成器',
+      'common.subtitle': '为各行业专业人士量身定制的智能提示词工具',
+      'common.description': '快速生成高质量、专业的AI提示词模板，提升您的工作效率',
+      'common.selectIndustry': '选择您的行业开始使用',
+      'common.howItWorks.step1': '选择行业',
+      'common.howItWorks.step2': '描述需求', 
+      'common.howItWorks.step3': '生成提示词',
+      'common.howItWorks.step4': '一键复制使用',
+      'common.footer.tagline': '专业AI提示词，让工作更高效',
+      'common.footer.copyright': '© 2025 AI Prompt Generator. All rights reserved.'
+    }
+    return translations[key] || key
+  }
+  
+  const dictionary = {
+    industries: {
+      lawyer: {
+        name: 'lawyer',
+        displayName: '律师',
+        description: '法律文书、案例分析、合同审查专用AI提示词',
+        features: ['法律文书', '案例分析', '合同审查'],
+        enter: '进入法律助手'
+      },
+      realtor: {
+        name: 'realtor', 
+        displayName: '房地产经纪',
+        description: '房源描述、客户沟通、市场分析专用提示词',
+        features: ['房源描述', '客户沟通', '市场分析'],
+        enter: '进入房产助手'
+      },
+      insurance: {
+        name: 'insurance',
+        displayName: '保险顾问', 
+        description: '保险产品介绍、风险评估、理赔指导提示词',
+        features: ['产品介绍', '风险评估', '理赔指导'],
+        enter: '进入保险助手'
+      },
+      teacher: {
+        name: 'teacher',
+        displayName: '教师',
+        description: '教案设计、作业批改、学生评价专用提示词',
+        features: ['教案设计', '作业批改', '学生评价'],
+        enter: '进入教学助手'
+      },
+      accountant: {
+        name: 'accountant',
+        displayName: '会计师',
+        description: '财务分析、报表解读、税务咨询专用提示词', 
+        features: ['财务分析', '报表解读', '税务咨询'],
+        enter: '进入财务助手'
+      }
+    }
+  }
   
   // 构建行业数据（结合翻译和基础配置）
   const industries = Object.keys(industryBaseConfig).map(industryKey => {
@@ -91,6 +151,15 @@ export default async function HomePage({ params: { locale } }: HomePageProps) {
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25 pointer-events-none" />
 
         <div className="container mx-auto px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+          {/* 使用量指示器 - 顶部显示 */}
+          <div className="flex justify-center mb-6">
+            <UsageIndicator 
+              variant="compact" 
+              showUpgradePrompt={true}
+              onUpgrade={() => setIsSubscriptionModalOpen(true)}
+            />
+          </div>
+          
           <div className="text-center">
             {/* 100%免费标识 */}
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 text-sm font-medium mb-6">
@@ -152,6 +221,12 @@ export default async function HomePage({ params: { locale } }: HomePageProps) {
           </div>
         </div>
       </section>
+
+      {/* Pricing Section - 价格展示区域 */}
+      <PricingSection 
+        onUpgrade={(planId) => setIsSubscriptionModalOpen(true)}
+        className="bg-white dark:bg-gray-900"
+      />
 
       {/* Industry Selection - 行业选择区域 */}
       <section id="industry-selection" className="py-12 sm:py-16 scroll-mt-16">
@@ -235,6 +310,17 @@ export default async function HomePage({ params: { locale } }: HomePageProps) {
           </div>
         </div>
       </footer>
+      
+      {/* 订阅弹窗 */}
+      <SubscriptionModal
+        isOpen={isSubscriptionModalOpen}
+        onClose={() => setIsSubscriptionModalOpen(false)}
+        onSuccess={(planId) => {
+          console.log('订阅成功:', planId)
+          setIsSubscriptionModalOpen(false)
+          // 可以在这里添加成功后的处理逻辑，比如刷新页面数据
+        }}
+      />
     </div>
   )
 }

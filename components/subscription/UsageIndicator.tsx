@@ -7,7 +7,23 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import type { UsageStats, UserSubscription } from '@/types/subscription'
+
+// 适配现有API数据结构
+interface ApiSubscriptionData {
+  subscription: {
+    plan: string
+    status: string
+  }
+  usage: {
+    current: number
+    limit: number
+    remaining: number
+    percentage: number
+  }
+  permissions: {
+    canGenerate: boolean
+  }
+}
 
 interface UsageIndicatorProps {
   className?: string
@@ -22,8 +38,7 @@ export default function UsageIndicator({
   onUpgrade,
   variant = 'compact'
 }: UsageIndicatorProps) {
-  const [usage, setUsage] = useState<UsageStats | null>(null)
-  const [subscription, setSubscription] = useState<UserSubscription | null>(null)
+  const [subscriptionData, setSubscriptionData] = useState<ApiSubscriptionData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -32,22 +47,18 @@ export default function UsageIndicator({
     const fetchUsageData = async () => {
       try {
         setLoading(true)
-        const [usageRes, subscriptionRes] = await Promise.all([
-          fetch('/api/subscription/usage'),
-          fetch('/api/subscription/current')
-        ])
+        const response = await fetch('/api/subscription/current')
 
-        if (!usageRes.ok || !subscriptionRes.ok) {
+        if (!response.ok) {
           throw new Error('获取数据失败')
         }
 
-        const [usageData, subscriptionData] = await Promise.all([
-          usageRes.json(),
-          subscriptionRes.json()
-        ])
-
-        setUsage(usageData)
-        setSubscription(subscriptionData)
+        const apiResponse = await response.json()
+        if (apiResponse.success && apiResponse.data) {
+          setSubscriptionData(apiResponse.data)
+        } else {
+          throw new Error(apiResponse.error || '获取数据失败')
+        }
       } catch (error) {
         console.error('Error fetching usage data:', error)
         setError(error instanceof Error ? error.message : '加载失败')
@@ -59,14 +70,15 @@ export default function UsageIndicator({
     fetchUsageData()
   }, [])
 
-  if (loading || error || !usage || !subscription) {
+  if (loading || error || !subscriptionData) {
     return null
   }
 
-  const limit = subscription.limits.generationsPerMonth
-  const used = usage.currentMonth.generations
-  const percentage = limit === -1 ? 0 : Math.min((used / limit) * 100, 100)
-  const remaining = limit === -1 ? Infinity : Math.max(limit - used, 0)
+  const { subscription, usage } = subscriptionData
+  const limit = usage.limit
+  const used = usage.current
+  const percentage = usage.percentage
+  const remaining = usage.remaining
   
   const isLimitApproaching = limit !== -1 && percentage > 70
   const isLimitExceeded = limit !== -1 && used >= limit
