@@ -11,7 +11,13 @@ import {
   DialogTitle,
   DialogDescription
 } from '@/components/ui/dialog'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import type { SubscriptionPlan, BillingCycle } from '@/types/subscription'
@@ -156,85 +162,98 @@ export default function SubscriptionModal({
             {/* 计费周期选择 */}
             <div className="space-y-3">
               <Label className="text-base font-medium">计费周期</Label>
-              <RadioGroup
+              <Select
                 value={billingCycle}
                 onValueChange={(value) => setBillingCycle(value as BillingCycle)}
-                className="flex gap-4"
               >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="monthly" id="monthly" />
-                  <Label htmlFor="monthly">月付</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="yearly" id="yearly" />
-                  <Label htmlFor="yearly" className="flex items-center gap-2">
-                    年付
-                    <Badge variant="secondary" className="text-xs">省20%</Badge>
-                  </Label>
-                </div>
-              </RadioGroup>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="选择计费周期" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="monthly">月付</SelectItem>
+                  <SelectItem value="yearly">
+                    <div className="flex items-center gap-2">
+                      年付
+                      <Badge variant="secondary" className="text-xs">省20%</Badge>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* 计划选择 */}
             <div className="space-y-3">
               <Label className="text-base font-medium">选择计划</Label>
-              <RadioGroup
-                value={selectedPlan}
-                onValueChange={setSelectedPlan}
-                className="grid gap-4"
-              >
-                {plans.filter(plan => plan.id !== 'free').map((plan) => (
-                  <div key={plan.id} className="flex items-center space-x-3">
-                    <RadioGroupItem value={plan.id} id={plan.id} />
-                    <Label htmlFor={plan.id} className="flex-1 cursor-pointer">
-                      <div className={cn(
-                        "p-4 rounded-lg border-2 transition-all",
-                        selectedPlan === plan.id 
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" 
-                          : "border-gray-200 dark:border-gray-700 hover:border-gray-300"
-                      )}>
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-3">
-                            <div className={cn(
-                              "h-8 w-8 rounded-lg flex items-center justify-center bg-gradient-to-r text-white",
-                              getPlanColor(plan.id)
-                            )}>
-                              {getPlanIcon(plan.id)}
-                            </div>
-                            <div>
-                              <h3 className="font-semibold">{plan.name}</h3>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                {plan.description}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="font-bold text-lg">
-                              ¥{calculatePrice(plan)}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              /{billingCycle === 'yearly' ? '年' : '月'}
-                            </div>
-                          </div>
+              <Select value={selectedPlan} onValueChange={setSelectedPlan}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="选择订阅计划" />
+                </SelectTrigger>
+                <SelectContent>
+                  {plans.filter(plan => plan.id !== 'free').map((plan) => (
+                    <SelectItem key={plan.id} value={plan.id}>
+                      <div className="flex items-center gap-3 py-2">
+                        <div className={cn(
+                          "h-6 w-6 rounded flex items-center justify-center bg-gradient-to-r text-white",
+                          getPlanColor(plan.id)
+                        )}>
+                          {getPlanIcon(plan.id)}
                         </div>
-                        
-                        {/* 功能列表 */}
-                        <div className="grid grid-cols-2 gap-2 mt-3">
-                          {plan.features.slice(0, 4).map((feature, index) => (
-                            <div key={index} className="flex items-center gap-2">
-                              <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                {feature}
-                              </span>
-                            </div>
-                          ))}
+                        <div>
+                          <div className="font-medium">{plan.name}</div>
+                          <div className="text-sm text-gray-500">
+                            ¥{calculatePrice(plan)}/{billingCycle === 'yearly' ? '年' : '月'}
+                          </div>
                         </div>
                       </div>
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+
+            {/* 选中计划详情 */}
+            {currentPlan && currentPlan.id !== 'free' && (
+              <div className={cn(
+                "p-4 rounded-lg border-2 transition-all bg-blue-50 dark:bg-blue-900/20 border-blue-500"
+              )}>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "h-8 w-8 rounded-lg flex items-center justify-center bg-gradient-to-r text-white",
+                      getPlanColor(currentPlan.id)
+                    )}>
+                      {getPlanIcon(currentPlan.id)}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">{currentPlan.name}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {currentPlan.description}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold text-lg">
+                      ¥{calculatePrice(currentPlan)}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      /{billingCycle === 'yearly' ? '年' : '月'}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* 功能列表 */}
+                <div className="grid grid-cols-2 gap-2 mt-3">
+                  {currentPlan.features.slice(0, 6).map((feature, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                        {feature}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* 价格总结 */}
             {currentPlan && currentPlan.id !== 'free' && (
