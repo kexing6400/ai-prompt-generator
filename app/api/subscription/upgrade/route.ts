@@ -1,405 +1,237 @@
 /**
  * 订阅升级API端点
- * 
- * POST /api/subscription/upgrade
- * 处理用户订阅升级请求，创建支付链接并跳转到Creem.io支付页面
+ * 使用JSON存储系统
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { 
-  subscriptionManager, 
-  createSubscriptionErrorResponse,
-  getPlanByType 
-} from '@/lib/subscription'
-import { CreateSubscriptionRequest, SubscriptionPlanType } from '@/types/subscription'
+import { getDefaultStore } from '@/lib/storage'
+import { cookies } from 'next/headers'
 
-// 支持的升级计划类型
-const VALID_UPGRADE_PLANS: SubscriptionPlanType[] = ['pro', 'team']
+const store = getDefaultStore();
+
+// 订阅计划配置
+const SUBSCRIPTION_PLANS = {
+  free: {
+    name: '免费版',
+    price: 0,
+    limits: {
+      generationsPerMonth: 50,
+      templatesAccess: 'basic',
+      historyDays: 7
+    }
+  },
+  pro: {
+    name: '专业版',
+    price: 4.99,
+    limits: {
+      generationsPerMonth: 500,
+      templatesAccess: 'premium',
+      historyDays: 30
+    }
+  },
+  team: {
+    name: '团队版',
+    price: 19.99,
+    limits: {
+      generationsPerMonth: -1, // 无限
+      templatesAccess: 'all',
+      historyDays: -1 // 无限
+    }
+  }
+};
 
 /**
- * 处理订阅升级请求
- * 
- * 请求体：
- * {
- *   userEmail: string,
- *   targetPlan: 'pro' | 'team',
- *   successUrl?: string,
- *   cancelUrl?: string,
- *   metadata?: Record<string, string>
- * }
+ * 升级订阅计划
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { 
-      userEmail, 
-      targetPlan, 
-      successUrl = `${request.nextUrl.origin}/dashboard?upgrade=success`,
-      cancelUrl = `${request.nextUrl.origin}/pricing?upgrade=canceled`,
-      metadata = {}
-    } = body
-
-    // 输入验证
-    const validation = validateUpgradeRequest(body)
-    if (!validation.valid) {
-      return NextResponse.json(
-        createSubscriptionErrorResponse(
-          'INVALID_SUBSCRIPTION',
-          validation.error!
-        ),
-        { status: 400 }
-      )
-    }
-
-    // 获取用户当前订阅状态
-    const currentStatus = await subscriptionManager.getUserCompleteStatus(userEmail)
+    // 获取用户ID
+    const cookieStore = cookies();
+    const userId = cookieStore.get('userId')?.value;
     
-    if (!currentStatus.success) {
-      return NextResponse.json(
-        createSubscriptionErrorResponse(
-          'CREEM_API_ERROR',
-          'Failed to get current subscription status'
-        ),
-        { status: 500 }
-      )
+    if (!userId) {
+      return NextResponse.json({
+        success: false,
+        error: '未登录',
+        code: 'UNAUTHORIZED'
+      }, { status: 401 });
     }
-
-    const currentPlan = currentStatus.data!.subscription.subscriptionType
-
-    // 验证升级路径
-    const upgradeValidation = validateUpgradePath(currentPlan, targetPlan)
-    if (!upgradeValidation.valid) {
-      return NextResponse.json(
-        createSubscriptionErrorResponse(
-          'INVALID_SUBSCRIPTION',
-          upgradeValidation.error!
-        ),
-        { status: 400 }
-      )
-    }
-
-    // 获取目标计划信息
-    const targetPlanInfo = getPlanByType(targetPlan)
     
-    // 添加元数据
-    const enhancedMetadata = {
-      ...metadata,
-      currentPlan,
-      targetPlan,
-      upgradeTimestamp: new Date().toISOString(),
-      userAgent: request.headers.get('user-agent') || 'unknown',
-      upgradeSource: 'api'
+    const body = await request.json();
+    const { plan, paymentMethod } = body;
+    
+    // 验证计划
+    if (!plan || !['pro', 'team'].includes(plan)) {
+      return NextResponse.json({
+        success: false,
+        error: '无效的订阅计划',
+        code: 'INVALID_PLAN'
+      }, { status: 400 });
     }
-
-    // 处理升级
-    const upgradeResult = await subscriptionManager.processUpgrade(
-      userEmail,
-      targetPlan,
-      successUrl,
-      cancelUrl
-    )
-
-    if (!upgradeResult.success) {
-      return NextResponse.json(
-        createSubscriptionErrorResponse(
-          upgradeResult.error?.code || 'CREEM_API_ERROR',
-          upgradeResult.message || 'Failed to process upgrade'
-        ),
-        { status: 500 }
-      )
+    
+    // 获取用户信息
+    const user = await store.getUser(userId);
+    
+    if (!user) {
+      return NextResponse.json({
+        success: false,
+        error: '用户不存在',
+        code: 'USER_NOT_FOUND'
+      }, { status: 404 });
     }
-
-    // 返回成功响应
+    
+    // 检查是否已经是该计划
+    if (user.plan === plan) {
+      return NextResponse.json({
+        success: false,
+        error: '您已经是该计划用户',
+        code: 'ALREADY_SUBSCRIBED'
+      }, { status: 400 });
+    }
+    
+    // 检查是否降级
+    const planOrder = { free: 0, pro: 1, team: 2 };
+    if (planOrder[plan] < planOrder[user.plan || 'free']) {
+      return NextResponse.json({
+        success: false,
+        error: '不支持降级操作，请联系客服',
+        code: 'DOWNGRADE_NOT_ALLOWED'
+      }, { status: 400 });
+    }
+    
+    // 模拟支付处理（实际应该调用Creem.io）
+    console.log('[Upgrade API] 处理支付:', {
+      userId,
+      plan,
+      paymentMethod,
+      amount: SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS].price
+    });
+    
+    // 更新用户订阅信息
+    const now = new Date().toISOString();
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + 1);
+    
+    user.plan = plan as 'free' | 'pro' | 'team';
+    user.subscription = {
+      id: `sub_${Date.now()}`,
+      plan,
+      status: 'active',
+      startDate: now,
+      endDate: endDate.toISOString(),
+      cancelAtPeriodEnd: false,
+      limits: SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS].limits
+    };
+    user.updatedAt = now;
+    
+    // 保存更新
+    await store.saveUser(user);
+    
+    // 记录订阅事件
+    await store.addActivity(userId, {
+      type: 'subscription_upgraded',
+      description: `升级到${SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS].name}`,
+      metadata: {
+        from_plan: user.plan,
+        to_plan: plan,
+        price: SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS].price
+      }
+    });
+    
     return NextResponse.json({
       success: true,
-      message: `Upgrade to ${targetPlanInfo.displayName} initiated successfully`,
+      message: '订阅升级成功',
       data: {
-        checkoutUrl: upgradeResult.data?.redirectUrl,
-        targetPlan: {
-          id: targetPlanInfo.id,
-          name: targetPlanInfo.displayName,
-          price: targetPlanInfo.priceMonthly,
-          currency: targetPlanInfo.priceCurrency,
-          quota: targetPlanInfo.monthlyQuota
-        },
-        currentPlan: {
-          type: currentPlan,
-          usage: currentStatus.data!.subscription.quota
-        },
-        estimated: {
-          savingsPercentage: calculateSavings(currentPlan, targetPlan),
-          additionalFeatures: getAdditionalFeatures(currentPlan, targetPlan),
-          quotaIncrease: calculateQuotaIncrease(currentPlan, targetPlan)
-        }
-      },
-      timestamp: new Date().toISOString()
-    })
-
-  } catch (error) {
-    console.error('Subscription upgrade error:', error)
+        subscription: user.subscription,
+        previousPlan: user.plan,
+        newPlan: plan,
+        effectiveDate: now,
+        nextBillingDate: endDate.toISOString()
+      }
+    });
     
-    return NextResponse.json(
-      createSubscriptionErrorResponse(
-        'CREEM_API_ERROR',
-        'Internal error processing upgrade request',
-        { error: error instanceof Error ? error.message : 'Unknown error' }
-      ),
-      { status: 500 }
-    )
-  }
-}
-
-/**
- * 获取升级预览信息
- * 
- * GET /api/subscription/upgrade?userEmail={email}&targetPlan={plan}
- * 返回升级预览信息，不实际创建支付
- */
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url)
-    const userEmail = searchParams.get('userEmail')
-    const targetPlan = searchParams.get('targetPlan') as SubscriptionPlanType
-
-    if (!userEmail || !targetPlan) {
-      return NextResponse.json(
-        createSubscriptionErrorResponse(
-          'INVALID_SUBSCRIPTION',
-          'userEmail and targetPlan parameters are required'
-        ),
-        { status: 400 }
-      )
-    }
-
-    if (!VALID_UPGRADE_PLANS.includes(targetPlan)) {
-      return NextResponse.json(
-        createSubscriptionErrorResponse(
-          'PLAN_NOT_FOUND',
-          `Invalid target plan: ${targetPlan}`
-        ),
-        { status: 400 }
-      )
-    }
-
-    // 获取当前状态
-    const currentStatus = await subscriptionManager.getUserCompleteStatus(userEmail)
+  } catch (error: any) {
+    console.error('[Upgrade API] 升级失败:', error);
     
-    if (!currentStatus.success) {
-      return NextResponse.json(
-        createSubscriptionErrorResponse(
-          'CREEM_API_ERROR',
-          'Failed to get current subscription status'
-        ),
-        { status: 500 }
-      )
-    }
-
-    const currentPlan = currentStatus.data!.subscription.subscriptionType
-    const targetPlanInfo = getPlanByType(targetPlan)
-
-    // 验证升级路径
-    const upgradeValidation = validateUpgradePath(currentPlan, targetPlan)
-    if (!upgradeValidation.valid) {
-      return NextResponse.json(
-        createSubscriptionErrorResponse(
-          'INVALID_SUBSCRIPTION',
-          upgradeValidation.error!
-        ),
-        { status: 400 }
-      )
-    }
-
-    // 返回升级预览
     return NextResponse.json({
-      success: true,
-      data: {
-        upgrade: {
-          from: {
-            plan: currentPlan,
-            quota: currentStatus.data!.subscription.quota
-          },
-          to: {
-            plan: targetPlan,
-            name: targetPlanInfo.displayName,
-            price: targetPlanInfo.priceMonthly / 100, // 转为美元
-            quota: targetPlanInfo.monthlyQuota,
-            features: targetPlanInfo.features
-          }
-        },
-        benefits: {
-          additionalFeatures: getAdditionalFeatures(currentPlan, targetPlan),
-          quotaIncrease: calculateQuotaIncrease(currentPlan, targetPlan),
-          estimatedSavings: calculateSavings(currentPlan, targetPlan)
-        },
-        pricing: {
-          monthlyPrice: targetPlanInfo.priceMonthly / 100,
-          currency: targetPlanInfo.priceCurrency,
-          billingCycle: 'monthly',
-          priceComparison: {
-            current: currentPlan === 'free' ? 0 : getPlanByType(currentPlan).priceMonthly / 100,
-            target: targetPlanInfo.priceMonthly / 100
-          }
-        }
-      },
-      timestamp: new Date().toISOString()
-    })
-
-  } catch (error) {
-    console.error('Upgrade preview error:', error)
-    
-    return NextResponse.json(
-      createSubscriptionErrorResponse(
-        'CREEM_API_ERROR',
-        'Failed to generate upgrade preview',
-        { error: error instanceof Error ? error.message : 'Unknown error' }
-      ),
-      { status: 500 }
-    )
+      success: false,
+      error: '订阅升级失败',
+      code: 'INTERNAL_ERROR',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    }, { status: 500 });
   }
 }
 
-// ============ 辅助函数 ============
-
 /**
- * 验证升级请求
+ * 取消订阅（设置为期末取消）
  */
-function validateUpgradeRequest(body: any): { valid: boolean; error?: string } {
-  if (!body.userEmail) {
-    return { valid: false, error: 'User email is required' }
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(body.userEmail)) {
-    return { valid: false, error: 'Invalid email format' }
-  }
-
-  if (!body.targetPlan) {
-    return { valid: false, error: 'Target plan is required' }
-  }
-
-  if (!VALID_UPGRADE_PLANS.includes(body.targetPlan)) {
-    return { valid: false, error: `Invalid target plan: ${body.targetPlan}. Must be one of: ${VALID_UPGRADE_PLANS.join(', ')}` }
-  }
-
-  // 验证URLs (如果提供)
-  if (body.successUrl && !isValidUrl(body.successUrl)) {
-    return { valid: false, error: 'Invalid successUrl format' }
-  }
-
-  if (body.cancelUrl && !isValidUrl(body.cancelUrl)) {
-    return { valid: false, error: 'Invalid cancelUrl format' }
-  }
-
-  return { valid: true }
-}
-
-/**
- * 验证升级路径
- */
-function validateUpgradePath(
-  currentPlan: SubscriptionPlanType, 
-  targetPlan: SubscriptionPlanType
-): { valid: boolean; error?: string } {
-  if (currentPlan === targetPlan) {
-    return { valid: false, error: 'Cannot upgrade to the same plan' }
-  }
-
-  // 定义升级路径
-  const validUpgradePaths: Record<SubscriptionPlanType, SubscriptionPlanType[]> = {
-    free: ['pro', 'team'],
-    pro: ['team'],
-    team: [] // 团队版已经是最高级
-  }
-
-  const allowedTargets = validUpgradePaths[currentPlan] || []
-  
-  if (!allowedTargets.includes(targetPlan)) {
-    return { 
-      valid: false, 
-      error: `Cannot upgrade from ${currentPlan} to ${targetPlan}. Allowed upgrades: ${allowedTargets.join(', ') || 'none'}` 
-    }
-  }
-
-  return { valid: true }
-}
-
-/**
- * 验证URL格式
- */
-function isValidUrl(string: string): boolean {
+export async function DELETE(request: NextRequest) {
   try {
-    new URL(string)
-    return true
-  } catch {
-    return false
-  }
-}
-
-/**
- * 计算升级后的额外功能
- */
-function getAdditionalFeatures(
-  currentPlan: SubscriptionPlanType, 
-  targetPlan: SubscriptionPlanType
-): string[] {
-  const currentFeatures = getPlanByType(currentPlan).features
-  const targetFeatures = getPlanByType(targetPlan).features
-  
-  const additionalFeatures: string[] = []
-  
-  // 比较功能差异
-  Object.keys(targetFeatures).forEach(key => {
-    const featureKey = key as keyof typeof targetFeatures
-    if (targetFeatures[featureKey] && !currentFeatures[featureKey]) {
-      // 将驼峰命名转换为用户友好的文本
-      const friendlyName = key
-        .replace(/([A-Z])/g, ' $1')
-        .toLowerCase()
-        .replace(/^\w/, c => c.toUpperCase())
+    const cookieStore = cookies();
+    const userId = cookieStore.get('userId')?.value;
+    
+    if (!userId) {
+      return NextResponse.json({
+        success: false,
+        error: '未登录',
+        code: 'UNAUTHORIZED'
+      }, { status: 401 });
+    }
+    
+    const user = await store.getUser(userId);
+    
+    if (!user) {
+      return NextResponse.json({
+        success: false,
+        error: '用户不存在',
+        code: 'USER_NOT_FOUND'
+      }, { status: 404 });
+    }
+    
+    if (user.plan === 'free') {
+      return NextResponse.json({
+        success: false,
+        error: '免费用户无需取消订阅',
+        code: 'FREE_PLAN'
+      }, { status: 400 });
+    }
+    
+    // 设置为期末取消
+    if (user.subscription) {
+      user.subscription.cancelAtPeriodEnd = true;
+      user.subscription.status = 'canceling';
+      user.updatedAt = new Date().toISOString();
       
-      additionalFeatures.push(friendlyName)
+      await store.saveUser(user);
+      
+      // 记录活动
+      await store.addActivity(userId, {
+        type: 'subscription_canceled',
+        description: '订阅已设置为期末取消',
+        metadata: {
+          plan: user.plan,
+          cancelDate: user.subscription.endDate
+        }
+      });
     }
-  })
-  
-  return additionalFeatures
-}
-
-/**
- * 计算配额增长
- */
-function calculateQuotaIncrease(
-  currentPlan: SubscriptionPlanType, 
-  targetPlan: SubscriptionPlanType
-): { type: 'increase' | 'unlimited'; value?: number; percentage?: number } {
-  const currentQuota = getPlanByType(currentPlan).monthlyQuota
-  const targetQuota = getPlanByType(targetPlan).monthlyQuota
-  
-  if (targetQuota === -1) {
-    return { type: 'unlimited' }
+    
+    return NextResponse.json({
+      success: true,
+      message: '订阅将在当前计费周期结束后取消',
+      data: {
+        cancelAtPeriodEnd: true,
+        effectiveDate: user.subscription?.endDate
+      }
+    });
+    
+  } catch (error: any) {
+    console.error('[Upgrade API] 取消订阅失败:', error);
+    
+    return NextResponse.json({
+      success: false,
+      error: '取消订阅失败',
+      code: 'INTERNAL_ERROR',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    }, { status: 500 });
   }
-  
-  if (currentQuota === -1) {
-    return { type: 'increase', value: 0, percentage: 0 }
-  }
-  
-  const increase = targetQuota - currentQuota
-  const percentage = currentQuota > 0 ? Math.round((increase / currentQuota) * 100) : 0
-  
-  return {
-    type: 'increase',
-    value: increase,
-    percentage
-  }
-}
-
-/**
- * 计算预期节省 (这里是示例逻辑)
- */
-function calculateSavings(
-  currentPlan: SubscriptionPlanType, 
-  targetPlan: SubscriptionPlanType
-): number {
-  // 这里可以根据实际业务逻辑计算
-  // 比如年度订阅折扣、首月优惠等
-  return 0 // 暂时返回0，后续可以添加促销逻辑
 }

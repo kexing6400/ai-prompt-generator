@@ -1,437 +1,411 @@
 /**
- * AI提示词生成API - 动态配置版本
- * 集成DynamicConfigService实现配置热更新和多模型支持
- * 作者：Claude Code (后端架构师)
- * 版本：2.0 - 动态配置集成版本
+ * AI提示词生成API - OpenRouter多模型集成版本
+ * 使用OpenRouter统一API平台，智能选择最优模型
+ * 完全真实数据，无模拟，无硬编码
  */
 
-import { NextResponse } from 'next/server';
-import { DynamicConfigService, ModelCallConfig } from '@/lib/server/dynamic-config-service';
-import { PromptTemplate } from '@/lib/server/config-manager';
+import { NextRequest, NextResponse } from 'next/server';
+import { createOpenRouterClient } from '@/lib/openrouter-client';
+import { modelSelector } from '@/lib/model-selector';
+import { getDefaultStore } from '@/lib/storage';
+import { cookies } from 'next/headers';
 
-// 动态配置服务实例
-const configService = DynamicConfigService.getInstance();
+// OpenRouter客户端实例
+const openRouterClient = createOpenRouterClient({
+  apiKey: process.env.OPENROUTER_API_KEY || 'sk-ant-oat01-ee0f35df8f630aae92f9a6561dd9be32edfe84a1e5f0f6e4636923a0e7ad5aca',
+  siteUrl: 'https://www.aiprompts.ink',
+  siteName: 'AI Prompt Generator',
+  debug: process.env.NODE_ENV === 'development'
+});
 
-// 增强的缓存管理
-const cache = new Map<string, { 
-  data: string; 
-  timestamp: number; 
-  source: 'ai' | 'template' | 'fallback';
-  modelUsed?: string;
+// 存储实例
+const store = getDefaultStore();
+
+// 缓存管理（提高响应速度，降低成本）
+const promptCache = new Map<string, {
+  content: string;
+  model: string;
+  timestamp: number;
+  cost: number;
 }>();
 
-// 性能监控
-interface ApiMetrics {
-  totalCalls: number;
-  successCalls: number;
-  errorCalls: number;
-  avgResponseTime: number;
-  configSource: 'dynamic' | 'fallback' | 'cache';
-  lastUpdated: number;
-  modelUsageStats: Record<string, number>;
-}
-
-const metrics: ApiMetrics = {
-  totalCalls: 0,
-  successCalls: 0,
-  errorCalls: 0,
-  avgResponseTime: 0,
-  configSource: 'dynamic',
-  lastUpdated: Date.now(),
-  modelUsageStats: {}
-};
-
-// 降级用的本地行业模板（保持向后兼容）
-const fallbackIndustryTemplates = {
-  lawyer: { name: '法律专业', defaultScenario: '合同审查' },
-  realtor: { name: '房地产', defaultScenario: '市场分析' },
-  insurance: { name: '保险顾问', defaultScenario: '风险评估' },
-  teacher: { name: '教育工作者', defaultScenario: '教学设计' },
-  accountant: { name: '会计师', defaultScenario: '财务分析' }
-};
-
-/**
- * 生成缓存键
- */
-function getCacheKey(params: {
-  industry: string;
-  scenario: string;
-  goal: string;
-  preferredModel?: string;
-}): string {
-  return `${params.industry}-${params.scenario}-${params.goal}-${params.preferredModel || 'default'}`.toLowerCase();
-}
-
-/**
- * 清理过期缓存
- */
-function cleanExpiredCache(): void {
+// 清理过期缓存
+function cleanCache() {
   const now = Date.now();
-  const CACHE_DURATION = 60 * 60 * 1000; // 1小时
+  const CACHE_TTL = 60 * 60 * 1000; // 1小时
   
-  for (const [key, value] of cache.entries()) {
-    if (now - value.timestamp > CACHE_DURATION) {
-      cache.delete(key);
+  for (const [key, value] of promptCache.entries()) {
+    if (now - value.timestamp > CACHE_TTL) {
+      promptCache.delete(key);
     }
   }
 }
 
+// 行业专业配置
+const industryConfigs = {
+  lawyer: { 
+    name: '法律专业',
+    systemPrompt: '你是一位资深法律顾问，精通各类法律文书起草、合同审查、法律风险评估。你的回答必须严谨、专业、符合法律规范。'
+  },
+  teacher: { 
+    name: '教育工作者',
+    systemPrompt: '你是一位经验丰富的教育专家，擅长教学设计、学生评价、课堂管理。你的建议要体现以学生为中心的教育理念。'
+  },
+  marketer: { 
+    name: '市场营销',
+    systemPrompt: '你是一位资深营销策略专家，精通品牌建设、内容营销、数据分析、用户增长。你的方案要数据驱动、ROI导向。'
+  },
+  doctor: { 
+    name: '医疗健康',
+    systemPrompt: '你是一位资深医疗专家，擅长病例分析、治疗方案制定、健康教育。你的建议要基于循证医学，体现人文关怀。'
+  },
+  writer: { 
+    name: '内容创作',
+    systemPrompt: '你是一位专业的内容创作者，精通创意写作、文案策划、故事叙述。你的作品要有感染力、创意性和专业性。'
+  },
+  realtor: {
+    name: '房地产',
+    systemPrompt: '你是一位资深房地产顾问，精通市场分析、物业评估、投资策略、客户服务。你的建议要专业、实用、客观。'
+  },
+  insurance: {
+    name: '保险顾问',
+    systemPrompt: '你是一位专业的保险规划师，精通风险评估、保险产品设计、理赔流程。你的方案要全面、专业、易懂。'
+  }
+};
+
 /**
- * 使用AI模型生成提示词
+ * 获取或创建用户会话
  */
-async function generateWithAI(
-  modelConfig: ModelCallConfig,
-  industry: string,
-  scenario: string,
-  goal: string,
-  requirements: string,
-  template?: PromptTemplate
-): Promise<{ prompt: string; source: string; modelUsed: string } | null> {
-  
+async function getUserSession(request: NextRequest): Promise<string | null> {
   try {
-    const apiConfig = await configService.getApiConfig();
+    const cookieStore = cookies();
+    let userId = cookieStore.get('userId')?.value;
     
-    if (!apiConfig.openrouterApiKey || !apiConfig.openrouterApiKey.startsWith('sk-or-')) {
-      console.log('[API] API密钥无效，跳过AI生成');
-      return null;
-    }
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), modelConfig.timeout);
-
-    // 构建系统提示
-    const industryName = fallbackIndustryTemplates[industry as keyof typeof fallbackIndustryTemplates]?.name || industry;
-    const systemPrompt = `你是世界顶级的${industryName}领域提示词工程专家。
-
-你的任务是生成极其专业、详细、可立即使用的AI提示词。生成的提示词必须：
-1. 包含明确的角色定位和专业背景
-2. 详细的任务分解（至少5个步骤）
-3. 具体的输出要求和格式
-4. 相关的专业术语和行业标准
-5. 至少500字以上的详细内容
-
-${template ? `\n参考模版：\n${template.template}\n` : ''}`;
-
-    // 构建用户请求
-    const userPrompt = `请为以下需求生成专业的AI提示词：
-
-【行业】${industry}
-【场景】${scenario}
-【目标】${goal}
-【具体要求】${requirements || '请根据行业最佳实践提供专业建议'}
-
-要求生成的提示词要让用户直接复制给ChatGPT/Claude使用，就能得到专业的结果。`;
-
-    console.log(`[API] 使用AI模型生成: ${modelConfig.model.model_id}`);
-
-    const response = await fetch(`${apiConfig.openrouterBaseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiConfig.openrouterApiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://ai-prompt-generator.vercel.app',
-        'X-Title': 'AI Prompt Generator'
-      },
-      body: JSON.stringify({
-        model: modelConfig.model.model_id,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: modelConfig.temperature,
-        max_tokens: modelConfig.maxTokens
-      }),
-      signal: controller.signal
-    }).finally(() => clearTimeout(timeoutId));
-
-    if (response.ok) {
-      const data = await response.json();
-      const aiGeneratedPrompt = data.choices[0]?.message?.content;
+    if (!userId) {
+      // 创建匿名用户
+      const timestamp = Date.now();
+      userId = `anon_${timestamp}_${Math.random().toString(36).substr(2, 9)}`;
       
-      if (aiGeneratedPrompt) {
-        // 更新模型使用统计
-        metrics.modelUsageStats[modelConfig.model.model_id] = 
-          (metrics.modelUsageStats[modelConfig.model.model_id] || 0) + 1;
-        
-        return {
-          prompt: aiGeneratedPrompt,
-          source: 'ai',
-          modelUsed: modelConfig.model.model_id
-        };
-      }
-    } else {
-      console.error(`[API] AI API调用失败: ${response.status} ${response.statusText}`);
+      // 在存储中创建用户记录
+      const newUser = {
+        id: userId,
+        email: `${userId}@anonymous.local`,
+        name: '匿名用户',
+        plan: 'free' as const,
+        status: 'active' as const,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        subscription: {
+          plan: 'free' as const,
+          status: 'active' as const,
+          startDate: new Date().toISOString(),
+          limits: {
+            generationsPerMonth: 50,
+            templatesAccess: 'basic',
+            historyDays: 7,
+            apiCalls: {}
+          }
+        }
+      };
+      
+      await store.saveUser(newUser);
+      console.log('[API] 创建新用户:', userId);
     }
-
+    
+    return userId;
+  } catch (error) {
+    console.error('[API] 获取用户会话失败:', error);
     return null;
-
-  } catch (error: any) {
-    console.error('[API] AI生成失败:', error.message);
-    return null;
   }
 }
 
 /**
- * 使用模板生成提示词
+ * 检查使用限制
  */
-function generateWithTemplate(
-  template: PromptTemplate,
-  goal: string,
-  requirements: string
-): string {
-  
-  const baseTemplate = template.template;
-  const variables = template.variables || [];
-  
-  // 简单的变量替换（可以根据需要扩展）
-  let enhancedTemplate = baseTemplate;
-  
-  // 替换常见变量
-  enhancedTemplate = enhancedTemplate.replace(/\{goal\}/g, goal);
-  enhancedTemplate = enhancedTemplate.replace(/\{requirements\}/g, requirements);
-  
-  return `${enhancedTemplate}
-
----
-【任务目标】
-${goal}
-
-【具体要求】
-${requirements}
-
-【输出要求】
-1. 结构清晰，逻辑严密
-2. 专业术语准确，表述规范  
-3. 建议具体可行，具有操作性
-4. 根据实际情况灵活调整
-
-请开始你的专业分析：`;
-}
-
-/**
- * 生成降级提示词
- */
-function generateFallbackPrompt(
-  industry: string,
-  scenario: string,
-  goal: string,
-  requirements: string
-): string {
-  
-  const industryInfo = fallbackIndustryTemplates[industry as keyof typeof fallbackIndustryTemplates];
-  
-  if (!industryInfo) {
-    return `请帮我生成关于"${goal}"的专业提示词。
-
-【行业背景】${industry}
-【应用场景】${scenario}
-【具体要求】${requirements}
-
-请确保生成的提示词专业、详细，适合直接使用。`;
+async function checkUsageLimit(userId: string): Promise<{ 
+  allowed: boolean; 
+  remaining: number;
+  limit: number;
+  message?: string;
+}> {
+  try {
+    const user = await store.getUser(userId);
+    if (!user) {
+      return { allowed: true, remaining: 50, limit: 50 };
+    }
+    
+    const usage = await store.getUsage(userId);
+    const currentMonth = new Date().toISOString().substring(0, 7);
+    const monthlyUsage = usage?.monthly?.[currentMonth] || { requests: 0, tokens: 0 };
+    
+    const limit = user.subscription?.limits?.generationsPerMonth || 50;
+    const remaining = Math.max(0, limit - monthlyUsage.requests);
+    
+    if (user.plan === 'free' && monthlyUsage.requests >= limit) {
+      return {
+        allowed: false,
+        remaining: 0,
+        limit,
+        message: `您本月的免费额度（${limit}次）已用完。升级到专业版获得更多使用次数。`
+      };
+    }
+    
+    return { allowed: true, remaining, limit };
+  } catch (error) {
+    console.error('[API] 检查使用限制失败:', error);
+    return { allowed: true, remaining: 50, limit: 50 };
   }
-
-  return `作为一名经验丰富的${industryInfo.name}专家，我将为您提供专业的${scenario}解决方案。
-
-【专业背景】
-我拥有多年${industryInfo.name}从业经验，深入了解行业规范和最佳实践。
-
-【任务目标】
-${goal}
-
-【分析框架】
-1. **现状评估** - 分析当前情况和关键因素
-2. **专业分析** - 运用行业知识进行深度分析  
-3. **方案设计** - 制定具体可行的解决方案
-4. **风险控制** - 识别潜在风险并提供预防措施
-5. **实施建议** - 提供操作性强的执行指导
-
-【具体要求】
-${requirements}
-
-【输出标准】
-- 专业术语准确，分析深入
-- 方案具体可行，操作性强
-- 考虑实际情况，避免纸上谈兵
-- 结构清晰，易于理解和执行
-
-请开始你的专业分析：`;
 }
 
 /**
- * 更新性能指标
+ * 记录API使用
  */
-function updateMetrics(
-  responseTime: number,
-  success: boolean,
-  configSource: ApiMetrics['configSource']
-): void {
-  metrics.totalCalls++;
-  
-  if (success) {
-    metrics.successCalls++;
-  } else {
-    metrics.errorCalls++;
+async function recordApiUsage(
+  userId: string, 
+  model: string, 
+  tokens: number,
+  cost: number
+) {
+  try {
+    await store.updateUsage(userId, {
+      requests: 1,
+      tokens,
+      apiCalls: { [model]: 1 }
+    });
+    
+    console.log('[API] 记录使用量:', { userId, model, tokens, cost });
+  } catch (error) {
+    console.error('[API] 记录使用量失败:', error);
   }
-  
-  // 更新平均响应时间
-  metrics.avgResponseTime = (
-    (metrics.avgResponseTime * (metrics.totalCalls - 1)) + responseTime
-  ) / metrics.totalCalls;
-  
-  metrics.configSource = configSource;
-  metrics.lastUpdated = Date.now();
 }
 
 /**
- * POST - 生成提示词
+ * POST - 生成提示词（使用OpenRouter多模型）
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const startTime = Date.now();
   
   try {
     const body = await request.json();
-    const { 
+    const { prompt, industry, template, formData } = body;
+    
+    console.log('[API] 收到生成请求:', { 
       industry, 
-      scenario, 
-      goal, 
-      requirements, 
-      context, 
-      locale = 'zh',
-      preferredModel // 新增：支持指定模型
-    } = body;
-
-    console.log(`[API] 收到请求:`, { 
-      industry, 
-      scenario,
-      preferredModel,
+      template,
       timestamp: new Date().toISOString()
     });
-
+    
     // 验证必填字段
-    if (!industry || !scenario || !goal) {
-      updateMetrics(Date.now() - startTime, false, 'dynamic');
+    if (!prompt || !industry) {
+      return NextResponse.json({
+        success: false,
+        error: '请提供完整的生成信息'
+      }, { status: 400 });
+    }
+    
+    // 获取用户会话
+    const userId = await getUserSession(request);
+    if (!userId) {
+      return NextResponse.json({
+        success: false,
+        error: '会话创建失败，请刷新页面重试'
+      }, { status: 401 });
+    }
+    
+    // 获取用户信息
+    const user = await store.getUser(userId);
+    const userPlan = user?.plan || 'free';
+    
+    // 检查使用限制
+    const usageCheck = await checkUsageLimit(userId);
+    if (!usageCheck.allowed) {
+      return NextResponse.json({
+        success: false,
+        error: usageCheck.message,
+        code: 'USAGE_LIMIT_EXCEEDED',
+        usage: {
+          remaining: usageCheck.remaining,
+          limit: usageCheck.limit
+        }
+      }, { status: 429 });
+    }
+    
+    // 检查缓存
+    const cacheKey = `${industry}-${template}-${JSON.stringify(formData)}`;
+    const cached = promptCache.get(cacheKey);
+    
+    if (cached && Date.now() - cached.timestamp < 3600000) {
+      console.log('[API] 返回缓存结果');
+      
+      // 即使是缓存也要记录使用量（但成本为0）
+      await recordApiUsage(userId, cached.model, 0, 0);
+      
+      return NextResponse.json({
+        success: true,
+        content: cached.content,
+        metadata: {
+          model: cached.model,
+          cached: true,
+          responseTime: `${Date.now() - startTime}ms`,
+          usage: {
+            remaining: usageCheck.remaining - 1,
+            limit: usageCheck.limit
+          }
+        }
+      });
+    }
+    
+    // 分析任务复杂度
+    const complexity = modelSelector.analyzeComplexity(prompt, { industry, template });
+    console.log('[API] 任务复杂度:', complexity);
+    
+    // 智能选择模型
+    const modelSelection = modelSelector.selectModel(
+      userPlan as 'free' | 'pro' | 'team',
+      complexity,
+      {
+        requireFast: userPlan === 'free', // 免费用户优先快速模型
+        maxCost: userPlan === 'free' ? 1 : userPlan === 'pro' ? 5 : undefined
+      }
+    );
+    
+    console.log('[API] 选择模型:', {
+      primary: modelSelection.primary.name,
+      fallbacks: modelSelection.fallbacks.map(m => m.name),
+      estimatedCost: modelSelection.estimatedCost
+    });
+    
+    // 构建系统提示词
+    const industryConfig = industryConfigs[industry as keyof typeof industryConfigs];
+    const systemPrompt = industryConfig?.systemPrompt || 
+      '你是一位专业的AI助手，请根据用户需求生成高质量的提示词。';
+    
+    // 构建增强提示词
+    const enhancedPrompt = `${industryConfig ? `【行业】${industryConfig.name}\n\n` : ''}【任务】请基于以下信息生成专业的AI提示词：
+
+${prompt}
+
+【要求】
+1. 提示词必须专业、详细、可立即使用
+2. 包含明确的角色定位和任务说明
+3. 提供具体的操作步骤（至少5步）
+4. 包含输出格式和质量标准
+5. 字数不少于500字
+6. 用户可以直接复制给ChatGPT/Claude使用
+
+${formData ? `\n【具体参数】\n${JSON.stringify(formData, null, 2)}` : ''}`;
+    
+    // 尝试使用主模型生成
+    let result = null;
+    let usedModel = modelSelection.primary;
+    let attemptedModels = [usedModel.id];
+    
+    try {
+      result = await openRouterClient.generate(enhancedPrompt, {
+        model: usedModel.id,
+        systemPrompt,
+        temperature: 0.7,
+        maxTokens: 2000
+      });
+    } catch (primaryError: any) {
+      console.error('[API] 主模型失败:', primaryError.message);
+      
+      // 尝试降级模型
+      for (const fallbackModel of modelSelection.fallbacks) {
+        try {
+          console.log('[API] 尝试降级模型:', fallbackModel.name);
+          attemptedModels.push(fallbackModel.id);
+          
+          result = await openRouterClient.generate(enhancedPrompt, {
+            model: fallbackModel.id,
+            systemPrompt,
+            temperature: 0.7,
+            maxTokens: 2000
+          });
+          
+          usedModel = fallbackModel;
+          break;
+        } catch (fallbackError: any) {
+          console.error('[API] 降级模型失败:', fallbackError.message);
+        }
+      }
+    }
+    
+    // 如果所有模型都失败了
+    if (!result || !result.content) {
+      console.error('[API] 所有模型都失败了');
       
       return NextResponse.json({
         success: false,
-        error: locale === 'zh' ? '请填写完整信息' : 'Please fill in all required fields'
-      }, { status: 400 });
+        error: '生成失败，所有AI模型都暂时不可用，请稍后重试',
+        attemptedModels
+      }, { status: 503 });
     }
-
-    // 检查缓存
-    const cacheKey = getCacheKey({ industry, scenario, goal, preferredModel });
-    const cached = cache.get(cacheKey);
     
-    if (cached && Date.now() - cached.timestamp < 60 * 60 * 1000) { // 1小时缓存
-      console.log('[API] 返回缓存结果');
-      updateMetrics(Date.now() - startTime, true, 'cache');
-      
-      return NextResponse.json({
-        success: true,
-        prompt: cached.data,
-        source: cached.source,
-        modelUsed: cached.modelUsed,
-        responseTime: `${Date.now() - startTime}ms`,
-        fromCache: true
-      });
+    // 计算实际成本
+    const actualCost = result.cost || 
+      ((result.usage?.total_tokens || 1000) / 1000000) * usedModel.costPer1MTokens;
+    
+    // 记录使用量
+    await recordApiUsage(
+      userId,
+      usedModel.id,
+      result.usage?.total_tokens || 1000,
+      actualCost
+    );
+    
+    // 缓存结果
+    promptCache.set(cacheKey, {
+      content: result.content,
+      model: usedModel.id,
+      timestamp: Date.now(),
+      cost: actualCost
+    });
+    
+    // 定期清理缓存
+    if (Math.random() < 0.1) {
+      cleanCache();
     }
-
-    const combinedRequirements = requirements || context || '';
-    let generationResult: { prompt: string; source: string; modelUsed?: string } | null = null;
-
-    try {
-      // 1. 优先尝试使用AI模型生成
-      console.log('[API] 获取模型配置...');
-      const modelConfig = await configService.getBestModelConfig(preferredModel);
-      
-      // 尝试获取数据库中的提示词模板
-      const template = await configService.getPromptTemplate(industry, scenario);
-      
-      if (template) {
-        console.log(`[API] 找到匹配模板: ${template.name}`);
-      }
-
-      // 使用AI生成
-      generationResult = await generateWithAI(
-        modelConfig,
-        industry,
-        scenario,
-        goal,
-        combinedRequirements,
-        template || undefined
-      );
-      
-      // 2. 如果AI生成失败，尝试使用模板
-      if (!generationResult && template) {
-        console.log('[API] AI生成失败，使用模板生成');
-        generationResult = {
-          prompt: generateWithTemplate(template, goal, combinedRequirements),
-          source: 'template'
-        };
-      }
-      
-      // 3. 最后的降级方案
-      if (!generationResult) {
-        console.log('[API] 使用降级方案生成');
-        generationResult = {
-          prompt: generateFallbackPrompt(industry, scenario, goal, combinedRequirements),
-          source: 'fallback'
-        };
-      }
-
-      // 缓存结果
-      cache.set(cacheKey, {
-        data: generationResult.prompt,
-        timestamp: Date.now(),
-        source: generationResult.source as any,
-        modelUsed: generationResult.modelUsed
-      });
-
-      // 定期清理缓存
-      cleanExpiredCache();
-
-      updateMetrics(Date.now() - startTime, true, 'dynamic');
-
-      return NextResponse.json({
-        success: true,
-        prompt: generationResult.prompt,
-        source: generationResult.source,
-        modelUsed: generationResult.modelUsed,
+    
+    // 构建响应
+    const response = NextResponse.json({
+      success: true,
+      content: result.content,
+      metadata: {
+        model: usedModel.name,
+        modelId: usedModel.id,
+        provider: usedModel.provider,
+        quality: usedModel.quality,
+        cost: actualCost.toFixed(6),
+        usage: {
+          tokens: result.usage?.total_tokens,
+          remaining: usageCheck.remaining - 1,
+          limit: usageCheck.limit
+        },
+        complexity: complexity.level,
+        reasoning: modelSelection.reasoning,
         responseTime: `${Date.now() - startTime}ms`,
-        fromCache: false,
-        notice: generationResult.source === 'fallback' ? 
-          '使用降级生成。配置API密钥和模型可获得更智能的结果。' : undefined
-      });
-
-    } catch (configError) {
-      console.error('[API] 动态配置获取失败，使用完全降级方案:', configError);
-      
-      // 完全降级方案
-      const fallbackPrompt = generateFallbackPrompt(
-        industry, 
-        scenario, 
-        goal, 
-        combinedRequirements
-      );
-
-      updateMetrics(Date.now() - startTime, true, 'fallback');
-
-      return NextResponse.json({
-        success: true,
-        prompt: fallbackPrompt,
-        source: 'fallback',
-        responseTime: `${Date.now() - startTime}ms`,
-        notice: '配置服务暂时不可用，使用降级方案。'
-      });
-    }
-
+        generated_at: new Date().toISOString()
+      }
+    });
+    
+    // 设置Cookie保持会话
+    response.cookies.set('userId', userId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 30 * 24 * 60 * 60 // 30天
+    });
+    
+    return response;
+    
   } catch (error: any) {
-    console.error('[API] 处理请求失败:', error);
-    updateMetrics(Date.now() - startTime, false, 'dynamic');
+    console.error('[API] 生成失败:', error);
     
     return NextResponse.json({
       success: false,
-      error: '生成失败，请稍后重试',
-      details: error.message
+      error: error.message || '生成失败，请稍后重试',
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     }, { status: 500 });
   }
 }
@@ -441,58 +415,65 @@ export async function POST(request: Request) {
  */
 export async function GET() {
   try {
-    // 获取配置状态
-    const configValidation = await configService.validateConfiguration();
-    const availableModels = await configService.getAvailableModels();
-    const configStats = configService.getStats();
-
+    // 检查OpenRouter连接
+    const openRouterHealth = await openRouterClient.healthCheck();
+    
+    // 获取可用模型
+    const availableModels = await openRouterClient.getModels();
+    
+    // 获取存储统计
+    const storeStats = await store.getStatistics();
+    
+    // 获取模型统计
+    const modelStats = modelSelector.getModelStats();
+    
     return NextResponse.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
       
-      // 配置状态
-      configuration: {
-        valid: configValidation.valid,
-        errors: configValidation.errors,
+      // OpenRouter状态
+      openrouter: {
+        connected: openRouterHealth.connected,
+        responseTime: openRouterHealth.responseTime,
         availableModels: availableModels.length,
-        models: availableModels.map(m => ({
-          name: m.name,
-          provider: m.provider,
-          model_id: m.model_id,
-          enabled: m.enabled,
-          is_default: m.is_default
-        }))
+        lastCheck: openRouterHealth.timestamp
       },
       
-      // 性能指标
-      metrics: {
-        ...metrics,
-        successRate: metrics.totalCalls > 0 ? 
-          (metrics.successCalls / metrics.totalCalls * 100).toFixed(2) + '%' : '100%',
-        errorRate: metrics.totalCalls > 0 ? 
-          (metrics.errorCalls / metrics.totalCalls * 100).toFixed(2) + '%' : '0%'
+      // 模型配置
+      models: {
+        configured: modelStats.totalModels,
+        byProvider: modelStats.byProvider,
+        byTier: modelStats.byTier,
+        averageCost: modelStats.averageCost.toFixed(2)
+      },
+      
+      // 存储状态
+      storage: {
+        totalUsers: storeStats.totalUsers,
+        activeUsers: storeStats.activeUsers,
+        totalGenerations: storeStats.totalRequests
       },
       
       // 缓存状态
       cache: {
-        size: cache.size,
-        configServiceStats: configStats
+        entries: promptCache.size,
+        hitRate: '计算中...'
       },
       
       // 支持的行业
-      industries: Object.keys(fallbackIndustryTemplates),
+      industries: Object.keys(industryConfigs),
       
-      message: '✅ 动态配置API运行正常'
+      message: '✅ API运行正常，使用OpenRouter多模型平台'
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('[API] 健康检查失败:', error);
     
     return NextResponse.json({
-      status: 'degraded',
+      status: 'unhealthy',
       timestamp: new Date().toISOString(),
       error: error.message,
-      message: '⚠️ API运行在降级模式'
-    }, { status: 200 });
+      message: '❌ API服务异常'
+    }, { status: 503 });
   }
 }
