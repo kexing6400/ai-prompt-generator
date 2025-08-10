@@ -43,7 +43,7 @@ export interface TemplatesData {
 export const templatesData: TemplatesData = {
   "version": "2025.1",
   "lastUpdated": "2024-12-10",
-  "totalTemplates": 50,
+  "totalTemplates": 6,
   "industries": {
     "lawyer": {
       "name": "Legal Services",
