@@ -19,7 +19,11 @@ import {
   Copy, 
   CheckCircle2,
   AlertCircle,
-  Wand2
+  Wand2,
+  Download,
+  FileText,
+  File,
+  Printer
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { 
@@ -42,6 +46,8 @@ export default function SimplePromptGenerator({
   const [generatedResult, setGeneratedResult] = useState<GeneratedResult | null>(null)
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isDownloading, setIsDownloading] = useState(false)
+  const [downloadError, setDownloadError] = useState<string | null>(null)
 
   // 重置表单
   const resetForm = useCallback(() => {
@@ -155,7 +161,108 @@ export default function SimplePromptGenerator({
     setFormData({})
     setGeneratedResult(null)
     setError(null)
+    setDownloadError(null)
   }, [])
+
+  // 下载文档函数
+  const downloadDocument = useCallback(async (format: 'md' | 'txt' | 'html') => {
+    if (!generatedResult) return
+
+    setIsDownloading(true)
+    setDownloadError(null)
+
+    try {
+      const response = await fetch('/api/document/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: `${industry} - ${generatedResult.template.title}`,
+          content: generatedResult.content,
+          format,
+          industry,
+          template: generatedResult.template.title
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('下载失败，请稍后重试')
+      }
+
+      const data = await response.json()
+      
+      if (!data.success) {
+        throw new Error(data.error || '下载失败')
+      }
+
+      // 创建下载链接
+      const blob = new Blob([data.content], { type: data.mimeType })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = data.fileName
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+
+    } catch (error) {
+      console.error('Download error:', error)
+      setDownloadError(error instanceof Error ? error.message : '下载失败，请稍后重试')
+    } finally {
+      setIsDownloading(false)
+    }
+  }, [generatedResult, industry])
+
+  // 打印为PDF
+  const printAsPDF = useCallback(async () => {
+    if (!generatedResult) return
+
+    setIsDownloading(true)
+    setDownloadError(null)
+
+    try {
+      const response = await fetch('/api/document/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: `${industry} - ${generatedResult.template.title}`,
+          content: generatedResult.content,
+          format: 'html',
+          industry,
+          template: generatedResult.template.title
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('生成PDF预览失败')
+      }
+
+      const data = await response.json()
+      
+      if (!data.success) {
+        throw new Error(data.error || '生成PDF预览失败')
+      }
+
+      // 在新窗口中打开HTML内容用于打印
+      const printWindow = window.open('', '_blank')
+      if (printWindow) {
+        printWindow.document.write(data.content)
+        printWindow.document.close()
+        printWindow.focus()
+        printWindow.print()
+      }
+
+    } catch (error) {
+      console.error('Print error:', error)
+      setDownloadError(error instanceof Error ? error.message : 'PDF生成失败')
+    } finally {
+      setIsDownloading(false)
+    }
+  }, [generatedResult, industry])
 
   return (
     <div className={cn("max-w-4xl mx-auto space-y-6", className)}>
@@ -310,7 +417,7 @@ export default function SimplePromptGenerator({
                 </div>
                 <CardTitle className="text-lg">生成结果</CardTitle>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -329,6 +436,44 @@ export default function SimplePromptGenerator({
                     </>
                   )}
                 </Button>
+                
+                {/* 下载按钮组 */}
+                <div className="flex gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadDocument('md')}
+                    disabled={isDownloading}
+                    className="flex items-center gap-1 text-xs"
+                    title="下载为Markdown格式"
+                  >
+                    <FileText className="h-3 w-3" />
+                    .md
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadDocument('txt')}
+                    disabled={isDownloading}
+                    className="flex items-center gap-1 text-xs"
+                    title="下载为文本格式"
+                  >
+                    <File className="h-3 w-3" />
+                    .txt
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={printAsPDF}
+                    disabled={isDownloading}
+                    className="flex items-center gap-1 text-xs"
+                    title="打印为PDF"
+                  >
+                    <Printer className="h-3 w-3" />
+                    PDF
+                  </Button>
+                </div>
+                
                 <Button
                   variant="outline"
                   size="sm"
@@ -341,13 +486,35 @@ export default function SimplePromptGenerator({
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="text-sm text-muted-foreground">
-                使用模板：{generatedResult.template.title}
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-muted-foreground">
+                  使用模板：{generatedResult.template.title}
+                </div>
+                {isDownloading && (
+                  <div className="flex items-center gap-2 text-sm text-blue-600">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    正在处理...
+                  </div>
+                )}
               </div>
+              
+              {/* 下载错误提示 */}
+              {downloadError && (
+                <div className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-lg">
+                  <AlertCircle className="h-4 w-4" />
+                  <span className="text-sm">{downloadError}</span>
+                </div>
+              )}
+              
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                 <pre className="whitespace-pre-wrap text-sm font-mono">
                   {generatedResult.content}
                 </pre>
+              </div>
+              
+              {/* 下载说明 */}
+              <div className="text-xs text-muted-foreground bg-blue-50 p-3 rounded-lg">
+                💡 提示：点击上方按钮可将提示词下载为不同格式的文档，方便保存和分享
               </div>
             </div>
           </CardContent>
@@ -363,8 +530,19 @@ export default function SimplePromptGenerator({
             <p className="text-muted-foreground mb-4 max-w-md">
               选择一个适合您需求的模板，填写相关信息，我们将为您生成专业的 AI 提示词
             </p>
-            <div className="text-sm text-muted-foreground">
-              💡 提示：所有模板都经过专业优化，确保最佳效果
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-yellow-500" />
+                专业模板优化
+              </div>
+              <div className="flex items-center gap-2">
+                <Download className="h-4 w-4 text-blue-500" />
+                一键文档下载
+              </div>
+              <div className="flex items-center gap-2">
+                <Copy className="h-4 w-4 text-green-500" />
+                快速复制使用
+              </div>
             </div>
           </CardContent>
         </Card>

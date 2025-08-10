@@ -10,6 +10,32 @@ export enum DocumentFormat {
   MD = 'markdown'
 }
 
+// 简化的文档格式枚举
+export enum SimpleDocumentFormat {
+  MARKDOWN = 'md',
+  TEXT = 'txt',
+  HTML = 'html'
+}
+
+// 简化的文档生成请求接口
+export interface SimpleDocumentRequest {
+  title: string;
+  content: string;
+  format: SimpleDocumentFormat;
+  industry?: string;
+  template?: string;
+  customFileName?: string;
+}
+
+// 简化的文档生成响应接口
+export interface SimpleDocumentResponse {
+  success: boolean;
+  content: string;
+  fileName: string;
+  mimeType: string;
+  error?: string;
+}
+
 // 文档模板类型枚举
 export enum DocumentTemplateType {
   LEGAL_CONTRACT = 'legal-contract',
