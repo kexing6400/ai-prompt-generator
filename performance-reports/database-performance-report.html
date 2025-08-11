@@ -1,0 +1,375 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据库性能分析报告</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.8rem;
+            font-weight: 300;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 40px;
+            background: #f8f9fa;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-left: 5px solid #667eea;
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .section {
+            padding: 40px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .section h2 {
+            margin: 0 0 25px 0;
+            color: #333;
+            font-size: 2rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+        .performance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .performance-table th,
+        .performance-table td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .performance-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+        .bottleneck {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-left: 5px solid #e53e3e;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .bottleneck.high {
+            border-left-color: #e53e3e;
+            background: #fff5f5;
+        }
+        .bottleneck.medium {
+            border-left-color: #ed8936;
+            background: #fffaf0;
+        }
+        .bottleneck.low {
+            border-left-color: #38a169;
+            background: #f0fff4;
+        }
+        .optimization {
+            background: #edf2f7;
+            border-left: 5px solid #4299e1;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💾 数据库性能分析报告</h1>
+            <p style="margin: 15px 0 0 0; opacity: 0.9; font-size: 1.2rem;">JSON文件存储系统深度分析</p>
+            <p style="margin: 10px 0 0 0; font-size: 0.9rem;">
+                分析时间: 8/12/2025, 5:10:40 AM - 8/12/2025, 5:10:40 AM
+            </p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">10</div>
+                <div class="stat-label">用户文件数量</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">2</div>
+                <div class="stat-label">使用量文件数量</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">0.0 MB</div>
+                <div class="stat-label">总存储大小</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">0.6 KB</div>
+                <div class="stat-label">平均文件大小</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⚡ 操作性能统计</h2>
+            <table class="performance-table">
+                <thead>
+                    <tr>
+                        <th>操作类型</th>
+                        <th>测试次数</th>
+                        <th>平均耗时 (ms)</th>
+                        <th>最快耗时 (ms)</th>
+                        <th>最慢耗时 (ms)</th>
+                        <th>性能评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+          <tr>
+            <td>单文件读取</td>
+            <td>10</td>
+            <td>0.3</td>
+            <td>0.2</td>
+            <td>0.4</td>
+            <td style="color: #28a745">优秀</td>
+          </tr>
+        
+          <tr>
+            <td>单文件写入</td>
+            <td>5</td>
+            <td>0.3</td>
+            <td>0.3</td>
+            <td>0.4</td>
+            <td style="color: #28a745">优秀</td>
+          </tr>
+        
+          <tr>
+            <td>批量读取</td>
+            <td>1</td>
+            <td>1.4</td>
+            <td>1.4</td>
+            <td>1.4</td>
+            <td style="color: #28a745">优秀</td>
+          </tr>
+        
+          <tr>
+            <td>批量写入</td>
+            <td>1</td>
+            <td>1.2</td>
+            <td>1.2</td>
+            <td>1.2</td>
+            <td style="color: #28a745">优秀</td>
+          </tr>
+        
+          <tr>
+            <td>文件搜索</td>
+            <td>5</td>
+            <td>2.8</td>
+            <td>2.6</td>
+            <td>3.0</td>
+            <td style="color: #28a745">优秀</td>
+          </tr>
+        
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>🔥 并发性能测试</h2>
+            
+      <table class="performance-table">
+        <thead>
+          <tr>
+            <th>并发级别</th>
+            <th>操作类型</th>
+            <th>总耗时 (ms)</th>
+            <th>平均耗时 (ms)</th>
+            <th>成功率 (%)</th>
+            <th>吞吐量 (ops/s)</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td>1</td>
+              <td>读取</td>
+              <td>0.3</td>
+              <td>0.3</td>
+              <td style="color: #28a745">100.0</td>
+              <td>3408.3</td>
+            </tr>
+          
+            <tr>
+              <td>5</td>
+              <td>读取</td>
+              <td>0.7</td>
+              <td>0.1</td>
+              <td style="color: #28a745">100.0</td>
+              <td>7187.0</td>
+            </tr>
+          
+            <tr>
+              <td>10</td>
+              <td>读取</td>
+              <td>1.4</td>
+              <td>0.1</td>
+              <td style="color: #28a745">100.0</td>
+              <td>7111.4</td>
+            </tr>
+          
+            <tr>
+              <td>20</td>
+              <td>读取</td>
+              <td>3.0</td>
+              <td>0.2</td>
+              <td style="color: #28a745">100.0</td>
+              <td>6588.5</td>
+            </tr>
+          
+          
+            <tr>
+              <td>1</td>
+              <td>写入</td>
+              <td>0.3</td>
+              <td>0.3</td>
+              <td style="color: #28a745">100.0</td>
+              <td>3076.0</td>
+            </tr>
+          
+            <tr>
+              <td>5</td>
+              <td>写入</td>
+              <td>0.6</td>
+              <td>0.1</td>
+              <td style="color: #28a745">100.0</td>
+              <td>8564.6</td>
+            </tr>
+          
+            <tr>
+              <td>10</td>
+              <td>写入</td>
+              <td>1.2</td>
+              <td>0.1</td>
+              <td style="color: #28a745">100.0</td>
+              <td>8068.4</td>
+            </tr>
+          
+            <tr>
+              <td>20</td>
+              <td>写入</td>
+              <td>2.3</td>
+              <td>0.1</td>
+              <td style="color: #28a745">100.0</td>
+              <td>8860.9</td>
+            </tr>
+          
+        </tbody>
+      </table>
+    
+        </div>
+
+        <div class="section">
+            <h2>💾 缓存性能分析</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                <div class="stat-card">
+                    <div class="stat-value">66.7%</div>
+                    <div class="stat-label">缓存命中率</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">0.00ms</div>
+                    <div class="stat-label">命中平均耗时</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">0.00ms</div>
+                    <div class="stat-label">未命中平均耗时</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⚠️ 性能瓶颈分析</h2>
+            
+        </div>
+
+        <div class="section">
+            <h2>🚀 优化建议</h2>
+            
+        </div>
+
+        <div class="section">
+            <h2>📊 索引推荐</h2>
+            <table class="performance-table">
+                <thead>
+                    <tr>
+                        <th>字段</th>
+                        <th>索引类型</th>
+                        <th>推荐原因</th>
+                        <th>实现方式</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                        <tr>
+                            <td>user.id</td>
+                            <td>HASH_INDEX</td>
+                            <td>用户ID是主键，需要O(1)访问时间</td>
+                            <td><code>Map<id, userData></code></td>
+                        </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+
+        <div style="text-align: center; padding: 30px; color: #666; background: #f8f9fa;">
+            <p style="margin: 0; font-size: 1.1rem;">数据库性能分析报告</p>
+            <p style="margin: 5px 0 0 0;">生成时间: 8/12/2025, 5:10:40 AM</p>
+            <p style="margin: 5px 0 0 0; font-size: 0.9rem;">Database Optimizer Team</p>
+        </div>
+    </div>
+</body>
+</html>

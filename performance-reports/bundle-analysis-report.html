@@ -1,0 +1,1373 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bundle分析报告 - 律师AI工作台</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 300;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        .metric-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .metric-label {
+            color: #666;
+            font-size: 1rem;
+        }
+        .good { color: #28a745; }
+        .warning { color: #ffc107; }
+        .danger { color: #dc3545; }
+        .section {
+            padding: 30px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .section h2 {
+            margin: 0 0 25px 0;
+            color: #333;
+            font-size: 1.8rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .chunk-list {
+            display: grid;
+            gap: 15px;
+        }
+        .chunk-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+        .chunk-item.large {
+            border-left-color: #ffc107;
+        }
+        .chunk-item.critical {
+            border-left-color: #dc3545;
+        }
+        .chunk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .chunk-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .chunk-size {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .webvitals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .vital-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .vital-card.needs-improvement {
+            border-left-color: #ffc107;
+        }
+        .vital-card.poor {
+            border-left-color: #dc3545;
+        }
+        .recommendations {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 25px;
+        }
+        .recommendation {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid #17a2b8;
+        }
+        .recommendation.high { border-left-color: #dc3545; }
+        .recommendation.medium { border-left-color: #ffc107; }
+        .recommendation.low { border-left-color: #28a745; }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #28a745;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 Bundle分析报告</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">律师AI工作台前端性能分析</p>
+            <p style="margin: 5px 0 0 0; font-size: 0.9rem;">生成时间: 8/12/2025, 5:10:40 AM</p>
+        </div>
+
+        <div class="summary-grid">
+            <div class="metric-card">
+                <div class="metric-value good">37.5 MB</div>
+                <div class="metric-label">总Bundle大小</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value good">7.2 MB</div>
+                <div class="metric-label">压缩后大小</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value warning">82</div>
+                <div class="metric-label">文件数量</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value warning">70</div>
+                <div class="metric-label">依赖数量</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎯 Core Web Vitals估算</h2>
+            <div class="webvitals-grid">
+                
+                    <div class="vital-card needs-improvement">
+                        <h4>FCP</h4>
+                        <p style="font-size: 1.5rem; margin: 10px 0;">
+                            67474ms
+                        </p>
+                        <p style="color: #666; margin: 0;">
+                            目标: 1800ms
+                        </p>
+                        <p style="margin: 5px 0 0 0; font-weight: bold; color: #ffc107;">
+                            NEEDS IMPROVEMENT
+                        </p>
+                    </div>
+                
+                    <div class="vital-card needs-improvement">
+                        <h4>LCP</h4>
+                        <p style="font-size: 1.5rem; margin: 10px 0;">
+                            68174ms
+                        </p>
+                        <p style="color: #666; margin: 0;">
+                            目标: 2500ms
+                        </p>
+                        <p style="margin: 5px 0 0 0; font-weight: bold; color: #ffc107;">
+                            NEEDS IMPROVEMENT
+                        </p>
+                    </div>
+                
+                    <div class="vital-card needs-improvement">
+                        <h4>TTI</h4>
+                        <p style="font-size: 1.5rem; margin: 10px 0;">
+                            96065ms
+                        </p>
+                        <p style="color: #666; margin: 0;">
+                            目标: 3800ms
+                        </p>
+                        <p style="margin: 5px 0 0 0; font-weight: bold; color: #ffc107;">
+                            NEEDS IMPROVEMENT
+                        </p>
+                    </div>
+                
+                    <div class="vital-card good">
+                        <h4>CLS</h4>
+                        <p style="font-size: 1.5rem; margin: 10px 0;">
+                            0.050
+                        </p>
+                        <p style="color: #666; margin: 0;">
+                            目标: 0.1
+                        </p>
+                        <p style="margin: 5px 0 0 0; font-weight: bold; color: #28a745;">
+                            GOOD
+                        </p>
+                    </div>
+                
+                    <div class="vital-card good">
+                        <h4>FID</h4>
+                        <p style="font-size: 1.5rem; margin: 10px 0;">
+                            50ms
+                        </p>
+                        <p style="color: #666; margin: 0;">
+                            目标: 100ms
+                        </p>
+                        <p style="margin: 5px 0 0 0; font-weight: bold; color: #28a745;">
+                            GOOD
+                        </p>
+                    </div>
+                
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📋 Chunk分析</h2>
+            <div class="chunk-list">
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">_app-pages-browser_locales_en_json</span>
+                            <span class="chunk-size">6.5 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/chunks/_app-pages-browser_locales_en_json.js</span>
+                             | 压缩率: 59.7%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">_app-pages-browser_locales_zh_json</span>
+                            <span class="chunk-size">5.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/chunks/_app-pages-browser_locales_zh_json.js</span>
+                             | 压缩率: 50.9%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">_error</span>
+                            <span class="chunk-size">3.3 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/chunks/pages/_error.js</span>
+                             | 压缩率: 57.9%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">page</span>
+                            <span class="chunk-size">2203.9 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/chunks/app/admin/page.js</span>
+                             | 压缩率: 81.9%
+                            
+                             | 大文件
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout</span>
+                            <span class="chunk-size">2049.7 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/chunks/app/layout.js</span>
+                             | 压缩率: 76.0%
+                            
+                             | 大文件
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">app-pages-internals</span>
+                            <span class="chunk-size">129.5 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/chunks/app-pages-internals.js</span>
+                             | 压缩率: 76.5%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">amp</span>
+                            <span class="chunk-size">3688.0 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/chunks/fallback/amp.js</span>
+                             | 压缩率: 76.8%
+                            
+                             | 大文件
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large critical">
+                        <div class="chunk-header">
+                            <span class="chunk-name">main</span>
+                            <span class="chunk-size">5048.1 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/chunks/main.js</span>
+                             | 压缩率: 77.5%
+                             | 关键路径
+                             | 大文件
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">_app</span>
+                            <span class="chunk-size">3.3 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/chunks/pages/_app.js</span>
+                             | 压缩率: 57.6%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">react-refresh</span>
+                            <span class="chunk-size">77.1 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/chunks/react-refresh.js</span>
+                             | 压缩率: 68.7%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack</span>
+                            <span class="chunk-size">55.2 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/chunks/webpack.js</span>
+                             | 压缩率: 81.3%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large critical">
+                        <div class="chunk-header">
+                            <span class="chunk-name">main-app</span>
+                            <span class="chunk-size">5885.1 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/chunks/main-app.js</span>
+                             | 压缩率: 77.7%
+                             | 关键路径
+                             | 大文件
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">polyfills</span>
+                            <span class="chunk-size">110.0 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/chunks/polyfills.js</span>
+                             | 压缩率: 64.9%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">_buildManifest</span>
+                            <span class="chunk-size">0.3 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/development/_buildManifest.js</span>
+                             | 压缩率: 23.8%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">_ssgManifest</span>
+                            <span class="chunk-size">0.1 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/development/_ssgManifest.js</span>
+                             | 压缩率: 0.0%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">page.136628be313969b7.hot-update</span>
+                            <span class="chunk-size">1008.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/admin/page.136628be313969b7.hot-update.js</span>
+                             | 压缩率: 88.5%
+                            
+                             | 大文件
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">page.1ab0c3cfa65e33e7.hot-update</span>
+                            <span class="chunk-size">1082.5 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/admin/page.1ab0c3cfa65e33e7.hot-update.js</span>
+                             | 压缩率: 88.4%
+                            
+                             | 大文件
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">page.641c1aa1282eac9b.hot-update</span>
+                            <span class="chunk-size">2201.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/admin/page.641c1aa1282eac9b.hot-update.js</span>
+                             | 压缩率: 81.9%
+                            
+                             | 大文件
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">page.64a68c42b6c5570f.hot-update</span>
+                            <span class="chunk-size">1085.9 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/admin/page.64a68c42b6c5570f.hot-update.js</span>
+                             | 压缩率: 88.5%
+                            
+                             | 大文件
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">page.682d04a152fb639e.hot-update</span>
+                            <span class="chunk-size">1081.4 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/admin/page.682d04a152fb639e.hot-update.js</span>
+                             | 压缩率: 88.4%
+                            
+                             | 大文件
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">page.75848bd051625c44.hot-update</span>
+                            <span class="chunk-size">1.1 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/admin/page.75848bd051625c44.hot-update.js</span>
+                             | 压缩率: 53.4%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">page.9d5ec58acf68f8e2.hot-update</span>
+                            <span class="chunk-size">1008.5 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/admin/page.9d5ec58acf68f8e2.hot-update.js</span>
+                             | 压缩率: 88.4%
+                            
+                             | 大文件
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">page.d70757f6b0f16094.hot-update</span>
+                            <span class="chunk-size">1016.1 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/admin/page.d70757f6b0f16094.hot-update.js</span>
+                             | 压缩率: 88.4%
+                            
+                             | 大文件
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">page.dc56fa40d79b77de.hot-update</span>
+                            <span class="chunk-size">1082.3 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/admin/page.dc56fa40d79b77de.hot-update.js</span>
+                             | 压缩率: 88.3%
+                            
+                             | 大文件
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">page.e7fc3fa38f918b1b.hot-update</span>
+                            <span class="chunk-size">1091.3 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/admin/page.e7fc3fa38f918b1b.hot-update.js</span>
+                             | 压缩率: 88.3%
+                            
+                             | 大文件
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">page.fddb8f9b48f10794.hot-update</span>
+                            <span class="chunk-size">1082.3 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/admin/page.fddb8f9b48f10794.hot-update.js</span>
+                             | 压缩率: 88.3%
+                            
+                             | 大文件
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">page.fea2a71109ed8432.hot-update</span>
+                            <span class="chunk-size">1009.2 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/admin/page.fea2a71109ed8432.hot-update.js</span>
+                             | 压缩率: 88.5%
+                            
+                             | 大文件
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.136628be313969b7.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.136628be313969b7.hot-update.js</span>
+                             | 压缩率: 38.5%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.1ab0c3cfa65e33e7.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.1ab0c3cfa65e33e7.hot-update.js</span>
+                             | 压缩率: 38.6%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.394d19c79fef4da0.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.394d19c79fef4da0.hot-update.js</span>
+                             | 压缩率: 38.5%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.3c18eefac8979d46.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.3c18eefac8979d46.hot-update.js</span>
+                             | 压缩率: 38.6%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.4199eb5dfe2d63de.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.4199eb5dfe2d63de.hot-update.js</span>
+                             | 压缩率: 38.5%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.641c1aa1282eac9b.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.641c1aa1282eac9b.hot-update.js</span>
+                             | 压缩率: 38.5%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.64a68c42b6c5570f.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.64a68c42b6c5570f.hot-update.js</span>
+                             | 压缩率: 38.7%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.64f6076062a496ec.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.64f6076062a496ec.hot-update.js</span>
+                             | 压缩率: 38.7%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.682d04a152fb639e.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.682d04a152fb639e.hot-update.js</span>
+                             | 压缩率: 38.7%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.695f208203ae41be.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.695f208203ae41be.hot-update.js</span>
+                             | 压缩率: 38.7%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.7514a531744ce408.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.7514a531744ce408.hot-update.js</span>
+                             | 压缩率: 38.6%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.75848bd051625c44.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.75848bd051625c44.hot-update.js</span>
+                             | 压缩率: 38.6%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.8f44581ce6a97bd9.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.8f44581ce6a97bd9.hot-update.js</span>
+                             | 压缩率: 38.6%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.993859cc3dfe1318.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.993859cc3dfe1318.hot-update.js</span>
+                             | 压缩率: 38.7%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.9d5ec58acf68f8e2.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.9d5ec58acf68f8e2.hot-update.js</span>
+                             | 压缩率: 38.6%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.af9549911fc74852.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.af9549911fc74852.hot-update.js</span>
+                             | 压缩率: 38.6%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.b71ffee1eb3d07c2.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.b71ffee1eb3d07c2.hot-update.js</span>
+                             | 压缩率: 38.6%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.d70757f6b0f16094.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.d70757f6b0f16094.hot-update.js</span>
+                             | 压缩率: 38.7%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.d9f2740c037869c3.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.d9f2740c037869c3.hot-update.js</span>
+                             | 压缩率: 38.6%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.dc56fa40d79b77de.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.dc56fa40d79b77de.hot-update.js</span>
+                             | 压缩率: 38.7%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.e7fc3fa38f918b1b.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.e7fc3fa38f918b1b.hot-update.js</span>
+                             | 压缩率: 38.5%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.f356909a3ab8e126.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.f356909a3ab8e126.hot-update.js</span>
+                             | 压缩率: 38.7%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.fa169ac18acd0666.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.fa169ac18acd0666.hot-update.js</span>
+                             | 压缩率: 38.7%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.fddb8f9b48f10794.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.fddb8f9b48f10794.hot-update.js</span>
+                             | 压缩率: 38.6%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.fea2a71109ed8432.hot-update</span>
+                            <span class="chunk-size">1.6 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/app/layout.fea2a71109ed8432.hot-update.js</span>
+                             | 压缩率: 38.5%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.047db35d9d5b6b3a.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.047db35d9d5b6b3a.hot-update.js</span>
+                             | 压缩率: 40.2%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.136628be313969b7.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.136628be313969b7.hot-update.js</span>
+                             | 压缩率: 40.1%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.17fbc01d15be09db.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.17fbc01d15be09db.hot-update.js</span>
+                             | 压缩率: 40.2%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.1ab0c3cfa65e33e7.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.1ab0c3cfa65e33e7.hot-update.js</span>
+                             | 压缩率: 40.1%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.394d19c79fef4da0.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.394d19c79fef4da0.hot-update.js</span>
+                             | 压缩率: 40.2%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.3c18eefac8979d46.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.3c18eefac8979d46.hot-update.js</span>
+                             | 压缩率: 40.3%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.4199eb5dfe2d63de.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.4199eb5dfe2d63de.hot-update.js</span>
+                             | 压缩率: 40.2%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.641c1aa1282eac9b.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.641c1aa1282eac9b.hot-update.js</span>
+                             | 压缩率: 40.2%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.64a68c42b6c5570f.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.64a68c42b6c5570f.hot-update.js</span>
+                             | 压缩率: 40.4%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.64f6076062a496ec.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.64f6076062a496ec.hot-update.js</span>
+                             | 压缩率: 40.1%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.682d04a152fb639e.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.682d04a152fb639e.hot-update.js</span>
+                             | 压缩率: 40.3%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.695f208203ae41be.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.695f208203ae41be.hot-update.js</span>
+                             | 压缩率: 40.4%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.70010e1f9938f912.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.70010e1f9938f912.hot-update.js</span>
+                             | 压缩率: 40.1%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.7514a531744ce408.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.7514a531744ce408.hot-update.js</span>
+                             | 压缩率: 40.0%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.75848bd051625c44.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.75848bd051625c44.hot-update.js</span>
+                             | 压缩率: 40.2%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.8abe0d6d062eb317.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.8abe0d6d062eb317.hot-update.js</span>
+                             | 压缩率: 40.4%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.8f44581ce6a97bd9.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.8f44581ce6a97bd9.hot-update.js</span>
+                             | 压缩率: 40.1%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.993859cc3dfe1318.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.993859cc3dfe1318.hot-update.js</span>
+                             | 压缩率: 40.1%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.9d5ec58acf68f8e2.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.9d5ec58acf68f8e2.hot-update.js</span>
+                             | 压缩率: 40.1%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.af9549911fc74852.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.af9549911fc74852.hot-update.js</span>
+                             | 压缩率: 40.4%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.b71ffee1eb3d07c2.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.b71ffee1eb3d07c2.hot-update.js</span>
+                             | 压缩率: 40.4%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.d70757f6b0f16094.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.d70757f6b0f16094.hot-update.js</span>
+                             | 压缩率: 40.2%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.d9f2740c037869c3.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.d9f2740c037869c3.hot-update.js</span>
+                             | 压缩率: 40.3%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.dc56fa40d79b77de.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.dc56fa40d79b77de.hot-update.js</span>
+                             | 压缩率: 40.1%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.e7fc3fa38f918b1b.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.e7fc3fa38f918b1b.hot-update.js</span>
+                             | 压缩率: 40.1%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.f356909a3ab8e126.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.f356909a3ab8e126.hot-update.js</span>
+                             | 压缩率: 40.2%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.fa169ac18acd0666.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.fa169ac18acd0666.hot-update.js</span>
+                             | 压缩率: 40.2%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.fddb8f9b48f10794.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.fddb8f9b48f10794.hot-update.js</span>
+                             | 压缩率: 40.3%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item  ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">webpack.fea2a71109ed8432.hot-update</span>
+                            <span class="chunk-size">0.8 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/webpack/webpack.fea2a71109ed8432.hot-update.js</span>
+                             | 压缩率: 40.1%
+                            
+                            
+                        </div>
+                    </div>
+                
+                    <div class="chunk-item large ">
+                        <div class="chunk-header">
+                            <span class="chunk-name">layout.css</span>
+                            <span class="chunk-size">103.5 KB</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            <span>路径: .next/static/css/app/layout.css</span>
+                            
+                            
+                             | 大文件
+                        </div>
+                    </div>
+                
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔧 优化建议</h2>
+            <div class="recommendations">
+                
+                    <div class="recommendation high">
+                        <h4>【HIGH】Bundle Size</h4>
+                        <p><strong>问题:</strong> 总Bundle大小过大 (37.5 MB)</p>
+                        <p><strong>建议:</strong> 启用代码分割，使用动态导入，移除未使用的依赖</p>
+                        <p><strong>影响:</strong> FCP, LCP 性能影响</p>
+                    </div>
+                
+                    <div class="recommendation medium">
+                        <h4>【MEDIUM】Code Splitting</h4>
+                        <p><strong>问题:</strong> 发现 17 个大文件: page, layout, amp, main, main-app, page.136628be313969b7.hot-update, page.1ab0c3cfa65e33e7.hot-update, page.641c1aa1282eac9b.hot-update, page.64a68c42b6c5570f.hot-update, page.682d04a152fb639e.hot-update, page.9d5ec58acf68f8e2.hot-update, page.d70757f6b0f16094.hot-update, page.dc56fa40d79b77de.hot-update, page.e7fc3fa38f918b1b.hot-update, page.fddb8f9b48f10794.hot-update, page.fea2a71109ed8432.hot-update, layout.css</p>
+                        <p><strong>建议:</strong> 对大组件使用React.lazy()，拆分vendor chunks</p>
+                        <p><strong>影响:</strong> FCP, TTI 性能影响</p>
+                    </div>
+                
+                    <div class="recommendation low">
+                        <h4>【LOW】Compression</h4>
+                        <p><strong>问题:</strong> 61 个文件压缩效果不佳</p>
+                        <p><strong>建议:</strong> 启用Brotli压缩，优化重复代码</p>
+                        <p><strong>影响:</strong> 网络传输性能影响</p>
+                    </div>
+                
+                    <div class="recommendation high">
+                        <h4>【HIGH】Critical Path</h4>
+                        <p><strong>问题:</strong> 关键路径文件过大: main, main-app</p>
+                        <p><strong>建议:</strong> 优化关键路径，延迟加载非关键资源</p>
+                        <p><strong>影响:</strong> FCP, LCP, TTI 严重影响</p>
+                    </div>
+                
+                    <div class="recommendation medium">
+                        <h4>【MEDIUM】Dependencies</h4>
+                        <p><strong>问题:</strong> 依赖数量过多 (70)</p>
+                        <p><strong>建议:</strong> 移除未使用的依赖，使用轻量级替代方案</p>
+                        <p><strong>影响:</strong> Bundle大小和构建时间影响</p>
+                    </div>
+                
+            </div>
+        </div>
+
+        <div style="text-align: center; padding: 20px; color: #666;">
+            <p>Bundle分析报告 | 生成时间: 8/12/2025, 5:10:40 AM</p>
+        </div>
+    </div>
+</body>
+</html>

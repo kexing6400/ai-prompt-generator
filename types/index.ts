@@ -332,3 +332,10 @@ export interface ComponentProps {
  * 导出订阅系统相关类型
  */
 export * from './subscription'
+
+// ============ 专业角色系统类型 ============
+
+/**
+ * 导出专业角色和AI模型相关类型
+ */
+export * from './professional'

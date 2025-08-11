@@ -1,0 +1,24 @@
+[2025-08-11T21:09:29.676Z] [INFO] 律师AI工作台性能分析开始
+[2025-08-11T21:09:29.679Z] [INFO] 分析配置: {
+  "outputDir": "./performance-reports",
+  "runIndividualTests": true,
+  "generateSummary": true,
+  "openReportInBrowser": false,
+  "cleanupOldReports": true
+}
+[2025-08-11T21:09:29.680Z] [PROGRESS] 检查运行环境...
+[2025-08-11T21:09:29.681Z] [INFO] 环境检查结果:
+[2025-08-11T21:09:29.682Z] [SUCCESS]   Node.js版本: v20.19.4
+[2025-08-11T21:09:29.682Z] [SUCCESS]   文件：package.json: 存在
+[2025-08-11T21:09:29.682Z] [SUCCESS]   文件：app/api: 存在
+[2025-08-11T21:09:29.683Z] [SUCCESS]   文件：components: 存在
+[2025-08-11T21:09:29.683Z] [SUCCESS]   文件：lib: 存在
+[2025-08-11T21:09:29.684Z] [SUCCESS]   数据目录: 存在
+[2025-08-11T21:09:29.684Z] [SUCCESS]   构建文件: 存在
+[2025-08-11T21:09:29.685Z] [PROGRESS] 准备输出目录...
+[2025-08-11T21:09:29.686Z] [SUCCESS] 输出目录准备完成: /home/kexing/lawyer-ai-workstation/performance-reports
+[2025-08-11T21:09:29.686Z] [PROGRESS] 开始运行性能分析...
+[2025-08-11T21:09:29.686Z] [INFO] 预计分析时间: 3-5分钟
+[2025-08-11T21:10:40.203Z] [SUCCESS] 性能分析完成
+[2025-08-11T21:10:40.204Z] [PROGRESS] 生成执行摘要...
+[2025-08-11T21:10:40.204Z] [SUCCESS] 执行摘要已保存: /home/kexing/lawyer-ai-workstation/performance-reports/execution-summary.json

@@ -1,0 +1,339 @@
+{
+  "fileSystem": {
+    "userFiles": 10,
+    "usageFiles": 2,
+    "totalSize": 7050,
+    "averageFileSize": 587.5,
+    "largeFiles": []
+  },
+  "operationTimes": {
+    "singleRead": [
+      {
+        "time": 0.3611000000091735,
+        "details": {
+          "fileSize": 493
+        },
+        "timestamp": 1754946640159
+      },
+      {
+        "time": 0.2746000000042841,
+        "details": {
+          "fileSize": 493
+        },
+        "timestamp": 1754946640159
+      },
+      {
+        "time": 0.35300000000279397,
+        "details": {
+          "fileSize": 493
+        },
+        "timestamp": 1754946640160
+      },
+      {
+        "time": 0.3530999999929918,
+        "details": {
+          "fileSize": 493
+        },
+        "timestamp": 1754946640160
+      },
+      {
+        "time": 0.31480000000738073,
+        "details": {
+          "fileSize": 493
+        },
+        "timestamp": 1754946640160
+      },
+      {
+        "time": 0.30840000000898726,
+        "details": {
+          "fileSize": 790,
+          "hasComplexData": {
+            "plan": "free",
+            "status": "active",
+            "startDate": "2025-08-10T14:37:08.920Z",
+            "autoRenew": false,
+            "limits": {
+              "dailyRequests": 10,
+              "monthlyRequests": 50,
+              "maxTokensPerRequest": 2000,
+              "maxPromptsPerDay": 10,
+              "maxDocumentSize": 5
+            }
+          }
+        },
+        "timestamp": 1754946640161
+      },
+      {
+        "time": 0.2559999999939464,
+        "details": {
+          "fileSize": 790,
+          "hasComplexData": {
+            "plan": "free",
+            "status": "active",
+            "startDate": "2025-08-10T20:12:41.918Z",
+            "autoRenew": false,
+            "limits": {
+              "dailyRequests": 10,
+              "monthlyRequests": 50,
+              "maxTokensPerRequest": 2000,
+              "maxPromptsPerDay": 10,
+              "maxDocumentSize": 5
+            }
+          }
+        },
+        "timestamp": 1754946640161
+      },
+      {
+        "time": 0.24370000000635628,
+        "details": {
+          "fileSize": 790,
+          "hasComplexData": {
+            "plan": "free",
+            "status": "active",
+            "startDate": "2025-08-10T20:15:39.871Z",
+            "autoRenew": false,
+            "limits": {
+              "dailyRequests": 10,
+              "monthlyRequests": 50,
+              "maxTokensPerRequest": 2000,
+              "maxPromptsPerDay": 10,
+              "maxDocumentSize": 5
+            }
+          }
+        },
+        "timestamp": 1754946640161
+      },
+      {
+        "time": 0.24230000001261942,
+        "details": {
+          "fileSize": 790,
+          "hasComplexData": {
+            "plan": "free",
+            "status": "active",
+            "startDate": "2025-08-10T20:16:32.691Z",
+            "autoRenew": false,
+            "limits": {
+              "dailyRequests": 10,
+              "monthlyRequests": 50,
+              "maxTokensPerRequest": 2000,
+              "maxPromptsPerDay": 10,
+              "maxDocumentSize": 5
+            }
+          }
+        },
+        "timestamp": 1754946640161
+      },
+      {
+        "time": 0.2537000000011176,
+        "details": {
+          "fileSize": 790,
+          "hasComplexData": {
+            "plan": "free",
+            "status": "active",
+            "startDate": "2025-08-10T20:17:17.640Z",
+            "autoRenew": false,
+            "limits": {
+              "dailyRequests": 10,
+              "monthlyRequests": 50,
+              "maxTokensPerRequest": 2000,
+              "maxPromptsPerDay": 10,
+              "maxDocumentSize": 5
+            }
+          }
+        },
+        "timestamp": 1754946640162
+      }
+    ],
+    "singleWrite": [
+      {
+        "time": 0.26810000000114087,
+        "details": {
+          "dataSize": 372
+        },
+        "timestamp": 1754946640162
+      },
+      {
+        "time": 0.35699999998905696,
+        "details": {
+          "dataSize": 372
+        },
+        "timestamp": 1754946640163
+      },
+      {
+        "time": 0.40350000000034925,
+        "details": {
+          "dataSize": 372
+        },
+        "timestamp": 1754946640163
+      },
+      {
+        "time": 0.3205000000016298,
+        "details": {
+          "dataSize": 372
+        },
+        "timestamp": 1754946640163
+      },
+      {
+        "time": 0.316900000005262,
+        "details": {
+          "dataSize": 372
+        },
+        "timestamp": 1754946640164
+      }
+    ],
+    "batchRead": [
+      {
+        "time": 1.3573000000033062,
+        "details": {
+          "fileCount": 10,
+          "averageTimePerFile": 0.13573000000033061,
+          "successCount": 10
+        },
+        "timestamp": 1754946640180
+      }
+    ],
+    "batchWrite": [
+      {
+        "time": 1.2369000000035157,
+        "details": {
+          "fileCount": 10,
+          "averageTimePerFile": 0.12369000000035157
+        },
+        "timestamp": 1754946640181
+      }
+    ],
+    "search": [
+      {
+        "time": 2.952399999994668,
+        "details": {
+          "query": "@gmail.com",
+          "filesScanned": 10,
+          "matchCount": 0,
+          "efficiency": 0
+        },
+        "timestamp": 1754946640167
+      },
+      {
+        "time": 2.580099999991944,
+        "details": {
+          "query": "@qq.com",
+          "filesScanned": 10,
+          "matchCount": 0,
+          "efficiency": 0
+        },
+        "timestamp": 1754946640169
+      },
+      {
+        "time": 2.912400000001071,
+        "details": {
+          "query": "@163.com",
+          "filesScanned": 10,
+          "matchCount": 0,
+          "efficiency": 0
+        },
+        "timestamp": 1754946640172
+      },
+      {
+        "time": 2.8179999999993015,
+        "details": {
+          "query": "test",
+          "filesScanned": 10,
+          "matchCount": 0,
+          "efficiency": 0
+        },
+        "timestamp": 1754946640175
+      },
+      {
+        "time": 2.662300000010873,
+        "details": {
+          "query": "admin",
+          "filesScanned": 10,
+          "matchCount": 0,
+          "efficiency": 0
+        },
+        "timestamp": 1754946640178
+      }
+    ],
+    "indexScan": []
+  },
+  "concurrencyTests": {
+    "reads": [
+      {
+        "concurrentLevel": 1,
+        "totalTime": 0.2933999999950174,
+        "averageTime": 0.2933999999950174,
+        "successRate": 100,
+        "throughput": 3408.3162918097555
+      },
+      {
+        "concurrentLevel": 5,
+        "totalTime": 0.6957000000111293,
+        "averageTime": 0.13914000000222587,
+        "successRate": 100,
+        "throughput": 7187.005893229861
+      },
+      {
+        "concurrentLevel": 10,
+        "totalTime": 1.4061999999976251,
+        "averageTime": 0.14061999999976252,
+        "successRate": 100,
+        "throughput": 7111.363959619463
+      },
+      {
+        "concurrentLevel": 20,
+        "totalTime": 3.035600000002887,
+        "averageTime": 0.15178000000014435,
+        "successRate": 100,
+        "throughput": 6588.483331130906
+      }
+    ],
+    "writes": [
+      {
+        "concurrentLevel": 1,
+        "totalTime": 0.32510000000183936,
+        "averageTime": 0.32510000000183936,
+        "successRate": 100,
+        "throughput": 3075.9766225602652
+      },
+      {
+        "concurrentLevel": 5,
+        "totalTime": 0.5838000000076136,
+        "averageTime": 0.11676000000152272,
+        "successRate": 100,
+        "throughput": 8564.576909788957
+      },
+      {
+        "concurrentLevel": 10,
+        "totalTime": 1.239400000005844,
+        "averageTime": 0.1239400000005844,
+        "successRate": 100,
+        "throughput": 8068.420203286146
+      },
+      {
+        "concurrentLevel": 20,
+        "totalTime": 2.2571009999956004,
+        "averageTime": 0.11285504999978002,
+        "successRate": 100,
+        "throughput": 8860.923813351279
+      }
+    ]
+  },
+  "cacheAnalysis": {
+    "hitRate": 66.66666666666666,
+    "missRate": 33.33333333333333,
+    "avgHitTime": 0.00010500000076717698,
+    "avgMissTime": 0.00011200000037206337
+  },
+  "bottlenecks": [],
+  "optimizations": [],
+  "indexRecommendations": [
+    {
+      "field": "user.id",
+      "type": "HASH_INDEX",
+      "reason": "用户ID是主键，需要O(1)访问时间",
+      "implementation": "Map<id, userData>"
+    }
+  ],
+  "startTime": 1754946640156,
+  "endTime": 1754946640194
+}

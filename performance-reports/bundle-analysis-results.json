@@ -1,0 +1,787 @@
+{
+  "totalSize": 39312434,
+  "gzippedSize": 7538621,
+  "chunkAnalysis": {
+    "_app-pages-browser_locales_en_json": {
+      "path": ".next/static/chunks/_app-pages-browser_locales_en_json.js",
+      "size": 6648,
+      "gzippedSize": 2680,
+      "compressionRatio": "59.7%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "_app-pages-browser_locales_zh_json": {
+      "path": ".next/static/chunks/_app-pages-browser_locales_zh_json.js",
+      "size": 5981,
+      "gzippedSize": 2934,
+      "compressionRatio": "50.9%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "_error": {
+      "path": ".next/static/chunks/pages/_error.js",
+      "size": 3387,
+      "gzippedSize": 1425,
+      "compressionRatio": "57.9%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "page": {
+      "path": ".next/static/chunks/app/admin/page.js",
+      "size": 2256843,
+      "gzippedSize": 408193,
+      "compressionRatio": "81.9%",
+      "isLarge": true,
+      "isCritical": false
+    },
+    "layout": {
+      "path": ".next/static/chunks/app/layout.js",
+      "size": 2098871,
+      "gzippedSize": 503915,
+      "compressionRatio": "76.0%",
+      "isLarge": true,
+      "isCritical": false
+    },
+    "app-pages-internals": {
+      "path": ".next/static/chunks/app-pages-internals.js",
+      "size": 132585,
+      "gzippedSize": 31133,
+      "compressionRatio": "76.5%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "amp": {
+      "path": ".next/static/chunks/fallback/amp.js",
+      "size": 3776538,
+      "gzippedSize": 876135,
+      "compressionRatio": "76.8%",
+      "isLarge": true,
+      "isCritical": false
+    },
+    "main": {
+      "path": ".next/static/chunks/main.js",
+      "size": 5169289,
+      "gzippedSize": 1161393,
+      "compressionRatio": "77.5%",
+      "isLarge": true,
+      "isCritical": true
+    },
+    "_app": {
+      "path": ".next/static/chunks/pages/_app.js",
+      "size": 3391,
+      "gzippedSize": 1438,
+      "compressionRatio": "57.6%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "react-refresh": {
+      "path": ".next/static/chunks/react-refresh.js",
+      "size": 78963,
+      "gzippedSize": 24682,
+      "compressionRatio": "68.7%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack": {
+      "path": ".next/static/chunks/webpack.js",
+      "size": 56485,
+      "gzippedSize": 10546,
+      "compressionRatio": "81.3%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "main-app": {
+      "path": ".next/static/chunks/main-app.js",
+      "size": 6026320,
+      "gzippedSize": 1342144,
+      "compressionRatio": "77.7%",
+      "isLarge": true,
+      "isCritical": true
+    },
+    "polyfills": {
+      "path": ".next/static/chunks/polyfills.js",
+      "size": 112594,
+      "gzippedSize": 39492,
+      "compressionRatio": "64.9%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "_buildManifest": {
+      "path": ".next/static/development/_buildManifest.js",
+      "size": 311,
+      "gzippedSize": 237,
+      "compressionRatio": "23.8%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "_ssgManifest": {
+      "path": ".next/static/development/_ssgManifest.js",
+      "size": 76,
+      "gzippedSize": 76,
+      "compressionRatio": "0.0%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "page.136628be313969b7.hot-update": {
+      "path": ".next/static/webpack/app/admin/page.136628be313969b7.hot-update.js",
+      "size": 1033006,
+      "gzippedSize": 119007,
+      "compressionRatio": "88.5%",
+      "isLarge": true,
+      "isCritical": false
+    },
+    "page.1ab0c3cfa65e33e7.hot-update": {
+      "path": ".next/static/webpack/app/admin/page.1ab0c3cfa65e33e7.hot-update.js",
+      "size": 1108459,
+      "gzippedSize": 128987,
+      "compressionRatio": "88.4%",
+      "isLarge": true,
+      "isCritical": false
+    },
+    "page.641c1aa1282eac9b.hot-update": {
+      "path": ".next/static/webpack/app/admin/page.641c1aa1282eac9b.hot-update.js",
+      "size": 2254462,
+      "gzippedSize": 407871,
+      "compressionRatio": "81.9%",
+      "isLarge": true,
+      "isCritical": false
+    },
+    "page.64a68c42b6c5570f.hot-update": {
+      "path": ".next/static/webpack/app/admin/page.64a68c42b6c5570f.hot-update.js",
+      "size": 1111926,
+      "gzippedSize": 127964,
+      "compressionRatio": "88.5%",
+      "isLarge": true,
+      "isCritical": false
+    },
+    "page.682d04a152fb639e.hot-update": {
+      "path": ".next/static/webpack/app/admin/page.682d04a152fb639e.hot-update.js",
+      "size": 1107395,
+      "gzippedSize": 128694,
+      "compressionRatio": "88.4%",
+      "isLarge": true,
+      "isCritical": false
+    },
+    "page.75848bd051625c44.hot-update": {
+      "path": ".next/static/webpack/app/admin/page.75848bd051625c44.hot-update.js",
+      "size": 1162,
+      "gzippedSize": 541,
+      "compressionRatio": "53.4%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "page.9d5ec58acf68f8e2.hot-update": {
+      "path": ".next/static/webpack/app/admin/page.9d5ec58acf68f8e2.hot-update.js",
+      "size": 1032664,
+      "gzippedSize": 119301,
+      "compressionRatio": "88.4%",
+      "isLarge": true,
+      "isCritical": false
+    },
+    "page.d70757f6b0f16094.hot-update": {
+      "path": ".next/static/webpack/app/admin/page.d70757f6b0f16094.hot-update.js",
+      "size": 1040491,
+      "gzippedSize": 120867,
+      "compressionRatio": "88.4%",
+      "isLarge": true,
+      "isCritical": false
+    },
+    "page.dc56fa40d79b77de.hot-update": {
+      "path": ".next/static/webpack/app/admin/page.dc56fa40d79b77de.hot-update.js",
+      "size": 1108282,
+      "gzippedSize": 129201,
+      "compressionRatio": "88.3%",
+      "isLarge": true,
+      "isCritical": false
+    },
+    "page.e7fc3fa38f918b1b.hot-update": {
+      "path": ".next/static/webpack/app/admin/page.e7fc3fa38f918b1b.hot-update.js",
+      "size": 1117528,
+      "gzippedSize": 130525,
+      "compressionRatio": "88.3%",
+      "isLarge": true,
+      "isCritical": false
+    },
+    "page.fddb8f9b48f10794.hot-update": {
+      "path": ".next/static/webpack/app/admin/page.fddb8f9b48f10794.hot-update.js",
+      "size": 1108318,
+      "gzippedSize": 129217,
+      "compressionRatio": "88.3%",
+      "isLarge": true,
+      "isCritical": false
+    },
+    "page.fea2a71109ed8432.hot-update": {
+      "path": ".next/static/webpack/app/admin/page.fea2a71109ed8432.hot-update.js",
+      "size": 1033428,
+      "gzippedSize": 119326,
+      "compressionRatio": "88.5%",
+      "isLarge": true,
+      "isCritical": false
+    },
+    "layout.136628be313969b7.hot-update": {
+      "path": ".next/static/webpack/app/layout.136628be313969b7.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 978,
+      "compressionRatio": "38.5%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.1ab0c3cfa65e33e7.hot-update": {
+      "path": ".next/static/webpack/app/layout.1ab0c3cfa65e33e7.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 977,
+      "compressionRatio": "38.6%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.394d19c79fef4da0.hot-update": {
+      "path": ".next/static/webpack/app/layout.394d19c79fef4da0.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 978,
+      "compressionRatio": "38.5%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.3c18eefac8979d46.hot-update": {
+      "path": ".next/static/webpack/app/layout.3c18eefac8979d46.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 977,
+      "compressionRatio": "38.6%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.4199eb5dfe2d63de.hot-update": {
+      "path": ".next/static/webpack/app/layout.4199eb5dfe2d63de.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 978,
+      "compressionRatio": "38.5%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.641c1aa1282eac9b.hot-update": {
+      "path": ".next/static/webpack/app/layout.641c1aa1282eac9b.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 978,
+      "compressionRatio": "38.5%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.64a68c42b6c5570f.hot-update": {
+      "path": ".next/static/webpack/app/layout.64a68c42b6c5570f.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 975,
+      "compressionRatio": "38.7%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.64f6076062a496ec.hot-update": {
+      "path": ".next/static/webpack/app/layout.64f6076062a496ec.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 976,
+      "compressionRatio": "38.7%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.682d04a152fb639e.hot-update": {
+      "path": ".next/static/webpack/app/layout.682d04a152fb639e.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 975,
+      "compressionRatio": "38.7%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.695f208203ae41be.hot-update": {
+      "path": ".next/static/webpack/app/layout.695f208203ae41be.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 975,
+      "compressionRatio": "38.7%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.7514a531744ce408.hot-update": {
+      "path": ".next/static/webpack/app/layout.7514a531744ce408.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 977,
+      "compressionRatio": "38.6%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.75848bd051625c44.hot-update": {
+      "path": ".next/static/webpack/app/layout.75848bd051625c44.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 977,
+      "compressionRatio": "38.6%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.8f44581ce6a97bd9.hot-update": {
+      "path": ".next/static/webpack/app/layout.8f44581ce6a97bd9.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 977,
+      "compressionRatio": "38.6%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.993859cc3dfe1318.hot-update": {
+      "path": ".next/static/webpack/app/layout.993859cc3dfe1318.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 976,
+      "compressionRatio": "38.7%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.9d5ec58acf68f8e2.hot-update": {
+      "path": ".next/static/webpack/app/layout.9d5ec58acf68f8e2.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 977,
+      "compressionRatio": "38.6%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.af9549911fc74852.hot-update": {
+      "path": ".next/static/webpack/app/layout.af9549911fc74852.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 977,
+      "compressionRatio": "38.6%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.b71ffee1eb3d07c2.hot-update": {
+      "path": ".next/static/webpack/app/layout.b71ffee1eb3d07c2.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 977,
+      "compressionRatio": "38.6%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.d70757f6b0f16094.hot-update": {
+      "path": ".next/static/webpack/app/layout.d70757f6b0f16094.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 976,
+      "compressionRatio": "38.7%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.d9f2740c037869c3.hot-update": {
+      "path": ".next/static/webpack/app/layout.d9f2740c037869c3.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 977,
+      "compressionRatio": "38.6%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.dc56fa40d79b77de.hot-update": {
+      "path": ".next/static/webpack/app/layout.dc56fa40d79b77de.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 976,
+      "compressionRatio": "38.7%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.e7fc3fa38f918b1b.hot-update": {
+      "path": ".next/static/webpack/app/layout.e7fc3fa38f918b1b.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 978,
+      "compressionRatio": "38.5%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.f356909a3ab8e126.hot-update": {
+      "path": ".next/static/webpack/app/layout.f356909a3ab8e126.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 976,
+      "compressionRatio": "38.7%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.fa169ac18acd0666.hot-update": {
+      "path": ".next/static/webpack/app/layout.fa169ac18acd0666.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 976,
+      "compressionRatio": "38.7%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.fddb8f9b48f10794.hot-update": {
+      "path": ".next/static/webpack/app/layout.fddb8f9b48f10794.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 977,
+      "compressionRatio": "38.6%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.fea2a71109ed8432.hot-update": {
+      "path": ".next/static/webpack/app/layout.fea2a71109ed8432.hot-update.js",
+      "size": 1591,
+      "gzippedSize": 978,
+      "compressionRatio": "38.5%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.047db35d9d5b6b3a.hot-update": {
+      "path": ".next/static/webpack/webpack.047db35d9d5b6b3a.hot-update.js",
+      "size": 858,
+      "gzippedSize": 513,
+      "compressionRatio": "40.2%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.136628be313969b7.hot-update": {
+      "path": ".next/static/webpack/webpack.136628be313969b7.hot-update.js",
+      "size": 858,
+      "gzippedSize": 514,
+      "compressionRatio": "40.1%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.17fbc01d15be09db.hot-update": {
+      "path": ".next/static/webpack/webpack.17fbc01d15be09db.hot-update.js",
+      "size": 858,
+      "gzippedSize": 513,
+      "compressionRatio": "40.2%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.1ab0c3cfa65e33e7.hot-update": {
+      "path": ".next/static/webpack/webpack.1ab0c3cfa65e33e7.hot-update.js",
+      "size": 858,
+      "gzippedSize": 514,
+      "compressionRatio": "40.1%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.394d19c79fef4da0.hot-update": {
+      "path": ".next/static/webpack/webpack.394d19c79fef4da0.hot-update.js",
+      "size": 858,
+      "gzippedSize": 513,
+      "compressionRatio": "40.2%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.3c18eefac8979d46.hot-update": {
+      "path": ".next/static/webpack/webpack.3c18eefac8979d46.hot-update.js",
+      "size": 858,
+      "gzippedSize": 512,
+      "compressionRatio": "40.3%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.4199eb5dfe2d63de.hot-update": {
+      "path": ".next/static/webpack/webpack.4199eb5dfe2d63de.hot-update.js",
+      "size": 858,
+      "gzippedSize": 513,
+      "compressionRatio": "40.2%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.641c1aa1282eac9b.hot-update": {
+      "path": ".next/static/webpack/webpack.641c1aa1282eac9b.hot-update.js",
+      "size": 858,
+      "gzippedSize": 513,
+      "compressionRatio": "40.2%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.64a68c42b6c5570f.hot-update": {
+      "path": ".next/static/webpack/webpack.64a68c42b6c5570f.hot-update.js",
+      "size": 858,
+      "gzippedSize": 511,
+      "compressionRatio": "40.4%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.64f6076062a496ec.hot-update": {
+      "path": ".next/static/webpack/webpack.64f6076062a496ec.hot-update.js",
+      "size": 858,
+      "gzippedSize": 514,
+      "compressionRatio": "40.1%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.682d04a152fb639e.hot-update": {
+      "path": ".next/static/webpack/webpack.682d04a152fb639e.hot-update.js",
+      "size": 858,
+      "gzippedSize": 512,
+      "compressionRatio": "40.3%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.695f208203ae41be.hot-update": {
+      "path": ".next/static/webpack/webpack.695f208203ae41be.hot-update.js",
+      "size": 858,
+      "gzippedSize": 511,
+      "compressionRatio": "40.4%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.70010e1f9938f912.hot-update": {
+      "path": ".next/static/webpack/webpack.70010e1f9938f912.hot-update.js",
+      "size": 858,
+      "gzippedSize": 514,
+      "compressionRatio": "40.1%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.7514a531744ce408.hot-update": {
+      "path": ".next/static/webpack/webpack.7514a531744ce408.hot-update.js",
+      "size": 858,
+      "gzippedSize": 515,
+      "compressionRatio": "40.0%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.75848bd051625c44.hot-update": {
+      "path": ".next/static/webpack/webpack.75848bd051625c44.hot-update.js",
+      "size": 858,
+      "gzippedSize": 513,
+      "compressionRatio": "40.2%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.8abe0d6d062eb317.hot-update": {
+      "path": ".next/static/webpack/webpack.8abe0d6d062eb317.hot-update.js",
+      "size": 858,
+      "gzippedSize": 511,
+      "compressionRatio": "40.4%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.8f44581ce6a97bd9.hot-update": {
+      "path": ".next/static/webpack/webpack.8f44581ce6a97bd9.hot-update.js",
+      "size": 858,
+      "gzippedSize": 514,
+      "compressionRatio": "40.1%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.993859cc3dfe1318.hot-update": {
+      "path": ".next/static/webpack/webpack.993859cc3dfe1318.hot-update.js",
+      "size": 858,
+      "gzippedSize": 514,
+      "compressionRatio": "40.1%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.9d5ec58acf68f8e2.hot-update": {
+      "path": ".next/static/webpack/webpack.9d5ec58acf68f8e2.hot-update.js",
+      "size": 858,
+      "gzippedSize": 514,
+      "compressionRatio": "40.1%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.af9549911fc74852.hot-update": {
+      "path": ".next/static/webpack/webpack.af9549911fc74852.hot-update.js",
+      "size": 858,
+      "gzippedSize": 511,
+      "compressionRatio": "40.4%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.b71ffee1eb3d07c2.hot-update": {
+      "path": ".next/static/webpack/webpack.b71ffee1eb3d07c2.hot-update.js",
+      "size": 858,
+      "gzippedSize": 511,
+      "compressionRatio": "40.4%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.d70757f6b0f16094.hot-update": {
+      "path": ".next/static/webpack/webpack.d70757f6b0f16094.hot-update.js",
+      "size": 858,
+      "gzippedSize": 513,
+      "compressionRatio": "40.2%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.d9f2740c037869c3.hot-update": {
+      "path": ".next/static/webpack/webpack.d9f2740c037869c3.hot-update.js",
+      "size": 858,
+      "gzippedSize": 512,
+      "compressionRatio": "40.3%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.dc56fa40d79b77de.hot-update": {
+      "path": ".next/static/webpack/webpack.dc56fa40d79b77de.hot-update.js",
+      "size": 858,
+      "gzippedSize": 514,
+      "compressionRatio": "40.1%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.e7fc3fa38f918b1b.hot-update": {
+      "path": ".next/static/webpack/webpack.e7fc3fa38f918b1b.hot-update.js",
+      "size": 858,
+      "gzippedSize": 514,
+      "compressionRatio": "40.1%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.f356909a3ab8e126.hot-update": {
+      "path": ".next/static/webpack/webpack.f356909a3ab8e126.hot-update.js",
+      "size": 858,
+      "gzippedSize": 513,
+      "compressionRatio": "40.2%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.fa169ac18acd0666.hot-update": {
+      "path": ".next/static/webpack/webpack.fa169ac18acd0666.hot-update.js",
+      "size": 858,
+      "gzippedSize": 513,
+      "compressionRatio": "40.2%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.fddb8f9b48f10794.hot-update": {
+      "path": ".next/static/webpack/webpack.fddb8f9b48f10794.hot-update.js",
+      "size": 858,
+      "gzippedSize": 512,
+      "compressionRatio": "40.3%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "webpack.fea2a71109ed8432.hot-update": {
+      "path": ".next/static/webpack/webpack.fea2a71109ed8432.hot-update.js",
+      "size": 858,
+      "gzippedSize": 514,
+      "compressionRatio": "40.1%",
+      "isLarge": false,
+      "isCritical": false
+    },
+    "layout.css": {
+      "path": ".next/static/css/app/layout.css",
+      "size": 105969,
+      "type": "css",
+      "isLarge": true
+    }
+  },
+  "pageAnalysis": {
+    "_app": {
+      "path": ".next/static/chunks/pages/_app.js",
+      "size": 3391,
+      "sizeFormatted": "3.3 KB",
+      "isLarge": false
+    },
+    "_error": {
+      "path": ".next/static/chunks/pages/_error.js",
+      "size": 3387,
+      "sizeFormatted": "3.3 KB",
+      "isLarge": false
+    }
+  },
+  "dependencies": {
+    "react": {
+      "version": "^18.3.1",
+      "estimated_size": "42KB",
+      "isHeavy": true
+    },
+    "react-dom": {
+      "version": "^18.3.1",
+      "estimated_size": "130KB",
+      "isHeavy": true
+    },
+    "next": {
+      "version": "^14.2.0",
+      "estimated_size": "280KB",
+      "isHeavy": true
+    },
+    "@radix-ui/react-dialog": {
+      "version": "^1.1.2",
+      "estimated_size": "45KB",
+      "isHeavy": true
+    },
+    "@radix-ui/react-dropdown-menu": {
+      "version": "^2.1.2",
+      "estimated_size": "55KB",
+      "isHeavy": true
+    },
+    "framer-motion": {
+      "version": "^12.23.12",
+      "estimated_size": "180KB",
+      "isHeavy": true
+    },
+    "lucide-react": {
+      "version": "^0.468.0",
+      "estimated_size": "90KB",
+      "isHeavy": true
+    },
+    "tailwindcss": {
+      "version": "^3.4.17",
+      "estimated_size": "15KB (runtime)",
+      "isHeavy": true
+    },
+    "autoprefixer": {
+      "version": "^10.4.21",
+      "estimated_size": "0KB (build-time)",
+      "isHeavy": true
+    },
+    "total_count": 70
+  },
+  "recommendations": [
+    {
+      "priority": "HIGH",
+      "category": "Bundle Size",
+      "issue": "总Bundle大小过大 (37.5 MB)",
+      "suggestion": "启用代码分割，使用动态导入，移除未使用的依赖",
+      "impact": "FCP, LCP 性能影响"
+    },
+    {
+      "priority": "MEDIUM",
+      "category": "Code Splitting",
+      "issue": "发现 17 个大文件: page, layout, amp, main, main-app, page.136628be313969b7.hot-update, page.1ab0c3cfa65e33e7.hot-update, page.641c1aa1282eac9b.hot-update, page.64a68c42b6c5570f.hot-update, page.682d04a152fb639e.hot-update, page.9d5ec58acf68f8e2.hot-update, page.d70757f6b0f16094.hot-update, page.dc56fa40d79b77de.hot-update, page.e7fc3fa38f918b1b.hot-update, page.fddb8f9b48f10794.hot-update, page.fea2a71109ed8432.hot-update, layout.css",
+      "suggestion": "对大组件使用React.lazy()，拆分vendor chunks",
+      "impact": "FCP, TTI 性能影响"
+    },
+    {
+      "priority": "LOW",
+      "category": "Compression",
+      "issue": "61 个文件压缩效果不佳",
+      "suggestion": "启用Brotli压缩，优化重复代码",
+      "impact": "网络传输性能影响"
+    },
+    {
+      "priority": "HIGH",
+      "category": "Critical Path",
+      "issue": "关键路径文件过大: main, main-app",
+      "suggestion": "优化关键路径，延迟加载非关键资源",
+      "impact": "FCP, LCP, TTI 严重影响"
+    },
+    {
+      "priority": "MEDIUM",
+      "category": "Dependencies",
+      "issue": "依赖数量过多 (70)",
+      "suggestion": "移除未使用的依赖，使用轻量级替代方案",
+      "impact": "Bundle大小和构建时间影响"
+    }
+  ],
+  "coreWebVitals": {
+    "FCP": {
+      "estimated": 67474,
+      "threshold": 1800,
+      "status": "NEEDS_IMPROVEMENT"
+    },
+    "LCP": {
+      "estimated": 68174,
+      "threshold": 2500,
+      "status": "NEEDS_IMPROVEMENT"
+    },
+    "TTI": {
+      "estimated": 96065,
+      "threshold": 3800,
+      "status": "NEEDS_IMPROVEMENT"
+    },
+    "CLS": {
+      "estimated": 0.05,
+      "threshold": 0.1,
+      "status": "GOOD"
+    },
+    "FID": {
+      "estimated": 50,
+      "threshold": 100,
+      "status": "GOOD"
+    }
+  },
+  "timestamp": 1754946639191
+}

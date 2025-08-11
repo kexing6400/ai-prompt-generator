@@ -86,7 +86,7 @@ export async function advancedConfigExample(): Promise<void> {
   try {
     // 自定义配置
     const customConfig: ClaudeClientConfig = {
-      apiKey: process.env.CLAUDE_API_KEY || 'sk-ant-oat01-ee0f35df8f630aae92f9a6561dd9be32edfe84a1e5f0f6e4636923a0e7ad5aca',
+      apiKey: process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY || process.env.OPENROUTER_API_KEY || '',
       baseUrl: 'https://gaccode.com/claudecode',
       timeout: 45000, // 45秒超时
       maxRetries: 5,   // 最多重试5次

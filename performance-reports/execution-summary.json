@@ -1,0 +1,27 @@
+{
+  "timestamp": "2025-08-11T21:10:40.204Z",
+  "executionTime": "70.5s",
+  "success": true,
+  "environment": {
+    "nodeVersion": "v20.19.4",
+    "platform": "linux",
+    "workingDirectory": "/home/kexing/lawyer-ai-workstation"
+  },
+  "results": {
+    "overallScore": 45,
+    "apiScore": 15,
+    "bundleScore": 30,
+    "databaseScore": 100,
+    "recommendationCount": 6,
+    "phaseCount": 3
+  },
+  "reports": [
+    "comprehensive-performance-report.html",
+    "comprehensive-performance-results.json",
+    "bundle-analysis-report.html",
+    "bundle-analysis-results.json",
+    "database-performance-report.html",
+    "database-performance-results.json"
+  ],
+  "errors": []
+}

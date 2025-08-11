@@ -7,8 +7,8 @@ import { NextRequest, NextResponse } from 'next/server'
 
 // 硬编码的管理员账号（仅用于测试）
 const ADMIN_CREDENTIALS = {
-  username: 'admin',
-  password: 'Admin123'  // 简化密码以避免JSON解析问题
+  username: 'kexing',
+  password: 'zzxxcc123'
 }
 
 export async function POST(request: NextRequest) {

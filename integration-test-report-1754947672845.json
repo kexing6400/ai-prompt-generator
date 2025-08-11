@@ -1,0 +1,171 @@
+{
+  "timestamp": "2025-08-11T21:27:52.845Z",
+  "executionTime": 665,
+  "scores": {
+    "environment": 0,
+    "openrouterAPI": 0,
+    "supabaseDB": 0,
+    "e2eWorkflows": 100,
+    "systemResilience": 100,
+    "productionReadiness": 85
+  },
+  "averageScore": 48,
+  "criticalIssues": [
+    "环境变量配置不完整",
+    "OpenRouter API集成问题",
+    "Supabase数据库连接问题"
+  ],
+  "deploymentReady": false,
+  "detailedResults": {
+    "environment": {
+      "results": [
+        {
+          "key": "OPENROUTER_API_KEY",
+          "exists": false,
+          "optional": false
+        },
+        {
+          "key": "SUPABASE_URL",
+          "exists": false,
+          "optional": false
+        },
+        {
+          "key": "SUPABASE_ANON_KEY",
+          "exists": false,
+          "optional": false
+        },
+        {
+          "key": "NEXT_PUBLIC_SITE_URL",
+          "exists": false,
+          "optional": true
+        },
+        {
+          "key": "JWT_SECRET",
+          "exists": false,
+          "optional": true
+        }
+      ],
+      "score": 0
+    },
+    "openrouterAPI": {
+      "success": false,
+      "error": "API密钥缺失"
+    },
+    "supabaseDB": {
+      "success": false,
+      "error": "Supabase配置缺失"
+    },
+    "e2eWorkflows": {
+      "success": true,
+      "workflows": [
+        {
+          "name": "法律文档生成",
+          "success": false,
+          "reason": "服务器未运行"
+        },
+        {
+          "name": "完整用户流程",
+          "success": true,
+          "details": "6步骤"
+        }
+      ],
+      "summary": {
+        "totalWorkflows": 2,
+        "passedWorkflows": 1
+      }
+    },
+    "systemResilience": {
+      "success": true,
+      "resilienceTests": [
+        {
+          "name": "API错误处理",
+          "success": true
+        },
+        {
+          "name": "超时处理",
+          "success": true
+        },
+        {
+          "name": "大数据处理",
+          "success": true,
+          "details": "10ms"
+        }
+      ],
+      "summary": {
+        "totalTests": 3,
+        "passedTests": 3
+      }
+    },
+    "productionReadiness": {
+      "checks": [
+        {
+          "name": "环境变量保护",
+          "weight": 3,
+          "passed": true
+        },
+        {
+          "name": "HTTPS配置",
+          "weight": 2
+        },
+        {
+          "name": "JWT密钥配置",
+          "weight": 2,
+          "passed": false
+        },
+        {
+          "name": "CSP头配置",
+          "weight": 1,
+          "passed": true
+        },
+        {
+          "name": "Next.js优化配置",
+          "weight": 2,
+          "passed": true
+        },
+        {
+          "name": "图片优化配置",
+          "weight": 1,
+          "passed": true
+        },
+        {
+          "name": "缓存策略",
+          "weight": 2,
+          "passed": true
+        },
+        {
+          "name": "错误监控",
+          "weight": 2,
+          "passed": true
+        },
+        {
+          "name": "审计日志",
+          "weight": 1,
+          "passed": true
+        },
+        {
+          "name": "健康检查端点",
+          "weight": 1,
+          "passed": true
+        },
+        {
+          "name": "数据备份策略",
+          "weight": 2,
+          "passed": true
+        },
+        {
+          "name": "配置备份",
+          "weight": 1,
+          "passed": true
+        },
+        {
+          "name": "部署脚本",
+          "weight": 1,
+          "passed": true
+        }
+      ],
+      "score": 85,
+      "totalScore": 17,
+      "maxScore": 20
+    }
+  }
+}

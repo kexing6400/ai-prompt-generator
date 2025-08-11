@@ -692,7 +692,7 @@ export class ClaudeClient {
  */
 export function createClaudeClient(config?: Partial<ClaudeClientConfig>): ClaudeClient {
   const defaultConfig: ClaudeClientConfig = {
-    apiKey: config?.apiKey || 'sk-ant-oat01-ee0f35df8f630aae92f9a6561dd9be32edfe84a1e5f0f6e4636923a0e7ad5aca',
+    apiKey: config?.apiKey || process.env.ANTHROPIC_API_KEY || process.env.OPENROUTER_API_KEY || '',
     baseUrl: config?.baseUrl || 'https://gaccode.com/claudecode',
     timeout: 30000,
     maxRetries: 3,

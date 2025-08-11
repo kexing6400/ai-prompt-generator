@@ -52,8 +52,8 @@ import {
   AlertTriangle
 } from 'lucide-react';
 
-// 默认API Key（用户提供）
-const DEFAULT_API_KEY = 'sk-ant-oat01-ee0f35df8f630aae92f9a6561dd9be32edfe84a1e5f0f6e4636923a0e7ad5aca';
+// 默认API Key从环境变量获取，前端不存储真实密钥
+const DEFAULT_API_KEY = '';
 
 // 流行模型配置
 const POPULAR_MODELS = [

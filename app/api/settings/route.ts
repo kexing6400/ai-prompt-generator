@@ -18,7 +18,7 @@ const SETTINGS_FILE = join(process.cwd(), 'data', 'openrouter-settings.json');
 // 默认设置
 const DEFAULT_SETTINGS = {
   openrouter: {
-    apiKey: 'sk-ant-oat01-ee0f35df8f630aae92f9a6561dd9be32edfe84a1e5f0f6e4636923a0e7ad5aca',
+    apiKey: process.env.ANTHROPIC_API_KEY || process.env.OPENROUTER_API_KEY || '',
     selectedModel: 'openai/gpt-4o',
     systemPrompts: {
       teacher: `你是一位拥有15年教学经验的资深教育专家李明教授。

@@ -6,8 +6,11 @@
 
 import CryptoJS from 'crypto-js'
 
-// 🔐 从环境变量获取加密密钥
-const ENCRYPTION_KEY = process.env.ENCRYPTION_SECRET || 'default-key-change-in-production'
+// 🔐 从环境变量获取加密密钥，如果未设置则抛出错误
+const ENCRYPTION_KEY = process.env.ENCRYPTION_SECRET
+if (!ENCRYPTION_KEY) {
+  throw new Error('🚨 ENCRYPTION_SECRET environment variable is required but not set! Please set a secure encryption key.')
+}
 
 /**
  * 加密敏感数据

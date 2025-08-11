@@ -1,0 +1,627 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>律师AI工作台 - 综合性能分析报告</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 50px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="rgba(255,255,255,0.1)"><polygon points="0,100 1000,0 1000,100"/></svg>');
+            background-size: cover;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        
+        .overall-score {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 20px 40px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .overall-score .score {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .overall-score .label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 60px 40px;
+            background: #f8f9fa;
+        }
+        
+        .score-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+            border-left: 8px solid #667eea;
+        }
+        
+        .score-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .score-card.api { border-left-color: #3498db; }
+        .score-card.bundle { border-left-color: #e74c3c; }
+        .score-card.database { border-left-color: #2ecc71; }
+        
+        .score-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .score-details {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        .section {
+            padding: 60px 40px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .section-header h2 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .section-header p {
+            color: #666;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .recommendations-grid {
+            display: grid;
+            gap: 25px;
+        }
+        
+        .recommendation-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border-left: 6px solid #667eea;
+        }
+        
+        .recommendation-card.critical { border-left-color: #e74c3c; }
+        .recommendation-card.high { border-left-color: #f39c12; }
+        .recommendation-card.medium { border-left-color: #3498db; }
+        .recommendation-card.low { border-left-color: #2ecc71; }
+        
+        .rec-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .rec-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .priority-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .priority-badge.critical { background: #e74c3c; }
+        .priority-badge.high { background: #f39c12; }
+        .priority-badge.medium { background: #3498db; }
+        .priority-badge.low { background: #2ecc71; }
+        
+        .rec-content {
+            margin-bottom: 20px;
+        }
+        
+        .rec-content h4 {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+        
+        .rec-content p {
+            color: #444;
+            line-height: 1.6;
+        }
+        
+        .rec-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .implementation-guide {
+            background: #f8f9fa;
+            padding: 60px 40px;
+        }
+        
+        .phase-card {
+            background: white;
+            margin: 30px 0;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .phase-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px 30px;
+        }
+        
+        .phase-header h3 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+        }
+        
+        .phase-meta {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+        
+        .phase-tasks {
+            padding: 30px;
+        }
+        
+        .task-item {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .task-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .task-details {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .footer p {
+            margin-bottom: 10px;
+        }
+        
+        .metric-highlight {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2.5rem; }
+            .score-grid { grid-template-columns: 1fr; padding: 40px 20px; }
+            .section { padding: 40px 20px; }
+            .implementation-guide { padding: 40px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>🎯 律师AI工作台</h1>
+                <div class="subtitle">综合性能分析报告</div>
+                <div class="overall-score">
+                    <div class="score">45/100</div>
+                    <div class="label">综合性能评分</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="score-grid">
+            <div class="score-card api">
+                <h3>🚀 API性能</h3>
+                <div class="score-display">15</div>
+                <div class="score-details">
+                    权重: 40% <br>
+                    贡献: 6分<br>
+                    <span class="metric-highlight">
+                        平均响应: 2360ms
+                    </span>
+                </div>
+            </div>
+            
+            <div class="score-card bundle">
+                <h3>📦 Bundle优化</h3>
+                <div class="score-display">30</div>
+                <div class="score-details">
+                    权重: 30% <br>
+                    贡献: 9分<br>
+                    <span class="metric-highlight">
+                        总大小: 37.5MB
+                    </span>
+                </div>
+            </div>
+            
+            <div class="score-card database">
+                <h3>💾 数据库性能</h3>
+                <div class="score-display">100</div>
+                <div class="score-details">
+                    权重: 30% <br>
+                    贡献: 30分<br>
+                    <span class="metric-highlight">
+                        文件数: 10个
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2>💡 优化建议</h2>
+                <p>基于性能测试结果，我们为您制定了优先级明确的优化建议</p>
+            </div>
+            
+            <div class="recommendations-grid">
+                
+                    <div class="recommendation-card critical">
+                        <div class="rec-header">
+                            <div class="rec-title">API错误率过高 (100.0%)</div>
+                            <span class="priority-badge critical">CRITICAL</span>
+                        </div>
+                        
+                        <div class="rec-content">
+                            <h4>解决方案:</h4>
+                            <p>增强错误处理、实现重试机制、添加熔断器</p>
+                            
+                            <h4>预期效果:</h4>
+                            <p>系统稳定性大幅提升</p>
+                        </div>
+                        
+                        <div class="rec-footer">
+                            <span>实施难度: MEDIUM</span>
+                            <span>预计时间: 1-2周</span>
+                        </div>
+                    </div>
+                
+                    <div class="recommendation-card high">
+                        <div class="rec-header">
+                            <div class="rec-title">API平均响应时间过长 (2360ms)</div>
+                            <span class="priority-badge high">HIGH</span>
+                        </div>
+                        
+                        <div class="rec-content">
+                            <h4>解决方案:</h4>
+                            <p>启用Redis缓存、优化数据库查询、使用CDN加速</p>
+                            
+                            <h4>预期效果:</h4>
+                            <p>用户体验显著提升，页面加载时间减少50%</p>
+                        </div>
+                        
+                        <div class="rec-footer">
+                            <span>实施难度: HIGH</span>
+                            <span>预计时间: 2-3周</span>
+                        </div>
+                    </div>
+                
+                    <div class="recommendation-card high">
+                        <div class="rec-header">
+                            <div class="rec-title">AI调用响应时间不稳定</div>
+                            <span class="priority-badge high">HIGH</span>
+                        </div>
+                        
+                        <div class="rec-content">
+                            <h4>解决方案:</h4>
+                            <p>实现AI响应缓存、请求去重、超时优化</p>
+                            
+                            <h4>预期效果:</h4>
+                            <p>AI功能响应速度提升60%</p>
+                        </div>
+                        
+                        <div class="rec-footer">
+                            <span>实施难度: MEDIUM</span>
+                            <span>预计时间: 1周</span>
+                        </div>
+                    </div>
+                
+                    <div class="recommendation-card high">
+                        <div class="rec-header">
+                            <div class="rec-title">Bundle总大小过大 (37.5MB)</div>
+                            <span class="priority-badge high">HIGH</span>
+                        </div>
+                        
+                        <div class="rec-content">
+                            <h4>解决方案:</h4>
+                            <p>启用代码分割、树摇优化、动态导入、移除未使用依赖</p>
+                            
+                            <h4>预期效果:</h4>
+                            <p>首次加载时间减少40%，改善FCP和LCP</p>
+                        </div>
+                        
+                        <div class="rec-footer">
+                            <span>实施难度: HIGH</span>
+                            <span>预计时间: 1-2周</span>
+                        </div>
+                    </div>
+                
+                    <div class="recommendation-card high">
+                        <div class="rec-header">
+                            <div class="rec-title">3 项Core Web Vitals需要改善</div>
+                            <span class="priority-badge high">HIGH</span>
+                        </div>
+                        
+                        <div class="rec-content">
+                            <h4>解决方案:</h4>
+                            <p>图片懒加载、字体优化、关键CSS内联、预加载关键资源</p>
+                            
+                            <h4>预期效果:</h4>
+                            <p>SEO排名提升，用户体验改善</p>
+                        </div>
+                        
+                        <div class="rec-footer">
+                            <span>实施难度: MEDIUM</span>
+                            <span>预计时间: 1-2周</span>
+                        </div>
+                    </div>
+                
+                    <div class="recommendation-card medium">
+                        <div class="rec-header">
+                            <div class="rec-title">存在 17 个大文件需要拆分</div>
+                            <span class="priority-badge medium">MEDIUM</span>
+                        </div>
+                        
+                        <div class="rec-content">
+                            <h4>解决方案:</h4>
+                            <p>使用React.lazy()、路由级代码分割、按需加载组件</p>
+                            
+                            <h4>预期效果:</h4>
+                            <p>TTI时间减少30%</p>
+                        </div>
+                        
+                        <div class="rec-footer">
+                            <span>实施难度: MEDIUM</span>
+                            <span>预计时间: 1周</span>
+                        </div>
+                    </div>
+                
+            </div>
+        </div>
+
+        <div class="implementation-guide">
+            <div class="section-header">
+                <h2>📋 实施指南</h2>
+                <p>分阶段的性能优化实施计划，帮助您系统性地提升应用性能</p>
+            </div>
+            
+            
+                <div class="phase-card">
+                    <div class="phase-header">
+                        <h3>第一阶段：关键性能优化</h3>
+                        <div class="phase-meta">
+                            预计时间: 1-2周 | 优先级: CRITICAL
+                        </div>
+                    </div>
+                    
+                    <div class="phase-tasks">
+                        
+                            <div class="task-item">
+                                <div class="task-title">1. API错误率过高 (100.0%)</div>
+                                <div class="task-details">
+                                    <strong>方案:</strong> 增强错误处理、实现重试机制、添加熔断器<br>
+                                    <strong>难度:</strong> MEDIUM | <strong>效果:</strong> 系统稳定性大幅提升
+                                </div>
+                            </div>
+                        
+                            <div class="task-item">
+                                <div class="task-title">2. API平均响应时间过长 (2360ms)</div>
+                                <div class="task-details">
+                                    <strong>方案:</strong> 启用Redis缓存、优化数据库查询、使用CDN加速<br>
+                                    <strong>难度:</strong> HIGH | <strong>效果:</strong> 用户体验显著提升，页面加载时间减少50%
+                                </div>
+                            </div>
+                        
+                            <div class="task-item">
+                                <div class="task-title">3. AI调用响应时间不稳定</div>
+                                <div class="task-details">
+                                    <strong>方案:</strong> 实现AI响应缓存、请求去重、超时优化<br>
+                                    <strong>难度:</strong> MEDIUM | <strong>效果:</strong> AI功能响应速度提升60%
+                                </div>
+                            </div>
+                        
+                            <div class="task-item">
+                                <div class="task-title">4. Bundle总大小过大 (37.5MB)</div>
+                                <div class="task-details">
+                                    <strong>方案:</strong> 启用代码分割、树摇优化、动态导入、移除未使用依赖<br>
+                                    <strong>难度:</strong> HIGH | <strong>效果:</strong> 首次加载时间减少40%，改善FCP和LCP
+                                </div>
+                            </div>
+                        
+                            <div class="task-item">
+                                <div class="task-title">5. 3 项Core Web Vitals需要改善</div>
+                                <div class="task-details">
+                                    <strong>方案:</strong> 图片懒加载、字体优化、关键CSS内联、预加载关键资源<br>
+                                    <strong>难度:</strong> MEDIUM | <strong>效果:</strong> SEO排名提升，用户体验改善
+                                </div>
+                            </div>
+                        
+                    </div>
+                </div>
+            
+                <div class="phase-card">
+                    <div class="phase-header">
+                        <h3>第二阶段：系统架构优化</h3>
+                        <div class="phase-meta">
+                            预计时间: 3-4周 | 优先级: HIGH
+                        </div>
+                    </div>
+                    
+                    <div class="phase-tasks">
+                        
+                            <div class="task-item">
+                                <div class="task-title">1. 数据库架构升级</div>
+                                <div class="task-details">
+                                    <strong>方案:</strong> 从JSON文件存储迁移到PostgreSQL/Supabase<br>
+                                    <strong>难度:</strong> HIGH | <strong>效果:</strong> 查询性能提升90%，支持ACID事务
+                                </div>
+                            </div>
+                        
+                            <div class="task-item">
+                                <div class="task-title">2. 缓存系统实施</div>
+                                <div class="task-details">
+                                    <strong>方案:</strong> 部署Redis缓存集群，实现分层缓存策略<br>
+                                    <strong>难度:</strong> MEDIUM | <strong>效果:</strong> API响应时间减少60%
+                                </div>
+                            </div>
+                        
+                            <div class="task-item">
+                                <div class="task-title">3. CDN和静态资源优化</div>
+                                <div class="task-details">
+                                    <strong>方案:</strong> 配置CDN加速，启用Brotli压缩<br>
+                                    <strong>难度:</strong> LOW | <strong>效果:</strong> 静态资源加载时间减少40%
+                                </div>
+                            </div>
+                        
+                    </div>
+                </div>
+            
+                <div class="phase-card">
+                    <div class="phase-header">
+                        <h3>第三阶段：持续性能优化</h3>
+                        <div class="phase-meta">
+                            预计时间: 长期维护 | 优先级: MEDIUM
+                        </div>
+                    </div>
+                    
+                    <div class="phase-tasks">
+                        
+                            <div class="task-item">
+                                <div class="task-title">1. 性能监控系统</div>
+                                <div class="task-details">
+                                    <strong>方案:</strong> 部署APM工具，实时监控性能指标<br>
+                                    <strong>难度:</strong> MEDIUM | <strong>效果:</strong> 主动发现性能问题
+                                </div>
+                            </div>
+                        
+                            <div class="task-item">
+                                <div class="task-title">2. 自动化测试</div>
+                                <div class="task-details">
+                                    <strong>方案:</strong> 集成性能测试到CI/CD流水线<br>
+                                    <strong>难度:</strong> MEDIUM | <strong>效果:</strong> 防止性能回退
+                                </div>
+                            </div>
+                        
+                            <div class="task-item">
+                                <div class="task-title">3. 用户体验优化</div>
+                                <div class="task-details">
+                                    <strong>方案:</strong> A/B测试用户界面，持续改进UX<br>
+                                    <strong>难度:</strong> LOW | <strong>效果:</strong> 用户满意度提升
+                                </div>
+                            </div>
+                        
+                    </div>
+                </div>
+            
+        </div>
+
+        <div class="footer">
+            <p><strong>律师AI工作台 - 综合性能分析报告</strong></p>
+            <p>生成时间: 8/12/2025, 5:09:29 AM</p>
+            <p>Performance Engineer & Database Optimizer Team</p>
+        </div>
+    </div>
+</body>
+</html>

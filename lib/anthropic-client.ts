@@ -284,7 +284,8 @@ export class AnthropicClient {
 export function createAnthropicClient(config?: Partial<AnthropicConfig>): AnthropicClient {
   const apiKey = config?.apiKey || 
     process.env.ANTHROPIC_API_KEY || 
-    'sk-ant-oat01-ee0f35df8f630aae92f9a6561dd9be32edfe84a1e5f0f6e4636923a0e7ad5aca';
+    process.env.OPENROUTER_API_KEY || 
+    '';
   
   return new AnthropicClient({
     apiKey,

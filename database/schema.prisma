@@ -1,0 +1,773 @@
+// =================================================================
+// 律师AI工作台 Prisma Schema
+// Lawyer AI Workstation Prisma Schema
+// 
+// 基于PostgreSQL的ORM配置文件
+// 支持Supabase集成和类型安全的数据库操作
+// =================================================================
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+// =================================================================
+// 枚举定义 (Enum Definitions)
+// =================================================================
+
+enum UserRole {
+  SUPER_ADMIN      @map("super_admin")
+  FIRM_ADMIN       @map("firm_admin")
+  PARTNER          @map("partner")
+  SENIOR_ATTORNEY  @map("senior_attorney")
+  ATTORNEY         @map("attorney")
+  PARALEGAL        @map("paralegal")
+  LEGAL_ASSISTANT  @map("legal_assistant")
+  INTERN           @map("intern")
+
+  @@map("user_role")
+}
+
+enum CaseStatus {
+  PROSPECTIVE @map("prospective")
+  ACTIVE      @map("active")
+  ON_HOLD     @map("on_hold")
+  CLOSED      @map("closed")
+  ARCHIVED    @map("archived")
+
+  @@map("case_status")
+}
+
+enum CasePriority {
+  CRITICAL @map("critical")
+  HIGH     @map("high")
+  MEDIUM   @map("medium")
+  LOW      @map("low")
+
+  @@map("case_priority")
+}
+
+enum CaseParticipantRole {
+  LEAD_ATTORNEY @map("lead_attorney")
+  CO_COUNSEL    @map("co_counsel")
+  PARALEGAL     @map("paralegal")
+  CONSULTANT    @map("consultant")
+  OBSERVER      @map("observer")
+
+  @@map("case_participant_role")
+}
+
+enum DocumentType {
+  CONTRACT       @map("contract")
+  MOTION         @map("motion")
+  BRIEF          @map("brief")
+  MEMO           @map("memo")
+  CORRESPONDENCE @map("correspondence")
+  EVIDENCE       @map("evidence")
+  RESEARCH       @map("research")
+  TEMPLATE       @map("template")
+  OTHER          @map("other")
+
+  @@map("document_type")
+}
+
+enum DocumentStatus {
+  DRAFT    @map("draft")
+  REVIEW   @map("review")
+  APPROVED @map("approved")
+  FINAL    @map("final")
+  ARCHIVED @map("archived")
+
+  @@map("document_status")
+}
+
+enum TemplateCategory {
+  CONTRACTS              @map("contracts")
+  LITIGATION             @map("litigation")
+  CORPORATE              @map("corporate")
+  REAL_ESTATE            @map("real_estate")
+  EMPLOYMENT             @map("employment")
+  INTELLECTUAL_PROPERTY  @map("intellectual_property")
+  FAMILY_LAW             @map("family_law")
+  CRIMINAL_LAW           @map("criminal_law")
+  IMMIGRATION            @map("immigration")
+  OTHER                  @map("other")
+
+  @@map("template_category")
+}
+
+enum PromptType {
+  LEGAL_RESEARCH    @map("legal_research")
+  CONTRACT_REVIEW   @map("contract_review")
+  DOCUMENT_DRAFT    @map("document_draft")
+  CASE_ANALYSIS     @map("case_analysis")
+  COMPLIANCE_CHECK  @map("compliance_check")
+  RISK_ASSESSMENT   @map("risk_assessment")
+  CLIENT_ADVICE     @map("client_advice")
+  OTHER             @map("other")
+
+  @@map("prompt_type")
+}
+
+enum AuditAction {
+  CREATE        @map("create")
+  READ          @map("read")
+  UPDATE        @map("update")
+  DELETE        @map("delete")
+  LOGIN         @map("login")
+  LOGOUT        @map("logout")
+  ACCESS_DENIED @map("access_denied")
+  EXPORT        @map("export")
+  IMPORT        @map("import")
+  SHARE         @map("share")
+
+  @@map("audit_action")
+}
+
+// =================================================================
+// 核心业务模型 (Core Business Models)
+// =================================================================
+
+model LawFirm {
+  id                  String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                String   @db.VarChar(255)
+  registrationNumber  String?  @map("registration_number") @db.VarChar(100)
+  address             String?  @db.Text
+  phone               String?  @db.VarChar(50)
+  email               String?  @db.VarChar(255)
+  website             String?  @db.VarChar(255)
+  jurisdiction        String?  @db.VarChar(100)
+  foundedDate         DateTime? @map("founded_date") @db.Date
+  barAssociationId    String?  @map("bar_association_id") @db.VarChar(100)
+
+  // 合规设置
+  dataRetentionDays   Int      @default(2555) @map("data_retention_days")
+  encryptionEnabled   Boolean  @default(true) @map("encryption_enabled")
+  auditEnabled        Boolean  @default(true) @map("audit_enabled")
+
+  // 系统字段
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  createdBy           String?  @map("created_by") @db.Uuid
+  isActive            Boolean  @default(true) @map("is_active")
+
+  // 关联关系
+  users               User[]
+  clients             Client[]
+  cases               Case[]
+  documents           Document[]
+  legalTemplates      LegalTemplate[]
+  aiPrompts           AIPrompt[]
+  aiInteractions      AIInteraction[]
+  timeEntries         TimeEntry[]
+  auditLogs           AuditLog[]
+  dataRetentionPolicies DataRetentionPolicy[]
+  complianceChecks    ComplianceCheck[]
+
+  @@unique([registrationNumber])
+  @@index([name])
+  @@index([isActive])
+  @@map("law_firms")
+}
+
+model User {
+  id                    String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  lawFirmId             String    @map("law_firm_id") @db.Uuid
+  
+  // 基本信息
+  email                 String    @unique @db.VarChar(255)
+  passwordHash          String    @map("password_hash") @db.Text
+  fullName              String    @map("full_name") @db.VarChar(255)
+  firstName             String?   @map("first_name") @db.VarChar(100)
+  lastName              String?   @map("last_name") @db.VarChar(100)
+  middleName            String?   @map("middle_name") @db.VarChar(100)
+
+  // 职业信息
+  role                  UserRole  @default(ATTORNEY)
+  barNumber             String?   @map("bar_number") @db.VarChar(100)
+  barAdmissionDate      DateTime? @map("bar_admission_date") @db.Date
+  specializations       String[]  @db.Text
+
+  // 认证信息
+  emailVerified         Boolean   @default(false) @map("email_verified")
+  phone                 String?   @db.VarChar(50)
+  phoneVerified         Boolean   @default(false) @map("phone_verified")
+
+  // 安全设置
+  twoFactorEnabled      Boolean   @default(false) @map("two_factor_enabled")
+  twoFactorSecret       String?   @map("two_factor_secret") @db.Text
+  lastLoginAt           DateTime? @map("last_login_at") @db.Timestamptz
+  lastLoginIp           String?   @map("last_login_ip") @db.Inet
+  failedLoginAttempts   Int       @default(0) @map("failed_login_attempts")
+  lockedUntil           DateTime? @map("locked_until") @db.Timestamptz
+
+  // 个人设置
+  timezone              String    @default("UTC") @db.VarChar(50)
+  language              String    @default("en") @db.VarChar(10)
+  preferences           Json      @default("{}")
+
+  // 系统字段
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  isActive              Boolean   @default(true) @map("is_active")
+
+  // 关联关系
+  lawFirm               LawFirm   @relation(fields: [lawFirmId], references: [id], onDelete: Cascade)
+  
+  // 作为主办律师的客户
+  primaryClients        Client[]  @relation("PrimaryAttorney")
+  referredClients       Client[]  @relation("ReferringAttorney")
+  
+  // 参与的案件
+  caseParticipants      CaseParticipant[]
+  
+  // 创建的内容
+  createdCases          Case[]    @relation("CaseCreator")
+  createdDocuments      Document[] @relation("DocumentCreator")
+  modifiedDocuments     Document[] @relation("DocumentModifier")
+  createdTemplates      LegalTemplate[] @relation("TemplateCreator")
+  modifiedTemplates     LegalTemplate[] @relation("TemplateModifier")
+  createdPrompts        AIPrompt[] @relation("PromptCreator")
+  modifiedPrompts       AIPrompt[] @relation("PromptModifier")
+  
+  // AI交互和工时记录
+  aiInteractions        AIInteraction[]
+  timeEntries           TimeEntry[]
+  
+  // 审计日志
+  auditLogs             AuditLog[]
+
+  @@index([lawFirmId])
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+  @@index([lastLoginAt])
+  @@map("users")
+}
+
+model Client {
+  id                    String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  lawFirmId             String    @map("law_firm_id") @db.Uuid
+
+  // 客户信息（加密存储）
+  fullNameEncrypted     String    @map("full_name_encrypted") @db.Text
+  emailEncrypted        String?   @map("email_encrypted") @db.Text
+  phoneEncrypted        String?   @map("phone_encrypted") @db.Text
+  addressEncrypted      String?   @map("address_encrypted") @db.Text
+
+  // 客户类型
+  clientType            String    @default("individual") @map("client_type") @db.VarChar(50)
+  taxIdEncrypted        String?   @map("tax_id_encrypted") @db.Text
+
+  // 业务信息
+  intakeDate            DateTime  @map("intake_date") @db.Date
+  source                String?   @db.VarChar(100)
+  referringAttorneyId   String?   @map("referring_attorney") @db.Uuid
+  primaryAttorneyId     String?   @map("primary_attorney") @db.Uuid
+
+  // 风险评级
+  conflictCheckStatus   String    @default("pending") @map("conflict_check_status") @db.VarChar(50)
+  riskLevel             String    @default("medium") @map("risk_level") @db.VarChar(20)
+  creditRating          String?   @map("credit_rating") @db.VarChar(20)
+
+  // 系统字段
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  createdBy             String?   @map("created_by") @db.Uuid
+  isActive              Boolean   @default(true) @map("is_active")
+
+  // 关联关系
+  lawFirm               LawFirm   @relation(fields: [lawFirmId], references: [id], onDelete: Cascade)
+  primaryAttorney       User?     @relation("PrimaryAttorney", fields: [primaryAttorneyId], references: [id])
+  referringAttorney     User?     @relation("ReferringAttorney", fields: [referringAttorneyId], references: [id])
+  cases                 Case[]
+
+  @@index([lawFirmId])
+  @@index([primaryAttorneyId])
+  @@index([intakeDate])
+  @@index([conflictCheckStatus])
+  @@map("clients")
+}
+
+model Case {
+  id                      String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  lawFirmId               String       @map("law_firm_id") @db.Uuid
+  clientId                String       @map("client_id") @db.Uuid
+
+  // 案件基本信息
+  caseNumber              String       @unique @map("case_number") @db.VarChar(100)
+  title                   String       @db.VarChar(500)
+  description             String?      @db.Text
+  caseType                String       @map("case_type") @db.VarChar(100)
+
+  // 案件状态
+  status                  CaseStatus   @default(PROSPECTIVE)
+  priority                CasePriority @default(MEDIUM)
+
+  // 重要日期
+  openedDate              DateTime     @map("opened_date") @db.Date
+  statuteOfLimitationsDate DateTime?   @map("statute_of_limitations_date") @db.Date
+  closedDate              DateTime?    @map("closed_date") @db.Date
+
+  // 财务信息
+  estimatedValue          Decimal?     @map("estimated_value") @db.Decimal(15, 2)
+  billingRateType         String       @default("hourly") @map("billing_rate_type") @db.VarChar(20)
+  hourlyRate              Decimal?     @map("hourly_rate") @db.Decimal(10, 2)
+  flatFee                 Decimal?     @map("flat_fee") @db.Decimal(15, 2)
+  contingencyPercentage   Decimal?     @map("contingency_percentage") @db.Decimal(5, 2)
+
+  // 法庭信息
+  courtName               String?      @map("court_name") @db.VarChar(255)
+  judgeName               String?      @map("judge_name") @db.VarChar(255)
+  opposingCounsel         String?      @map("opposing_counsel") @db.VarChar(255)
+  opposingParty           String?      @map("opposing_party") @db.VarChar(255)
+
+  // 系统字段
+  createdAt               DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt               DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  createdBy               String?      @map("created_by") @db.Uuid
+
+  // 关联关系
+  lawFirm                 LawFirm      @relation(fields: [lawFirmId], references: [id], onDelete: Cascade)
+  client                  Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  creator                 User?        @relation("CaseCreator", fields: [createdBy], references: [id])
+  participants            CaseParticipant[]
+  caseDocuments           CaseDocument[]
+  timeEntries             TimeEntry[]
+  aiInteractions          AIInteraction[]
+
+  @@index([lawFirmId])
+  @@index([clientId])
+  @@index([status])
+  @@index([priority])
+  @@index([openedDate])
+  @@index([caseNumber])
+  @@index([caseType])
+  @@map("cases")
+}
+
+model CaseParticipant {
+  id              String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  caseId          String               @map("case_id") @db.Uuid
+  userId          String               @map("user_id") @db.Uuid
+  role            CaseParticipantRole
+
+  // 权限设置
+  canView         Boolean              @default(true) @map("can_view")
+  canEdit         Boolean              @default(false) @map("can_edit")
+  canDelete       Boolean              @default(false) @map("can_delete")
+  canShare        Boolean              @default(false) @map("can_share")
+
+  // 时间追踪
+  assignedDate    DateTime             @default(dbgenerated("CURRENT_DATE")) @map("assigned_date") @db.Date
+  removedDate     DateTime?            @map("removed_date") @db.Date
+  billableHours   Decimal              @default(0) @map("billable_hours") @db.Decimal(8, 2)
+
+  // 系统字段
+  createdAt       DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  createdBy       String?              @map("created_by") @db.Uuid
+
+  // 关联关系
+  case            Case                 @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([caseId, userId])
+  @@index([caseId])
+  @@index([userId])
+  @@index([role])
+  @@map("case_participants")
+}
+
+model Document {
+  id                  String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  lawFirmId           String         @map("law_firm_id") @db.Uuid
+
+  // 基本信息
+  title               String         @db.VarChar(500)
+  description         String?        @db.Text
+  documentType        DocumentType   @map("document_type")
+  status              DocumentStatus @default(DRAFT)
+
+  // 文件信息
+  fileName            String?        @map("file_name") @db.VarChar(255)
+  fileSize            BigInt?        @map("file_size")
+  filePath            String?        @map("file_path") @db.Text
+  mimeType            String?        @map("mime_type") @db.VarChar(100)
+  fileHash            String?        @map("file_hash") @db.VarChar(128)
+
+  // 版本控制
+  version             Int            @default(1)
+  parentDocumentId    String?        @map("parent_document_id") @db.Uuid
+  isCurrentVersion    Boolean        @default(true) @map("is_current_version")
+
+  // 分类和标签
+  tags                String[]       @db.Text
+  category            String?        @db.VarChar(100)
+
+  // 安全设置
+  isConfidential      Boolean        @default(true) @map("is_confidential")
+  privilegeType       String?        @map("privilege_type") @db.VarChar(50)
+  accessLevel         Int            @default(1) @map("access_level")
+
+  // 系统字段
+  createdAt           DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  createdBy           String?        @map("created_by") @db.Uuid
+  lastModifiedBy      String?        @map("last_modified_by") @db.Uuid
+
+  // 关联关系
+  lawFirm             LawFirm        @relation(fields: [lawFirmId], references: [id], onDelete: Cascade)
+  creator             User?          @relation("DocumentCreator", fields: [createdBy], references: [id])
+  modifier            User?          @relation("DocumentModifier", fields: [lastModifiedBy], references: [id])
+  parentDocument      Document?      @relation("DocumentVersions", fields: [parentDocumentId], references: [id])
+  childDocuments      Document[]     @relation("DocumentVersions")
+  caseDocuments       CaseDocument[]
+
+  @@index([lawFirmId])
+  @@index([documentType, status])
+  @@index([createdAt])
+  @@index([isConfidential])
+  @@index([version])
+  @@map("documents")
+}
+
+model CaseDocument {
+  id                  String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  caseId              String    @map("case_id") @db.Uuid
+  documentId          String    @map("document_id") @db.Uuid
+
+  // 关联信息
+  relationshipType    String    @default("related") @map("relationship_type") @db.VarChar(50)
+  notes               String?   @db.Text
+
+  // 系统字段
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  createdBy           String?   @map("created_by") @db.Uuid
+
+  // 关联关系
+  case                Case      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  document            Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([caseId, documentId])
+  @@index([caseId])
+  @@index([documentId])
+  @@map("case_documents")
+}
+
+model LegalTemplate {
+  id                  String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  lawFirmId           String           @map("law_firm_id") @db.Uuid
+
+  // 模板信息
+  title               String           @db.VarChar(500)
+  description         String?          @db.Text
+  category            TemplateCategory
+  subcategory         String?          @db.VarChar(100)
+
+  // 模板内容
+  content             String           @db.Text
+  variables           Json             @default("[]")
+
+  // 使用统计
+  usageCount          Int              @default(0) @map("usage_count")
+  successRate         Decimal          @default(0) @map("success_rate") @db.Decimal(5, 2)
+
+  // 权限设置
+  isPublic            Boolean          @default(false) @map("is_public")
+  accessLevel         Int              @default(1) @map("access_level")
+
+  // 版本控制
+  version             Int              @default(1)
+  parentTemplateId    String?          @map("parent_template_id") @db.Uuid
+  isActive            Boolean          @default(true) @map("is_active")
+
+  // 系统字段
+  createdAt           DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime         @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  createdBy           String?          @map("created_by") @db.Uuid
+  lastModifiedBy      String?          @map("last_modified_by") @db.Uuid
+
+  // 关联关系
+  lawFirm             LawFirm          @relation(fields: [lawFirmId], references: [id], onDelete: Cascade)
+  creator             User?            @relation("TemplateCreator", fields: [createdBy], references: [id])
+  modifier            User?            @relation("TemplateModifier", fields: [lastModifiedBy], references: [id])
+  parentTemplate      LegalTemplate?   @relation("TemplateVersions", fields: [parentTemplateId], references: [id])
+  childTemplates      LegalTemplate[]  @relation("TemplateVersions")
+
+  @@index([lawFirmId])
+  @@index([category])
+  @@index([isPublic, isActive])
+  @@index([usageCount])
+  @@map("legal_templates")
+}
+
+model AIPrompt {
+  id                  String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  lawFirmId           String           @map("law_firm_id") @db.Uuid
+
+  // 提示词基本信息
+  title               String           @db.VarChar(500)
+  description         String?          @db.Text
+  promptType          PromptType       @map("prompt_type")
+
+  // 提示词内容
+  systemPrompt        String?          @map("system_prompt") @db.Text
+  userPrompt          String           @map("user_prompt") @db.Text
+  parameters          Json             @default("{}")
+
+  // 使用统计
+  usageCount          Int              @default(0) @map("usage_count")
+  averageRating       Decimal          @default(0) @map("average_rating") @db.Decimal(3, 2)
+  totalTokens         Int              @default(0) @map("total_tokens")
+
+  // 版本控制
+  version             Int              @default(1)
+  parentPromptId      String?          @map("parent_prompt_id") @db.Uuid
+  isActive            Boolean          @default(true) @map("is_active")
+
+  // 权限设置
+  isPublic            Boolean          @default(false) @map("is_public")
+  accessLevel         Int              @default(1) @map("access_level")
+
+  // 系统字段
+  createdAt           DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime         @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  createdBy           String?          @map("created_by") @db.Uuid
+  lastModifiedBy      String?          @map("last_modified_by") @db.Uuid
+
+  // 关联关系
+  lawFirm             LawFirm          @relation(fields: [lawFirmId], references: [id], onDelete: Cascade)
+  creator             User?            @relation("PromptCreator", fields: [createdBy], references: [id])
+  modifier            User?            @relation("PromptModifier", fields: [lastModifiedBy], references: [id])
+  parentPrompt        AIPrompt?        @relation("PromptVersions", fields: [parentPromptId], references: [id])
+  childPrompts        AIPrompt[]       @relation("PromptVersions")
+  interactions        AIInteraction[]
+
+  @@index([lawFirmId])
+  @@index([promptType])
+  @@index([isPublic, isActive])
+  @@index([usageCount])
+  @@index([averageRating])
+  @@map("ai_prompts")
+}
+
+model AIInteraction {
+  id                  String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  lawFirmId           String    @map("law_firm_id") @db.Uuid
+  userId              String    @map("user_id") @db.Uuid
+  caseId              String?   @map("case_id") @db.Uuid
+  promptId            String?   @map("prompt_id") @db.Uuid
+
+  // 交互内容
+  inputText           String    @map("input_text") @db.Text
+  outputText          String?   @map("output_text") @db.Text
+
+  // AI模型信息
+  modelName           String?   @map("model_name") @db.VarChar(100)
+  modelVersion        String?   @map("model_version") @db.VarChar(50)
+
+  // 使用统计
+  inputTokens         Int?      @map("input_tokens")
+  outputTokens        Int?      @map("output_tokens")
+  totalTokens         Int?      @map("total_tokens")
+  processingTimeMs    Int?      @map("processing_time_ms")
+  costUsd             Decimal?  @map("cost_usd") @db.Decimal(10, 6)
+
+  // 质量评估
+  userRating          Int?      @map("user_rating")
+  feedback            String?   @db.Text
+
+  // 系统字段
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  // 关联关系
+  lawFirm             LawFirm   @relation(fields: [lawFirmId], references: [id], onDelete: Cascade)
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  case                Case?     @relation(fields: [caseId], references: [id])
+  prompt              AIPrompt? @relation(fields: [promptId], references: [id])
+
+  @@index([lawFirmId])
+  @@index([userId])
+  @@index([caseId])
+  @@index([promptId])
+  @@index([createdAt])
+  @@index([modelName])
+  @@map("ai_interactions")
+}
+
+model TimeEntry {
+  id                  String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  lawFirmId           String    @map("law_firm_id") @db.Uuid
+  userId              String    @map("user_id") @db.Uuid
+  caseId              String?   @map("case_id") @db.Uuid
+
+  // 时间信息
+  entryDate           DateTime  @map("entry_date") @db.Date
+  startTime           String?   @map("start_time") @db.Time
+  endTime             String?   @map("end_time") @db.Time
+  durationMinutes     Int       @map("duration_minutes")
+
+  // 工作内容
+  description         String    @db.Text
+  taskType            String?   @map("task_type") @db.VarChar(100)
+
+  // 计费信息
+  isBillable          Boolean   @default(true) @map("is_billable")
+  hourlyRate          Decimal?  @map("hourly_rate") @db.Decimal(10, 2)
+  billableAmount      Decimal?  @map("billable_amount") @db.Decimal(15, 2)
+
+  // 状态
+  isBilled            Boolean   @default(false) @map("is_billed")
+  billingDate         DateTime? @map("billing_date") @db.Date
+
+  // 系统字段
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  // 关联关系
+  lawFirm             LawFirm   @relation(fields: [lawFirmId], references: [id], onDelete: Cascade)
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  case                Case?     @relation(fields: [caseId], references: [id])
+
+  @@index([lawFirmId])
+  @@index([userId, caseId])
+  @@index([entryDate])
+  @@index([isBillable, isBilled])
+  @@index([taskType])
+  @@map("time_entries")
+}
+
+// =================================================================
+// 审计和合规模型 (Audit and Compliance Models)
+// =================================================================
+
+model AuditLog {
+  id                  String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  lawFirmId           String      @map("law_firm_id") @db.Uuid
+
+  // 操作信息
+  userId              String?     @map("user_id") @db.Uuid
+  action              AuditAction
+  resourceType        String      @map("resource_type") @db.VarChar(100)
+  resourceId          String?     @map("resource_id") @db.Uuid
+
+  // 操作详情
+  oldValues           Json?       @map("old_values")
+  newValues           Json?       @map("new_values")
+  description         String?     @db.Text
+
+  // 会话信息
+  sessionId           String?     @map("session_id") @db.Uuid
+  ipAddress           String?     @map("ip_address") @db.Inet
+  userAgent           String?     @map("user_agent") @db.Text
+
+  // 时间戳（不可修改）
+  timestamp           DateTime    @default(now()) @db.Timestamptz
+
+  // 关联关系
+  lawFirm             LawFirm     @relation(fields: [lawFirmId], references: [id], onDelete: Cascade)
+  user                User?       @relation(fields: [userId], references: [id])
+
+  @@index([lawFirmId])
+  @@index([userId])
+  @@index([action])
+  @@index([resourceType, resourceId])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+
+model DataRetentionPolicy {
+  id                  String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  lawFirmId           String    @map("law_firm_id") @db.Uuid
+
+  // 策略信息
+  tableName           String    @map("table_name") @db.VarChar(100)
+  retentionPeriodDays Int       @map("retention_period_days")
+  deletionMethod      String    @default("soft_delete") @map("deletion_method") @db.VarChar(50)
+
+  // 执行信息
+  lastCleanupAt       DateTime? @map("last_cleanup_at") @db.Timestamptz
+  nextCleanupAt       DateTime? @map("next_cleanup_at") @db.Timestamptz
+
+  // 系统字段
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  isActive            Boolean   @default(true) @map("is_active")
+
+  // 关联关系
+  lawFirm             LawFirm   @relation(fields: [lawFirmId], references: [id], onDelete: Cascade)
+
+  @@unique([lawFirmId, tableName])
+  @@index([tableName])
+  @@index([nextCleanupAt])
+  @@map("data_retention_policies")
+}
+
+model ComplianceCheck {
+  id                  String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  lawFirmId           String    @map("law_firm_id") @db.Uuid
+
+  // 检查信息
+  checkType           String    @map("check_type") @db.VarChar(100)
+  checkName           String    @map("check_name") @db.VarChar(200)
+  description         String?   @db.Text
+
+  // 执行结果
+  status              String    @db.VarChar(50)
+  resultData          Json?     @map("result_data")
+  issuesFound         Int       @default(0) @map("issues_found")
+
+  // 时间信息
+  scheduledAt         DateTime? @map("scheduled_at") @db.Timestamptz
+  startedAt           DateTime? @map("started_at") @db.Timestamptz
+  completedAt         DateTime? @map("completed_at") @db.Timestamptz
+
+  // 系统字段
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  // 关联关系
+  lawFirm             LawFirm   @relation(fields: [lawFirmId], references: [id], onDelete: Cascade)
+
+  @@index([lawFirmId])
+  @@index([checkType])
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("compliance_checks")
+}
+
+// =================================================================
+// 视图模拟（通过虚拟关系实现）
+// =================================================================
+
+// 注意：Prisma不直接支持数据库视图，以下是通过应用层逻辑实现的统计查询示例
+
+// 活跃案件统计（通过应用层查询实现）
+// SELECT law_firm_id, status, priority, COUNT(*) as case_count, 
+//        AVG(EXTRACT(days FROM NOW() - opened_date)) as avg_days_open
+// FROM cases WHERE status IN ('active', 'on_hold')
+// GROUP BY law_firm_id, status, priority
+
+// 用户工时统计（通过应用层查询实现）
+// SELECT te.law_firm_id, te.user_id, u.full_name, 
+//        DATE_TRUNC('month', te.entry_date) as month,
+//        SUM(te.duration_minutes) / 60.0 as total_hours,
+//        SUM(CASE WHEN te.is_billable THEN te.duration_minutes ELSE 0 END) / 60.0 as billable_hours,
+//        SUM(te.billable_amount) as total_revenue
+// FROM time_entries te JOIN users u ON te.user_id = u.id
+// WHERE te.entry_date >= CURRENT_DATE - INTERVAL '12 months'
+// GROUP BY te.law_firm_id, te.user_id, u.full_name, DATE_TRUNC('month', te.entry_date)
+
+// AI使用统计（通过应用层查询实现）
+// SELECT ai.law_firm_id, ai.user_id, u.full_name,
+//        DATE_TRUNC('month', ai.created_at) as month,
+//        COUNT(*) as interaction_count, SUM(ai.total_tokens) as total_tokens,
+//        SUM(ai.cost_usd) as total_cost, AVG(ai.user_rating) as avg_rating
+// FROM ai_interactions ai JOIN users u ON ai.user_id = u.id
+// WHERE ai.created_at >= CURRENT_DATE - INTERVAL '12 months'
+// GROUP BY ai.law_firm_id, ai.user_id, u.full_name, DATE_TRUNC('month', ai.created_at)
