@@ -1,5 +1,43 @@
 {
-  "buildCommand": "npm ci && npm run build",
+  "version": 2,
+  "name": "lawyer-ai-workstation",
+  "buildCommand": "npm run build",
   "outputDirectory": ".next",
-  "installCommand": "npm ci"
+  "installCommand": "npm install --legacy-peer-deps",
+  "framework": "nextjs",
+  "public": false,
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_APP_NAME": "律师AI工作台",
+      "NODE_ENV": "production"
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options", 
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ]
 }
