@@ -6,10 +6,15 @@
 
 import CryptoJS from 'crypto-js'
 
-// 🔐 从环境变量获取加密密钥，如果未设置则抛出错误
+// 🔐 从环境变量获取加密密钥
 const ENCRYPTION_KEY = process.env.ENCRYPTION_SECRET
-if (!ENCRYPTION_KEY) {
-  throw new Error('🚨 ENCRYPTION_SECRET environment variable is required but not set! Please set a secure encryption key.')
+
+// 在运行时检查加密密钥（而不是在模块加载时）
+function ensureEncryptionKey(): string {
+  if (!ENCRYPTION_KEY) {
+    throw new Error('🚨 ENCRYPTION_SECRET environment variable is required but not set! Please set a secure encryption key.')
+  }
+  return ENCRYPTION_KEY
 }
 
 /**
@@ -23,7 +28,7 @@ export function encrypt(plaintext: string): string {
     const iv = CryptoJS.lib.WordArray.random(16)
     
     // 使用AES-256-CBC加密 (crypto-js不支持GCM模式)
-    const encrypted = CryptoJS.AES.encrypt(plaintext, ENCRYPTION_KEY, {
+    const encrypted = CryptoJS.AES.encrypt(plaintext, ensureEncryptionKey(), {
       iv: iv,
       mode: CryptoJS.mode.CBC,
       padding: CryptoJS.pad.Pkcs7
@@ -55,7 +60,7 @@ export function decrypt(ciphertext: string): string {
     // 解密
     const decrypted = CryptoJS.AES.decrypt(
       { ciphertext: encrypted } as any,
-      ENCRYPTION_KEY,
+      ensureEncryptionKey(),
       {
         iv: iv,
         mode: CryptoJS.mode.CBC,
