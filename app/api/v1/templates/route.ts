@@ -60,13 +60,19 @@ interface Template {
 }
 
 // =================================================================
-// 数据库连接
+// 数据库连接 - 延迟初始化
 // =================================================================
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase配置缺失，请检查环境变量 NEXT_PUBLIC_SUPABASE_URL 和 SUPABASE_SERVICE_ROLE_KEY')
+  }
+  
+  return createClient(supabaseUrl, supabaseKey)
+}
 
 // =================================================================
 // GET /api/v1/templates - 获取模板列表

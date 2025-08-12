@@ -63,13 +63,19 @@ interface GenerationResult {
 }
 
 // =================================================================
-// 数据库连接
+// 数据库连接 - 延迟初始化
 // =================================================================
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase配置缺失，请检查环境变量 NEXT_PUBLIC_SUPABASE_URL 和 SUPABASE_SERVICE_ROLE_KEY')
+  }
+  
+  return createClient(supabaseUrl, supabaseKey)
+}
 
 // =================================================================
 // POST /api/v1/generate - 核心提示词生成API
@@ -540,6 +546,7 @@ async function recordGenerationHistory(result: GenerationResult, request: NextRe
 async function updateTemplateUsageStats(templateId: string, renderTime: number, success: boolean) {
   try {
     // 更新模板使用统计
+    const supabase = getSupabaseClient()
     await supabase
       .from('prompt_templates')
       .update({
