@@ -162,7 +162,7 @@ export function ScenarioDetailPage({ industryId, scenarioId }: ScenarioDetailPag
 
         {/* 功能特性 */}
         <div className="flex flex-wrap gap-2 mb-6">
-          {scenario.features.map((feature, index) => (
+          {(scenario.features || []).map((feature, index) => (
             <Badge key={index} variant="secondary">
               {feature}
             </Badge>
@@ -174,7 +174,7 @@ export function ScenarioDetailPage({ industryId, scenarioId }: ScenarioDetailPag
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">可用的AI工具</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {scenario.tools.map((tool, index) => (
+          {(scenario.tools || []).map((tool, index) => (
             <Card key={index} className="h-full">
               <CardHeader>
                 <CardTitle className="text-lg">{tool.name}</CardTitle>
