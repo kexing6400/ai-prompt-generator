@@ -13,7 +13,7 @@ OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 
 # NextAuth认证密钥 - 必需
 NEXTAUTH_SECRET=zKxPQ9mNvR8sT5wL2jF6hA3bC7eD1gY4
-NEXTAUTH_URL=https://您的项目名.vercel.app
+NEXTAUTH_URL=https://ai-prompt-generator-git-main-kexing6400s-projects.vercel.app.vercel.app
 
 # 数据加密密钥 - 必需（至少32字符）
 ENCRYPTION_SECRET=xY9kL3mN7pQ2rS5tW8vZ1aB4cD6eF0gH
